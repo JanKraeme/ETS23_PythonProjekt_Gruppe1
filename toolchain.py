@@ -5,15 +5,15 @@ import os
 print("Willkommen beim ETS-Supplychain-Project" "\n" "Zur Übverprüfung einer Kühlkette einen der beiden Menüpunkte mit 1 oder 2 auswählen!")
 
 def choose_file():
+    global dateipfad
     fenster = tk.Tk()
     fenster.withdraw()
     dateipfad = filedialog.askopenfilename()
-    
    
-   
-#dateipfad = filedialog.askopenfilename()
+
 
 def menueMatch():
+    global dateipfad
     menuepunkt = int(input("Menü:" "\n" "1. Manuelle Eingabe der Transport-IDs" "\n" "2. Überprüfung der Transport-IDs anhand einer Datenbank" "\n"))
 
     # match case
@@ -26,10 +26,14 @@ def menueMatch():
         # pattern 2
         case 2:
             print("Überprüfung der Transport-IDs anhand einer Datenbank" "\n" "Wählen Sie eine Datenbank im Explorer aus!")            
-            choose_file()
+            fenster = tk.Tk()
+            fenster.withdraw()
+            dateipfad = filedialog.askopenfilename()
+            fenster.mainloop()
         # default pattern
         case _:
             print("Fehlerhafte Eingabe, bitte nochmal versuchen!")
             menueMatch()
 
 menueMatch()
+
