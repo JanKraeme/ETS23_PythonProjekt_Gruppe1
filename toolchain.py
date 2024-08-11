@@ -1,7 +1,14 @@
 import tkinter as tk
 from tkinter import filedialog
+import os
 
 print("Willkommen beim ETS-Supplychain-Project" "\n" "Zur Übverprüfung einer Kühlkette einen der beiden Menüpunkte mit 1 oder 2 auswählen!")
+
+def choose_file():
+    fenster = tk.Tk()
+    fenster.withdraw()
+    dateipfad = filedialog.askopenfilename()
+    fenster.update()
 
 
 def menueMatch():
@@ -16,8 +23,7 @@ def menueMatch():
                 menueMatch()
         # pattern 2
         case 2:
-            print("Überprüfung der Transport-IDs anhand einer Datenbank" "\n" "Wählen Sie eine Datenbank im Explorer aus!")
-            filedialog = filedialog.askopenfilename()
+            print("Überprüfung der Transport-IDs anhand einer Datenbank" "\n" "Wählen Sie eine Datenbank im Explorer aus!")            
             choose_file()
         # default pattern
         case _:
@@ -25,8 +31,3 @@ def menueMatch():
             menueMatch()
 
 menueMatch()
-
-
-def choose_file():
-    fenster = tk.Tk()
-    fenster.withdraw()
