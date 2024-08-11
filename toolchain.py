@@ -8,14 +8,16 @@ def choose_file():
     fenster = tk.Tk()
     fenster.withdraw()
     dateipfad = filedialog.askopenfilename()
-    fenster.update()
-
+    
+   
+   
+#dateipfad = filedialog.askopenfilename()
 
 def menueMatch():
-    mnuepunkt = int(input("Menü:" "\n" "1. Manuelle Eingabe der Transport-IDs" "\n" "2. Überprüfung der Transport-IDs anhand einer Datenbank" "\n"))
+    menuepunkt = int(input("Menü:" "\n" "1. Manuelle Eingabe der Transport-IDs" "\n" "2. Überprüfung der Transport-IDs anhand einer Datenbank" "\n"))
 
     # match case
-    match mnuepunkt:
+    match menuepunkt:
         # pattern 1
         case 1:
             transID = input("Manuelle Eingabe der Transport-IDs" "\n" "Geben Sie die zur überprüfende Transport-ID ein!" "\n")
