@@ -1,44 +1,32 @@
 import tkinter as tk
-from tkinter import filedialog
-import os
+from tkinter import ttk
 
-print("Willkommen beim ETS-Supplychain-Project" "\n" "Zur Übverprüfung einer Kühlkette einen der beiden Menüpunkte mit 1 oder 2 auswählen!")
+def create_table():
+    # Erstelle das Hauptfenster
+    root = tk.Tk()
+    root.title("Tabelle mit drei Spalten")
 
-def choose_file():
-    fenster = tk.Tk()
-    fenster.withdraw()
-    dateipfad = filedialog.askopenfilename()
-    
-   
- 
-#dateipfad = filedialog.askopenfilename()
-def menueMatch():
-    menuepunkt = int(input("Menü:" "\n" "1. Manuelle Eingabe der Transport-IDs" "\n" "2. Überprüfung der Transport-IDs anhand einer Datenbank" "\n"))
+    # Erstelle einen Frame für die Tabelle
+    table_frame = ttk.Frame(root)
+    table_frame.pack(fill="both", expand=True)
 
-    if menuepunkt == 1:
-        transID = input("Manuelle Eingabe der Transport-IDs" "\n" "Geben Sie die zur überprüfende Transport-ID ein!" "\n")
-        if transID == "exit":
-            menueMatch()
-    elif menuepunkt == 2:
-        print("Überprüfung der Transport-IDs anhand einer Datenbank" "\n" "Wählen Sie eine Datenbank im Explorer aus!")            
-        choose_file()
-    dateipfad = filedialog.askopenfilename()
+    # Erstelle die Treeview-Komponente für die Tabelle
+    tree = ttk.Treeview(table_frame, columns=("Spalte1", "Spalte2", "Spalte3"))
+    tree.heading("Spalte1", text="Spalte 1")
+    tree.heading("Spalte2", text="Spalte 2")
+    tree.heading("Spalte3", text="Spalte 3")
+    tree.pack(fill="both", expand=True)
 
-menueMatch()
-    # match case
+    # Füge einige Beispiel-Daten hinzu
+    for i in range(10):
+        tree.insert("", "end", values=("Wert1", f"Wert2_{i}", "Wert3"))
 
-        # # pattern 1
-        # case 1:
-        #     transID = input("Manuelle Eingabe der Transport-IDs" "\n" "Geben Sie die zur überprüfende Transport-ID ein!" "\n")
-        #     if transID == "exit":
-        #         menueMatch()
-        # # pattern 2
-        # case 2:
-        #     print("Überprüfung der Transport-IDs anhand einer Datenbank" "\n" "Wählen Sie eine Datenbank im Explorer aus!")            
-        #     choose_file()
-        # # default pattern
-        # case _:
-        #     print("Fehlerhafte Eingabe, bitte nochmal versuchen!")
-        #     menueMatch()
+    # Füge einen Scrollbalken hinzu
+    scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=tree.yview)
+    tree.configure(yscrollcommand=scrollbar.set)
+    scrollbar.pack(side="right", fill="y")
 
+    root.mainloop()
 
+if __name__ == "__main__":
+    create_table()
