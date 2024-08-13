@@ -1,23 +1,13 @@
 import tkinter as tk
 from tkinter import filedialog, ttk
+import pyodbc #Datenbank import
+
 
 def button_click_1():
     start_fenster_manuell()
 
 def button_click_2():
-    print("Button 2 wurde gedrückt!")
-    file_path = filedialog.askopenfilename(title="Datensatz auswählen", filetypes=[("CSV Files",("*.csv")), ("All files", "*.*")])
-    if file_path:
-        with open(file_path, 'r') as file:
-            lines = file.readlines()  
-
-            data = []
-            for line in lines:
-                values = line.strip().split(';')
-                data.append(values)
-        print(data)
-    else:
-        tk.messagebox.showerror(title="Fehler", message="keine Datei ausgewählt oder falsches Format!")
+    datenbank_laden()
 
 # Hauptfenster erstellen
 fenster_hauptmenue = tk.Tk()
@@ -33,9 +23,38 @@ button1 = tk.Button(fenster_hauptmenue, text="Manuelle Eingabe der Transport-IDs
 button1.pack()
 
 # Button 2 erstellen
-button2 = tk.Button(fenster_hauptmenue, text="Überprüfung der Transport-IDs anhand einer Datenbank", command=button_click_2)
+button2 = tk.Button(fenster_hauptmenue, text="Datenbank laden", command=button_click_2)
 button2.pack()
 
+def datenbank_laden():
+    # Verbindungsdaten
+    server = 'sc-db-server.database.windows.net'
+    database = 'supplychain' # Setze den Namen deiner Datenbank hier ein
+    username = 'rse'
+    password = 'Pa$$w0rd'
+    # Verbindungsstring
+    conn_str = (
+    f'DRIVER={{ODBC Driver 18 for SQL Server}};'
+    f'SERVER={server};'
+    f'DATABASE={database};'
+    f'UID={username};'
+    f'PWD={password}'
+    )
+    # Verbindung herstellen
+    conn = pyodbc.connect(conn_str)
+    # Cursor erstellen
+    cursor = conn.cursor()
+    # SQL-Statement ausführen
+    cursor.execute('SELECT * FROM coolchain1')
+    # Ergebnisse ausgeben
+    for row in cursor:
+        firma, transportid,packstation,kategorie,direction,datetime = row
+        print("Firma", firma)
+        print("Transport ID", transportid)
+        
+    # Verbindung schließen
+    cursor.close()
+    conn.close()
 
 def start_fenster_manuell():
     fenster_manuell = tk.Toplevel(fenster_hauptmenue)
@@ -77,36 +96,4 @@ def start_fenster_manuell():
 fenster_hauptmenue.mainloop()
 
 
-
-# print("Willkommen beim ETS-Supplychain-Project" "\n" "Zur Übverprüfung einer Kühlkette einen der beiden Menüpunkte mit 1 oder 2 auswählen!")
-
-# def choose_file():
-#         file_path = filedialog.askopenfilename(title="Datensatz auswählen", filetypes=[("Text File", ('*.txt')), ("All files", "*.*")])
-
-
-# def menueMatch():
-#     #global file_path
-#     menuepunkt = int(input("Menü:" "\n" "1. Manuelle Eingabe der Transport-IDs" "\n" "2. Überprüfung der Transport-IDs anhand einer Datenbank" "\n"))
-
-#     # match case
-#     match menuepunkt:
-#         # pattern 1
-#         case 1:
-#             transID = input("Manuelle Eingabe der Transport-IDs" "\n" "Geben Sie die zur überprüfende Transport-ID ein!" "\n")
-#             if transID == "exit":
-#                 menueMatch()
-#         # pattern 2
-#         case 2:
-#            # print("Überprüfung der Transport-IDs anhand einer Datenbank" "\n" "Wählen Sie eine Datenbank im Explorer aus!")            
-#             fenster_hauptmenue = tk.Tk()
-#             button = tk.Button(fenster_hauptmenue, text="Datei auswählen", command=choose_file)
-#             button.pack()
-#             fenster_hauptmenue.mainloop()
-#         # default pattern
-#         case _:
-#             print("Fehlerhafte Eingabe, bitte nochmal versuchen!")
-#             menueMatch()
-
-
-# menueMatch()
 
