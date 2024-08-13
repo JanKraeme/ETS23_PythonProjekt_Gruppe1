@@ -5,7 +5,6 @@ def button_click_1():
     start_fenster_manuell()
 
 def button_click_2():
-    global transid_val
     print("Button 2 wurde gedrückt!")
     file_path = filedialog.askopenfilename(title="Datensatz auswählen", filetypes=[("CSV Files",("*.csv")), ("All files", "*.*")])
     if file_path:
@@ -14,10 +13,9 @@ def button_click_2():
 
             data = []
             for line in lines:
-                transid_val = line.strip().split(';')
-                data.append(transid_val)
+                values = line.strip().split(';')
+                data.append(values)
         print(data)
-        datenauswertung_csv()
     else:
         tk.messagebox.showerror(title="Fehler", message="keine Datei ausgewählt oder falsches Format!")
 
@@ -73,32 +71,6 @@ def start_fenster_manuell():
         # Button 3 erstellen
     button3 = tk.Button(fenster_manuell, text="ID überprüfen", command=read_transid)
     button3.grid(column=50, row=0)
-
-
-def datenauswertung_csv():
-    # Erstelle das Hauptfenster
-    root = tk.Tk()
-    root.title("Tabelle mit drei Spalten")
-
-    # Erstelle einen Frame für die Tabelle
-    table_frame = ttk.Frame(root)
-    table_frame.pack(fill="both", expand=True)
-
-    # Erstelle die Treeview-Komponente für die Tabelle
-    tree = ttk.Treeview(table_frame, columns=("Nr", "ID", "Verifikation"))
-    tree.heading("Nr", text="Nr")
-    tree.heading("ID", text="ID")
-    tree.heading("Verifikation", text="Verifikation")
-    tree.pack(fill="both", expand=True)
-
-    # Füge einige Beispiel-Daten hinzu
-    for x in transid_val:
-        tree.insert("", "end", values=("Wert1",x , "Wert3"))
-
-    # Füge einen Scrollbalken hinzu
-    scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=tree.yview)
-    tree.configure(yscrollcommand=scrollbar.set)
-    scrollbar.pack(side="right", fill="y")
 
 
 # Hauptfenster anzeigen
