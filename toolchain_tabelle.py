@@ -1,5 +1,7 @@
 import pyodbc
 import re
+import datetime
+import time
 import tkinter as tk
 from tkinter import filedialog, ttk
 
@@ -65,7 +67,7 @@ def start_fenster_manuell():
         transid = combo_transid.get()  # Liest den Wert in der ComboBox
         if transid:
             label21.config(text=transid)
-            return transid
+            #return transid
         else:
             tk.messagebox.showerror(title="Fehler", message="keine Transport-ID ausgewählt!")
         
@@ -84,8 +86,12 @@ def start_fenster_manuell():
     label31 = tk.Label(fenster_manuell, text="Hier ermittelte Verifikation")
     label31.grid(column=10, row=20)
 
-    combo_transid = ttk.Combobox(fenster_manuell)
-    print(dict(combo_transid))
+    # Button 3 erstellen
+    button3 = tk.Button(fenster_manuell, text="ID überprüfen", command=read_transid)
+    button3.grid(column=25, row=0)
+
+    combo_transid = ttk.Combobox(fenster_manuell, width=25)
+    #print(dict(combo_transid))
     combo_transid.grid(column=10, row=0)
 
     # Verbindung herstellen
@@ -105,22 +111,16 @@ def start_fenster_manuell():
     # Ergebnisse ausgeben
 
     transid_cb = []
-    test = []
     for row in cursor:
         transid_cb_st = re.sub('\D', '', str(row))
         if transid_cb_st not in transid_cb:
             transid_cb.append(transid_cb_st)
-
 
     combo_transid['values'] = transid_cb
 
     # Verbindung schließen
     cursor.close()
     conn.close()
-
-        # Button 3 erstellen
-    button3 = tk.Button(fenster_manuell, text="ID überprüfen", command=read_transid)
-    button3.grid(column=25, row=0)
 
 
 def datenauswertung_csv():
@@ -139,16 +139,47 @@ def datenauswertung_csv():
     tree.heading("Verifikation", text="Verifikation")
     tree.pack(fill="both", expand=True)
 
+    # Verbindung herstellen
+    try:
+        conn = pyodbc.connect(conn_str)
+    except:
+        tk.messagebox.showerror(title="Fehler", message="Keine Verbindung zur Datenbank möglich!")
+
+    # Cursor erstellen
+    cursor = conn.cursor()
+    
+    # SQL-Statement ausführen
+    try:
+        cursor.execute('SELECT * FROM coolchain1')      #REGEX nicht möglich, da in pyobdc nicht vorhanden!!! wie über "re" gemacht
+    except:
+        tk.messagebox.showerror(title="Fehler", message="Kein Datensatz in der Datenbank gefunden!")
+    
+    # Ergebnisse ausgeben
+    #for row in cursor:
+    #    print(row)
+
+
     transid_nr = 0
     # Füge einige Beispiel-Daten hinzu
     for transid_csv in transid_val:
         transid_nr += 1 #Nr. in der Tabelle zuweisen
         tree.insert("", "end", values=(transid_nr ,transid_csv , "Verifikation"))
 
+
+#Hier die einzelnen Datensätze extrahieren
+    for row in cursor:
+        if transid_val in row:
+            print(row)
+
+
     # Füge einen Scrollbalken hinzu
     scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=tree.yview)
     tree.configure(yscrollcommand=scrollbar.set)
     scrollbar.pack(side="right", fill="y")
+
+        # Verbindung schließen
+    cursor.close()
+    conn.close()
 
 
 # Hauptfenster anzeigen
