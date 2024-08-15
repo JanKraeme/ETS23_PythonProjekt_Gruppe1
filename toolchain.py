@@ -66,13 +66,25 @@ def start_fenster_manuell():
     labelTop = tk.Label(fenster_manuell, text="Transport-ID auswählen:")
     labelTop.grid(column=0, row=0)
 
-    combo_transid = ttk.Combobox(fenster_manuell, values=["Hier die Daten aus der Datenbank!"])
+    label2 = tk.Label(fenster_manuell, text="Transport ID:")
+    label2.grid(column=0, row=10)
+
+    label21 = tk.Label(fenster_manuell, text="Hier überprüfte ID")
+    label21.grid(column=10, row=10)
+
+    label3 = tk.Label(fenster_manuell, text="Verifikation:")
+    label3.grid(column=0, row=20)
+
+    label31 = tk.Label(fenster_manuell, text="Hier ermittelte Verifikation")
+    label31.grid(column=10, row=20)
+
+    combo_transid = ttk.Combobox(fenster_manuell, values=["Hier die Transport-IDs aus der Datenbank!"])
     print(dict(combo_transid))
     combo_transid.grid(column=10, row=0)
 
         # Button 3 erstellen
     button3 = tk.Button(fenster_manuell, text="ID überprüfen", command=read_transid)
-    button3.grid(column=50, row=0)
+    button3.grid(column=25, row=0)
 
 
 def datenauswertung_csv():
@@ -91,9 +103,11 @@ def datenauswertung_csv():
     tree.heading("Verifikation", text="Verifikation")
     tree.pack(fill="both", expand=True)
 
+    transid_nr = 0
     # Füge einige Beispiel-Daten hinzu
-    for x in transid_val:
-        tree.insert("", "end", values=("Wert1",x , "Wert3"))
+    for transid_csv in transid_val:
+        transid_nr += 1 #Nr. in der Tabelle zuweisen
+        tree.insert("", "end", values=(transid_nr ,transid_csv , "Verifikation"))
 
     # Füge einen Scrollbalken hinzu
     scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=tree.yview)
