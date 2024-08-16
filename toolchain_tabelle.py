@@ -2,6 +2,7 @@ import pyodbc
 import re
 import datetime
 import time
+import pandas as pd
 import tkinter as tk
 from tkinter import filedialog, ttk
 
@@ -160,16 +161,35 @@ def datenauswertung_csv():
 
 
     transid_nr = 0
-    # Füge einige Beispiel-Daten hinzu
+    db_liste = []
+    db_listenr = []
+    df = pd.DataFrame(db_listenr, columns=['company', 'transportid', 'transportstation', 'category', 'direction', 'datetime'])
+
+    for row in cursor:
+        db_liste.append(row)
+
+    
+
     for transid_csv in transid_val:
         transid_nr += 1 #Nr. in der Tabelle zuweisen
         tree.insert("", "end", values=(transid_nr ,transid_csv , "Verifikation"))
+        for rows in db_liste:
+            if transid_csv in rows:
+                db_listenr.append(rows) #db_listenr beinhaltet jetzt nur noch die Daten mit den IDs aus der csv
+                print(db_listenr)
 
+#Hier tupple auswerten maybe alles in eine function
+# def kategorisiere(row):
+#     if row['Status'] == 'out':
+#         return 'Versendet'
+#     # ... weitere Bedingungen
+#     return 'Unbekannt'
 
-#Hier die einzelnen Datensätze extrahieren
-    for row in cursor:
-        if transid_val in row:
-            print(row)
+# df['Kategorie'] = df.apply(kategorisiere, axis=1)
+    for wert in db_listenr:
+        if df['transportid'] == transid_csv
+            #else:
+                #print(transid_csv, "existiert nicht")
 
 
     # Füge einen Scrollbalken hinzu
