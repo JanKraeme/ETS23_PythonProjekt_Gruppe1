@@ -186,8 +186,8 @@ def datenauswertung_csv():
 #     return 'Unbekannt'
 
 # df['Kategorie'] = df.apply(kategorisiere, axis=1)
-    for wert in db_listenr:
-        if df['transportid'] == transid_csv
+    # for wert in db_listenr:
+    #     if df['transportid'] == transid_csv
             #else:
                 #print(transid_csv, "existiert nicht")
 
