@@ -7,7 +7,7 @@ import tkinter as tk
 from tkinter import filedialog, ttk
 
 def lade_db_daten():
-    global cursor, conn
+    global cursor, conn, db_daten
     # Verbindungsdaten
     server = 'sc-db-server.database.windows.net'
     database = 'supplychain' # Setze den Namen deiner Datenbank hier ein
@@ -38,10 +38,31 @@ def lade_db_daten():
     except:
         tk.messagebox.showerror(title="Fehler", message="Kein Datensatz in der Datenbank gefunden!")
     
+    # for row in cursor.tables():
+    #     print(row)
+    db_daten = []
 
-    db_daten = cursor.fetchall()
-    df = pd.DataFrame(db_daten, columns=["'company'", "'transportid'", "'transportstation'", "'category'", "'direction'", "'datetime'"])
-    print(df.head())
+    for row in cursor:
+        db_daten.append({'company':row.company, 'transportid':row.transportid, 'transportstation':row.transportstation, 'category':row.category, 'direction':row.direction, 'datetime':row.datetime})
+        print(db_daten['transportid'])
+    
+ #   global transport_id
+#    transport_id = db_daten['transportid']
+   
+    # for row in cursor:
+    #     row_data = tuple(str(value) for value in row)
+    #     db_daten.append(row_data)
+    #     print(row_data)
+
+    # db_daten_split = []
+    # for row in db_daten:
+    #     new_row = tuple(item.replace('"', '').replace("'", '') for item in row for item in row)
+    #     db_daten_split.append(new_row)
+
+    # print(db_daten_split)
+    #db_daten = cursor.fetchall()
+    #df = pd.DataFrame(db_daten, columns=['company', 'transportid', 'transportstation', 'category', 'direction', 'datetime'])
+    
 
 def schließe_db():
         # Verbindung schließen
@@ -123,7 +144,7 @@ def start_fenster_manuell():
 # Ergebnisse ausgeben
 
     transid_cb = []
-    for row in cursor:
+    for row in transport_id:
         transid_cb_st = re.sub('\D', '', str(row))
         if transid_cb_st not in transid_cb[1]:
             transid_cb[1].append(transid_cb_st)
