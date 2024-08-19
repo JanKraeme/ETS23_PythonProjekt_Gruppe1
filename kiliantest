@@ -18,6 +18,9 @@ def button_click_2():
         print(data)
     else:
         tk.messagebox.showerror(title="Fehler", message="keine Datei ausgewählt oder falsches Format!")
+        
+def button_click_3():
+    print("läuft")
 
 # Hauptfenster erstellen
 fenster_hauptmenue = tk.Tk()
@@ -36,6 +39,9 @@ button1.pack()
 button2 = tk.Button(fenster_hauptmenue, text="Überprüfung der Transport-IDs anhand einer Datenbank", command=button_click_2)
 button2.pack()
 
+# Button 3 erstellen
+button3 = tk.Button(fenster_hauptmenue, text="Daten aus Datenbank laden", command=button_click_3)
+button3.pack()
 
 def start_fenster_manuell():
     fenster_manuell = tk.Toplevel(fenster_hauptmenue)
