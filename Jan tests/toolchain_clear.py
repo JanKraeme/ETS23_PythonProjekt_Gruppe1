@@ -44,24 +44,7 @@ def lade_db_daten():
 
     for row in cursor:
         db_daten.append({'company':row.company, 'transportid':row.transportid, 'transportstation':row.transportstation, 'category':row.category, 'direction':row.direction, 'datetime':row.datetime})
-        print(db_daten['transportid'])
-    
- #   global transport_id
-#    transport_id = db_daten['transportid']
-   
-    # for row in cursor:
-    #     row_data = tuple(str(value) for value in row)
-    #     db_daten.append(row_data)
-    #     print(row_data)
 
-    # db_daten_split = []
-    # for row in db_daten:
-    #     new_row = tuple(item.replace('"', '').replace("'", '') for item in row for item in row)
-    #     db_daten_split.append(new_row)
-
-    # print(db_daten_split)
-    #db_daten = cursor.fetchall()
-    #df = pd.DataFrame(db_daten, columns=['company', 'transportid', 'transportstation', 'category', 'direction', 'datetime'])
     
 
 def schließe_db():
@@ -142,14 +125,15 @@ def start_fenster_manuell():
     lade_db_daten()
 
 # Ergebnisse ausgeben
-
+#Transport IDs sammeln und in die combobox füllen
     transid_cb = []
-    for row in transport_id:
-        transid_cb_st = re.sub('\D', '', str(row))
-        if transid_cb_st not in transid_cb[1]:
-            transid_cb[1].append(transid_cb_st)
+    for i in range(len(db_daten)):    #jede Zeile
+        #print(db_daten[i]['transportid'])
+        transid_cb_st = re.sub('\D', '', str(db_daten[i]['transportid']))   #überflüssige Zeichen entfernen
+        if transid_cb_st not in transid_cb: #doppelte Werte ausschließen
+            transid_cb.append(transid_cb_st)    #ID in liste hinufügen
 
-    combo_transid['values'] = transid_cb
+    combo_transid['values'] = transid_cb  #values ist eine option aus tkinter um Listenwerte zuzuweisen
 
     schließe_db()
     
@@ -188,10 +172,6 @@ def datenauswertung_csv():
     for transid_csv in transid_val:
         transid_nr += 1 #Nr. in der Tabelle zuweisen
         tree.insert("", "end", values=(transid_nr ,transid_csv , "Verifikation"))
-    #     for rows in db_liste:
-    #         if transid_csv in rows:
-    #             db_listenr.append(rows) #db_listenr beinhaltet jetzt nur noch die Daten mit den IDs aus der csv
-                #print(db_listenr)
 
 
 
@@ -204,30 +184,9 @@ def datenauswertung_csv():
     #verifikation_auswertung()
 def verifikation_auswertung():
     lade_db_daten()
-    #print(cursor)
-    #datenauswertung_csv(ergebnis)
-
     
     db_liste = []
     db_listenr = []
-
-    # for row in cursor:
-    #     db_liste.append(row)
-
-    # print(db_liste)
-
-    #Hier tupple auswerten maybe alles in eine function
-# def kategorisiere(row):
-#     if row['Status'] == 'out':
-#         return 'Versendet'
-#     # ... weitere Bedingungen
-#     return 'Unbekannt'
-
-# df['Kategorie'] = df.apply(kategorisiere, axis=1)
-    # for wert in db_listenr:
-    #     if df['transportid'] == transid_csv
-            #else:
-                #print(transid_csv, "existiert nicht")
 
     schließe_db()
 
