@@ -92,7 +92,7 @@ button2.pack()
 
 def start_fenster_manuell():
 
-    global combo_transid, label21
+    global combo_transid, label21, label31
 
     fenster_manuell = tk.Toplevel(fenster_hauptmenue)
     fenster_manuell.title("manuelle Überprüfung")
@@ -108,10 +108,10 @@ def start_fenster_manuell():
     label21 = tk.Label(fenster_manuell, text="")
     label21.grid(column=10, row=10)
 
-    label3 = tk.Label(fenster_manuell, text="Verifikation:")
+    label3 = tk.Label(fenster_manuell, text="Verifikation")
     label3.grid(column=0, row=20)
 
-    label31 = tk.Label(fenster_manuell, text="Hier ermittelte Verifikation")
+    label31 = tk.Label(fenster_manuell, text="")
     label31.grid(column=10, row=20)
 
     # Button 3 erstellen
@@ -140,9 +140,11 @@ def start_fenster_manuell():
     
 
 def read_transid():
+    global transid
     transid = combo_transid.get()  # Liest den Wert in der ComboBox
     if transid:
         label21.config(text=transid)
+        verifikation_auswertung()
         #return transid
     else:
         tk.messagebox.showerror(title="Fehler", message="keine Transport-ID ausgewählt!")
@@ -183,12 +185,18 @@ def datenauswertung_csv():
     
     #verifikation_auswertung()
 def verifikation_auswertung():
-    lade_db_daten()
+   
+    #lade_db_daten()
     
     db_liste = []
     db_listenr = []
+    print(transid)
+    #transportID vorhanden?
+    #for i in range(len(db_daten)):    #jede Zeile
+    print(list(filter(lambda item: item["transportid"] == transid, db_daten)))
+    #schließe_db()
+    
 
-    schließe_db()
 
 # Hauptfenster anzeigen
 fenster_hauptmenue.mainloop()
