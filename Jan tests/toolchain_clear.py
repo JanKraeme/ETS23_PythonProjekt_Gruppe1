@@ -192,10 +192,10 @@ def verifikation_auswertung():
     #transportID vorhanden?
     
     daten_id = list(filter(lambda item: item["transportid"] == transid, db_daten))
-    
+    print(daten_id)
     #wenn ID nicht vorhanden...
     if daten_id == []:
-        label31.config(text='Es gibt gar keinen Eintrag')
+        label31.config(text='Es gibt gar keinen Eintrag', fg = "red")
     
 
 
