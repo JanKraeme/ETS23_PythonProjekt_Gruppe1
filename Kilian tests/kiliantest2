@@ -216,13 +216,10 @@ def verifikation_auswertung():
     last_line = daten_direction[-1]
     last_direction = last_line['direction']
     if last_direction == "'out'":
-        print("i.o")
+        print("Letzte Richtung ist Auschecken")
     else:
         print("Auschecken am Ende fehlt")
 
-                         
-    #print (db_direction)
-    #print(daten_id)
     #wenn ID nicht vorhanden...
     if daten_id == []:
         label31.config(text='Es gibt gar keinen Eintrag', fg = "red")
