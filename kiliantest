@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog, ttk
+import pyodbc
 
 def button_click_1():
     start_fenster_manuell()
@@ -20,7 +21,41 @@ def button_click_2():
         tk.messagebox.showerror(title="Fehler", message="keine Datei ausgewählt oder falsches Format!")
         
 def button_click_3():
-    print("läuft")
+    # Verbindungsdaten
+    server = 'sc-db-server.database.windows.net'
+    database = 'supplychain' # Setze den Namen deiner Datenbank hier ein
+    username = 'rse'
+    password = 'Pa$$w0rd'
+    # Verbindungsstring
+    conn_str = (
+    f'DRIVER={{ODBC Driver 17 for SQL Server}};'
+    f'SERVER={server};'
+    f'DATABASE={database};'
+    f'UID={username};'
+    f'PWD={password}'
+    )
+    # Verbindung herstellen
+    conn = pyodbc.connect(conn_str)
+    # Cursor erstellen
+    cursor = conn.cursor()
+    # SQL-Statement ausführen
+    cursor.execute('SELECT * FROM coolchain1')
+    # Ergebnisse ausgeben
+    for row in cursor:
+        firma, transportid, transportstation, category, direction, datetime = row
+        print("-------------------------------------------")
+        print("Kunde:            ", firma)
+        print("TransportID:      ", transportid)
+        print("Transportstation: ", transportstation)
+        print("Kategorie:        ", category)
+        print("Richtung:         ", direction)
+        print("Zeit:             ", datetime)
+    
+
+    # Verbindung schließen
+    cursor.close()
+    conn.close()
+        
 
 # Hauptfenster erstellen
 fenster_hauptmenue = tk.Tk()
