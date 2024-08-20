@@ -185,21 +185,19 @@ def datenauswertung_csv():
     
     #verifikation_auswertung()
 def verifikation_auswertung():
-   
-    #lade_db_daten()
     
     db_liste = []
     db_listenr = []
     print(transid)
     #transportID vorhanden?
-    #for i in range(len(db_daten)):    #jede Zeile
-    print(list(filter(lambda item: item["transportid"] == transid, db_daten)))
-    #schließe_db()
+    
+    daten_id = list(filter(lambda item: item["transportid"] == transid, db_daten))
+    
+    #wenn ID nicht vorhanden...
+    if daten_id == []:
+        label31.config(text='Es gibt gar keinen Eintrag')
     
 
 
 # Hauptfenster anzeigen
 fenster_hauptmenue.mainloop()
-
-
-
