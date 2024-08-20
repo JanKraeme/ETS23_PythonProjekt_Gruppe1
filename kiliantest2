@@ -193,19 +193,34 @@ def verifikation_auswertung():
     #transportID vorhanden?
     
     daten_id = list(filter(lambda item: item["transportid"] == transid, db_daten))
-    daten_1 = list(filter(lambda item: item["transportid"] == transid, db_direction))
+    daten_direction = list(filter(lambda item: item["transportid"] == transid, db_direction))
 
-    for i in daten_1:
-        if daten_1.index(i) % 2 != 0:
-            print("wixxe")
-            #if i == 'out':
-                #print("i.o")
-        if daten_1.index(i) % 2 == 0:
-            print("wmoin")
-            #if i == 'in':
-                #print("i.o")
-                
-            
+#Mit dieser Schleife lassen sich Fehler 8, 10, 15 finden
+    for index, item in enumerate(daten_direction):
+        
+        value_in_out = item['direction']
+        if index % 2 == 0: 
+            if value_in_out == "'in'":
+                print(value_in_out, "i.o.")
+            else: 
+                print(value_in_out, "Fehler: Zweimal ausgecheckt")
+                break
+        else:
+            if value_in_out == "'out'":
+                print(value_in_out, "i.o")
+            else: 
+                print(value_in_out, "Fehler: zweimal eingecheckt")
+                break
+
+ #Mit dieser Abfrage läßt sich Fehler 8 finden   
+    last_line = daten_direction[-1]
+    last_direction = last_line['direction']
+    if last_direction == "'out'":
+        print("i.o")
+    else:
+        print("Auschecken am Ende fehlt")
+
+                         
     #print (db_direction)
     #print(daten_id)
     #wenn ID nicht vorhanden...
