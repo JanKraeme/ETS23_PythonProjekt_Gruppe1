@@ -169,7 +169,7 @@ def datenauswertung_csv():
     tree.heading("Verifikation", text="Verifikation")
     tree.pack(fill="both", expand=True)
   
-    verifikation_auswertung()
+    #verifikation_auswertung()
     transid_nr = 0
     for transid_csv in transid_val:
         transid_nr += 1 #Nr. in der Tabelle zuweisen
