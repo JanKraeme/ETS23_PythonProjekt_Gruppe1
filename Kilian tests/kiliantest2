@@ -216,7 +216,7 @@ def verifikation_auswertung():
     last_line = daten_direction[-1]
     last_direction = last_line['direction']
     if last_direction == "'out'":
-        print("Letzte Richtung ist Auschecken")
+        print("Am Ende wurde ausgecheckt")
     else:
         print("Auschecken am Ende fehlt")
 
