@@ -196,10 +196,10 @@ def verifikation_auswertung():
     daten_direction = list(filter(lambda item: item["transportid"] == transid, db_direction))
 
 #Mit dieser Schleife lassen sich Fehler 8, 10, 15 finden
-    for index, item in enumerate(daten_direction):
+    for index, item in enumerate(daten_direction): # Erzeugen einer Schleife, die Eintragindexe und enthaltene Werte abspeichert
         
-        value_in_out = item['direction']
-        if index % 2 == 0: 
+        value_in_out = item['direction'] #Werte IN und OUT in Variable abspeichern
+        if index % 2 == 0: # Überprüfung, ob Index Gerade oder ungerade
             if value_in_out == "'in'":
                 print(value_in_out, "i.o.")
             else: 
