@@ -195,30 +195,32 @@ def verifikation_auswertung():
     daten_id = list(filter(lambda item: item["transportid"] == transid, db_daten))
     daten_direction = list(filter(lambda item: item["transportid"] == transid, db_direction))
 
-#Mit dieser Schleife lassen sich Fehler 8, 10, 15 finden
-    for index, item in enumerate(daten_direction): # Erzeugen einer Schleife, die Eintragindexe und enthaltene Werte abspeichert
-        
-        value_in_out = item['direction'] #Werte IN und OUT in Variable abspeichern
-        if index % 2 == 0: # Überprüfung, ob Index Gerade oder ungerade
-            if value_in_out == "'in'":
-                print(value_in_out, "i.o.")
-            else: 
-                print(value_in_out, "Fehler: Zweimal ausgecheckt")
-                break
-        else:
-            if value_in_out == "'out'":
-                print(value_in_out, "i.o")
-            else: 
-                print(value_in_out, "Fehler: zweimal eingecheckt")
-                break
+    def check_errors(daten_direction):
+        for index, item in enumerate(daten_direction):  # Erzeugen einer Schleife, die Eintragindexe und enthaltene Werte abspeichert
+            value_in_out = item['direction']  # Werte IN und OUT in Variable abspeichern
+            if index % 2 == 0:  # Überprüfung, ob Index gerade oder ungerade
+                if value_in_out == "'in'":
+                    print(value_in_out, "i.o.")
+                else:
+                    print(value_in_out, "Fehler: Zweimal ausgecheckt")
+                    break
+            else:
+                if value_in_out == "'out'":
+                    print(value_in_out, "i.o.")
+                else:
+                    print(value_in_out, "Fehler: zweimal eingecheckt")
+                    break
 
- #Mit dieser Abfrage läßt sich Fehler 8 finden   
+        # Mit dieser Abfrage lässt sich Fehler 8 finden
         last_line = daten_direction[-1]
         last_direction = last_line['direction']
         if last_direction == "'out'":
             print("Am Ende wurde ausgecheckt")
         else:
             print("Auschecken am Ende fehlt")
+
+    check_errors(daten_direction)
+
 
     #wenn ID nicht vorhanden...
     if daten_id == []:
