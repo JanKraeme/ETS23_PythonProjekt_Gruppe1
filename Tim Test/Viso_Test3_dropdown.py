@@ -2,6 +2,7 @@ import pyodbc
 import tkinter as tk
 from tkinter import ttk
 from datetime import timedelta
+import re  # Import regular expressions for filtering
 
 def lade_db_daten():
     global cursor, conn, db_daten
@@ -33,9 +34,12 @@ def lade_db_daten():
     
     db_daten = []
     for row in cursor:
+        # Remove all non-numeric characters using regular expressions
+        clean_id = re.sub(r'\D', '', row.transportid)  # \D matches any non-digit character
+        print(f"Original ID: '{row.transportid}', Cleaned ID: '{clean_id}'")  # Debugging: Print IDs
         db_daten.append({
             'company': row.company, 
-            'transportid': row.transportid, 
+            'transportid': clean_id,  # Use the cleaned ID
             'transportstation': row.transportstation, 
             'category': row.category, 
             'direction': row.direction, 
@@ -108,7 +112,7 @@ def start_fenster_manuell():
     lade_db_daten()
 
 def read_transid():
-    transid = combobox_transid.get()  # Get the selected ID from the combobox
+    transid = combobox_transid.get().strip()  # Get the selected ID from the combobox and strip any surrounding whitespace
     if transid:
         label31.config(text=transid)
         verifikation_auswertung(transid)
