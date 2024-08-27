@@ -59,7 +59,7 @@ def schließe_db():
         conn.close()
 
 def start_fenster_manuell():
-    global combobox_transid, label31, tree, label_duration
+    global combobox_transid, label_duration, tree
 
     fenster_manuell = tk.Toplevel(fenster_hauptmenue)
     fenster_manuell.title("Manuelle Überprüfung")
@@ -75,14 +75,11 @@ def start_fenster_manuell():
     button3 = tk.Button(fenster_manuell, text="ID überprüfen", command=read_transid, bg="#007BFF", fg="white", font=("Helvetica", 12))
     button3.grid(column=2, row=0, padx=10, pady=10)
 
-    label31 = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
-    label31.grid(column=1, row=1, padx=10, pady=10)
-
     label_duration = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
-    label_duration.grid(column=1, row=2, padx=10, pady=10)
+    label_duration.grid(column=1, row=1, padx=10, pady=10)
 
     tree = ttk.Treeview(fenster_manuell, columns=("company", "transportstation", "category", "direction", "datetime"), show='headings')
-    tree.grid(row=3, column=0, columnspan=3, padx=10, pady=10)
+    tree.grid(row=2, column=0, columnspan=3, padx=10, pady=10)
 
     tree.heading("company", text="Unternehmen")
     tree.heading("transportstation", text="Transport Station")
@@ -92,11 +89,11 @@ def start_fenster_manuell():
 
     scrollbar = ttk.Scrollbar(fenster_manuell, orient="vertical", command=tree.yview)
     tree.configure(yscrollcommand=scrollbar.set)
-    scrollbar.grid(row=3, column=3, sticky="ns")
+    scrollbar.grid(row=2, column=3, sticky="ns")
 
     # Canvas für LKW-Symbol und Freeze-Symbol erstellen
     canvas = tk.Canvas(fenster_manuell, width=600, height=100, bg="#f0f0f0", highlightthickness=0)
-    canvas.grid(row=4, column=0, columnspan=4, pady=20)
+    canvas.grid(row=3, column=0, columnspan=4, pady=20)
 
     # LKW-Symbol und Freeze-Symbol als Text hinzufügen
     truck_icon_text = "🚚"  # Unicode LKW-Symbol
@@ -119,8 +116,7 @@ def read_transid():
 
     # Überprüfen, ob die ID Sonderzeichen enthält
     if any(char not in "0123456789" for char in transid):
-        label31.config(text="Fehlerhafte Transport-ID!", fg="red")
-        label_duration.config(text="")  # Leeren, wenn ID fehlerhaft ist
+        label_duration.config(text="Fehlerhafte Transport-ID!", fg="red")
         for item in tree.get_children():
             tree.delete(item)
     else:
@@ -154,11 +150,8 @@ def verifikation_auswertung(transid):
             label_duration.config(text=f'Transportdauer überschreitet 48 Stunden: {zeit_format}', fg="red")
         else:
             label_duration.config(text=f'Transportdauer innerhalb von 48 Stunden: {zeit_format}', fg="green")
-        
-        label31.config(text=f"Transport-ID: {transid}", fg="black")  # Zeige ID an, wenn sie gültig ist
     else:
         label_duration.config(text='Transport-ID nicht vorhanden.', fg="red")
-        label31.config(text="Transport-ID nicht gefunden", fg="red")
 
     schließe_db()
 
@@ -174,4 +167,3 @@ button1 = tk.Button(fenster_hauptmenue, text="Manuelle Eingabe der Transport-IDs
 button1.pack(pady=10)
 
 fenster_hauptmenue.mainloop()
-
