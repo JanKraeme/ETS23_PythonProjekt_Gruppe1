@@ -2,12 +2,12 @@ import pyodbc
 import re
 import datetime
 import time
-# import pandas as pd
+import pandas as pd
 import tkinter as tk
 from tkinter import filedialog, ttk
 
 def lade_db_daten():
-    global cursor, conn, db_daten
+    global cursor, conn, db_daten, db_direction
     # Verbindungsdaten
     server = 'sc-db-server.database.windows.net'
     database = 'supplychain' # Setze den Namen deiner Datenbank hier ein
@@ -41,9 +41,11 @@ def lade_db_daten():
     # for row in cursor.tables():
     #     print(row)
     db_daten = []
+    db_direction = []
 
     for row in cursor:
         db_daten.append({'company':row.company, 'transportid':row.transportid, 'transportstation':row.transportstation, 'category':row.category, 'direction':row.direction, 'datetime':row.datetime})
+        db_direction.append({'transportid':row.transportid, 'direction':row.direction,})
     
 
 def schließe_db():
@@ -181,22 +183,60 @@ def datenauswertung_csv():
     tree.configure(yscrollcommand=scrollbar.set)
     scrollbar.pack(side="right", fill="y")
 
-    
-    #verifikation_auswertung()
 def verifikation_auswertung():
-    
+    global fenster_fehler
+    fenster_fehler = tk.Toplevel(fenster_hauptmenue)
+    fenster_fehler.title("Fehlerüberprüfung")
+    fenster_fehler.geometry("500x300")
+
     db_liste = []
     db_listenr = []
     print(transid)
-    #transportID vorhanden?
     
+    # transportID vorhanden?
     daten_id = list(filter(lambda item: item["transportid"] == transid, db_daten))
-    print(daten_id)
-    #wenn ID nicht vorhanden...
-    if daten_id == []:
-        label31.config(text='Es gibt gar keinen Eintrag', fg = "red")
-    
+    daten_direction = list(filter(lambda item: item["transportid"] == transid, db_direction))
 
+    # Mit dieser Schleife lassen sich Fehler 8, 10, 15 finden
+    for index, item in enumerate(daten_direction): # Erzeugen einer Schleife, die Eintragindexe und enthaltene Werte abspeichert
+        value_in_out = item['direction']  # Werte IN und OUT in Variable abspeichern
+        
+        if index % 2 == 0:  # Überprüfung, ob Index gerade oder ungerade
+            if value_in_out == "'in'":
+                message = f"{value_in_out} i.o."
+                label = tk.Label(fenster_fehler, text=message, fg="green")
+                label.pack()
+            else:
+                message = f"{value_in_out} Fehler: Zweimal ausgecheckt"
+                label = tk.Label(fenster_fehler, text=message, fg="red")
+                label.pack()
+                break
+        else:
+            if value_in_out == "'out'":
+                message = f"{value_in_out} i.o."
+                label = tk.Label(fenster_fehler, text=message, fg="green")
+                label.pack()
+            else:
+                message = f"{value_in_out} Fehler: Zweimal eingecheckt"
+                label = tk.Label(fenster_fehler, text=message, fg="red")
+                label.pack()
+                break
+
+    # Mit dieser Abfrage lässt sich Fehler 8 finden
+    last_line = daten_direction[-1]
+    last_direction = last_line['direction']
+    if last_direction == "'out'":
+        message = "Am Ende wurde ausgecheckt"
+        label = tk.Label(fenster_fehler, text=message, fg="green")
+        label.pack()
+    else:
+        message = "Auschecken am Ende fehlt"
+        label = tk.Label(fenster_fehler, text=message, fg="red")
+        label.pack()
+
+    # Wenn ID nicht vorhanden...
+    if daten_id == []:
+        label31.config(text='Es gibt gar keinen Eintrag', fg="red")
 
 # Hauptfenster anzeigen
 fenster_hauptmenue.mainloop()

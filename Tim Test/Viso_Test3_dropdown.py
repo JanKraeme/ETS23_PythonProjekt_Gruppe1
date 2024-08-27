@@ -1,7 +1,8 @@
 import pyodbc
 import tkinter as tk
 from tkinter import ttk
-from datetime import timedelta
+from tkinter import messagebox
+from datetime import datetime, timedelta
 
 def lade_db_daten():
     global cursor, conn, db_daten
@@ -19,19 +20,21 @@ def lade_db_daten():
 
     try:
         conn = pyodbc.connect(conn_str)
-    except:
-        tk.messagebox.showerror(title="Fehler", message="Keine Verbindung zur Datenbank möglich!")
+    except Exception as e:
+        messagebox.showerror(title="Fehler", message=f"Keine Verbindung zur Datenbank möglich! {e}")
         return
 
     cursor = conn.cursor()
     
     try:
         cursor.execute('SELECT company, transportid, transportstation, category, direction, datetime FROM coolchain1')
-    except:
-        tk.messagebox.showerror(title="Fehler", message="Kein Datensatz in der Datenbank gefunden!")
+    except Exception as e:
+        messagebox.showerror(title="Fehler", message=f"Kein Datensatz in der Datenbank gefunden! {e}")
         return
     
     db_daten = []
+    transport_ids = set()
+
     for row in cursor:
         db_daten.append({
             'company': row.company, 
@@ -41,12 +44,13 @@ def lade_db_daten():
             'direction': row.direction, 
             'datetime': row.datetime
         })
+        transport_ids.add(row.transportid)
 
-    # Update the dropdown list with the unique transport IDs
-    unique_ids = sorted(set(item["transportid"] for item in db_daten))
+    # Dropdown-Liste mit allen Transport-IDs aktualisieren
+    unique_ids = sorted(transport_ids)
     combobox_transid['values'] = unique_ids
     if unique_ids:
-        combobox_transid.current(0)  # Select the first ID by default
+        combobox_transid.current(0)  # Standardmäßig die erste ID auswählen
 
 def schließe_db():
     if cursor:
@@ -55,7 +59,7 @@ def schließe_db():
         conn.close()
 
 def start_fenster_manuell():
-    global combobox_transid, label31, tree
+    global combobox_transid, label31, tree, label_duration
 
     fenster_manuell = tk.Toplevel(fenster_hauptmenue)
     fenster_manuell.title("Manuelle Überprüfung")
@@ -74,8 +78,11 @@ def start_fenster_manuell():
     label31 = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
     label31.grid(column=1, row=1, padx=10, pady=10)
 
+    label_duration = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
+    label_duration.grid(column=1, row=2, padx=10, pady=10)
+
     tree = ttk.Treeview(fenster_manuell, columns=("company", "transportstation", "category", "direction", "datetime"), show='headings')
-    tree.grid(row=2, column=0, columnspan=3, padx=10, pady=10)
+    tree.grid(row=3, column=0, columnspan=3, padx=10, pady=10)
 
     tree.heading("company", text="Unternehmen")
     tree.heading("transportstation", text="Transport Station")
@@ -85,11 +92,11 @@ def start_fenster_manuell():
 
     scrollbar = ttk.Scrollbar(fenster_manuell, orient="vertical", command=tree.yview)
     tree.configure(yscrollcommand=scrollbar.set)
-    scrollbar.grid(row=2, column=3, sticky="ns")
+    scrollbar.grid(row=3, column=3, sticky="ns")
 
     # Canvas für LKW-Symbol und Freeze-Symbol erstellen
     canvas = tk.Canvas(fenster_manuell, width=600, height=100, bg="#f0f0f0", highlightthickness=0)
-    canvas.grid(row=3, column=0, columnspan=4, pady=20)
+    canvas.grid(row=4, column=0, columnspan=4, pady=20)
 
     # LKW-Symbol und Freeze-Symbol als Text hinzufügen
     truck_icon_text = "🚚"  # Unicode LKW-Symbol
@@ -104,16 +111,20 @@ def start_fenster_manuell():
     canvas.create_text(freeze_x, 50, text=freeze_icon_text, font=("Helvetica", 72), fill="blue")
     canvas.create_text(text_x, 50, text="Coolchain-ETS", font=("Helvetica", 24), fill="black")
 
-    # Load data to populate the dropdown
+    # Daten laden, um das Dropdown-Menü zu füllen
     lade_db_daten()
 
 def read_transid():
-    transid = combobox_transid.get()  # Get the selected ID from the combobox
-    if transid:
-        label31.config(text=transid)
-        verifikation_auswertung(transid)
+    transid = combobox_transid.get().strip()  # Die ausgewählte ID aus der Combobox abrufen und Leerzeichen entfernen
+
+    # Überprüfen, ob die ID Sonderzeichen enthält
+    if any(char not in "0123456789" for char in transid):
+        label31.config(text="Fehlerhafte Transport-ID!", fg="red")
+        label_duration.config(text="")  # Leeren, wenn ID fehlerhaft ist
+        for item in tree.get_children():
+            tree.delete(item)
     else:
-        tk.messagebox.showerror(title="Fehler", message="Keine Transport-ID ausgewählt!")
+        verifikation_auswertung(transid)
 
 def verifikation_auswertung(transid):
     for item in tree.get_children():
@@ -140,11 +151,14 @@ def verifikation_auswertung(transid):
             zeit_format = f"{tage} Tage, {stunden} Stunden, {minuten} Minuten"
 
         if duration > timedelta(hours=48):
-            label31.config(text=f'Transportdauer überschreitet 48 Stunden: {zeit_format}', fg="red")
+            label_duration.config(text=f'Transportdauer überschreitet 48 Stunden: {zeit_format}', fg="red")
         else:
-            label31.config(text=f'Transportdauer innerhalb von 48 Stunden: {zeit_format}', fg="green")
+            label_duration.config(text=f'Transportdauer innerhalb von 48 Stunden: {zeit_format}', fg="green")
+        
+        label31.config(text=f"Transport-ID: {transid}", fg="black")  # Zeige ID an, wenn sie gültig ist
     else:
-        label31.config(text='Transport-ID nicht vorhanden.', fg="red")
+        label_duration.config(text='Transport-ID nicht vorhanden.', fg="red")
+        label31.config(text="Transport-ID nicht gefunden", fg="red")
 
     schließe_db()
 
@@ -160,3 +174,4 @@ button1 = tk.Button(fenster_hauptmenue, text="Manuelle Eingabe der Transport-IDs
 button1.pack(pady=10)
 
 fenster_hauptmenue.mainloop()
+
