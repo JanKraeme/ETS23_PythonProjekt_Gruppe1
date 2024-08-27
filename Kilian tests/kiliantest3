@@ -193,9 +193,9 @@ def verifikation_auswertung():
     #transportID vorhanden?
     
     daten_id = list(filter(lambda item: item["transportid"] == transid, db_daten))
+    
     daten_direction = list(filter(lambda item: item["transportid"] == transid, db_direction))
-
-    def check_errors(daten_direction):
+    def check_direction(daten_direction):
         for index, item in enumerate(daten_direction):  # Erzeugen einer Schleife, die Eintragindexe und enthaltene Werte abspeichert
             value_in_out = item['direction']  # Werte IN und OUT in Variable abspeichern
             if index % 2 == 0:  # Überprüfung, ob Index gerade oder ungerade
@@ -219,7 +219,7 @@ def verifikation_auswertung():
         else:
             print("Auschecken am Ende fehlt")
 
-    check_errors(daten_direction)
+    check_direction(daten_direction)
 
 
     #wenn ID nicht vorhanden...

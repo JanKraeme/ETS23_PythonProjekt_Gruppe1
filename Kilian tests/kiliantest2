@@ -213,12 +213,12 @@ def verifikation_auswertung():
                 break
 
  #Mit dieser Abfrage läßt sich Fehler 8 finden   
-        last_line = daten_direction[-1]
-        last_direction = last_line['direction']
-        if last_direction == "'out'":
-            print("Am Ende wurde ausgecheckt")
-        else:
-            print("Auschecken am Ende fehlt")
+    last_line = daten_direction[-1]
+    last_direction = last_line['direction']
+    if last_direction == "'out'":
+        print("Am Ende wurde ausgecheckt")
+    else:
+        print("Auschecken am Ende fehlt")
 
     #wenn ID nicht vorhanden...
     if daten_id == []:
