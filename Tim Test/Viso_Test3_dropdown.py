@@ -163,7 +163,7 @@ fenster_hauptmenue.configure(bg="#f0f0f0")  # Hintergrundfarbe setzen
 label1 = tk.Label(fenster_hauptmenue, text="Willkommen beim ETS23-Supplychain-Project", bg="#f0f0f0", font=("Helvetica", 14))
 label1.pack(pady=20)
 
-button1 = tk.Button(fenster_hauptmenue, text="Transport-IDs prüfen", command=start_fenster_manuell, bg="#007BFF", fg="white", font=("Helvetica", 12))
+button1 = tk.Button(fenster_hauptmenue, text="Transport-IDs überprüfen", command=start_fenster_manuell, bg="#007BFF", fg="white", font=("Helvetica", 12))
 button1.pack(pady=10)
 
 fenster_hauptmenue.mainloop()
