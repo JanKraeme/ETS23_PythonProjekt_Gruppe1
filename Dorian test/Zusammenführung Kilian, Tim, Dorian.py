@@ -1,18 +1,15 @@
 import pyodbc
-import re
-import datetime
-from datetime import timedelta
 import tkinter as tk
-from tkinter import filedialog, ttk
+from tkinter import ttk
+from tkinter import messagebox
+from datetime import datetime, timedelta
 
 def lade_db_daten():
     global cursor, conn, db_daten, db_datetime, db_direction
-    # Verbindungsdaten
     server = 'sc-db-server.database.windows.net'
     database = 'supplychain'
     username = 'rse'
     password = 'Pa$$w0rd'
-    # Verbindungsstring
     conn_str = (
         f'DRIVER={{ODBC Driver 18 for SQL Server}};'
         f'SERVER={server};'
@@ -21,53 +18,43 @@ def lade_db_daten():
         f'PWD={password}'
     )
 
-    # Verbindung herstellen
     try:
         conn = pyodbc.connect(conn_str)
-    except:
-        tk.messagebox.showerror(title="Fehler", message="Keine Verbindung zur Datenbank möglich!")
+    except Exception as e:
+        messagebox.showerror(title="Fehler", message=f"Keine Verbindung zur Datenbank möglich! {e}")
         return
 
-    # Cursor erstellen
     cursor = conn.cursor()
-
-    # SQL-Statement ausführen
+    
     try:
         cursor.execute('SELECT company, transportid, transportstation, category, direction, datetime FROM coolchain1')
-    except:
-        tk.messagebox.showerror(title="Fehler", message="Kein Datensatz in der Datenbank gefunden!")
+    except Exception as e:
+        messagebox.showerror(title="Fehler", message=f"Kein Datensatz in der Datenbank gefunden! {e}")
         return
-
+    
     db_daten = []
     db_datetime = []
     db_direction = []
+    transport_ids = set()
 
     for row in cursor:
-        # Clean the transportid by removing all non-numeric characters
-        clean_id = re.sub(r'\D', '', row.transportid)
+        db_datetime.append({'datetime': row.datetime, 'direction': row.direction, 'transportid': row.transportid})
+        db_direction.append({'transportid': row.transportid, 'direction': row.direction})
         db_daten.append({
-            'company': row.company,
-            'transportid': clean_id,
-            'transportstation': row.transportstation,
-            'category': row.category,
-            'direction': row.direction,
+            'company': row.company, 
+            'transportid': row.transportid, 
+            'transportstation': row.transportstation, 
+            'category': row.category, 
+            'direction': row.direction, 
             'datetime': row.datetime
         })
-        db_datetime.append({
-            'datetime': row.datetime,
-            'direction': row.direction,
-            'transportid': clean_id
-        })
-        db_direction.append({
-            'transportid': clean_id,
-            'direction': row.direction
-        })
+        transport_ids.add(row.transportid)
 
-    # Update combobox with unique transport IDs
-    unique_ids = sorted(set(item["transportid"] for item in db_daten))
-    combo_transid['values'] = unique_ids
+    # Dropdown-Liste mit allen Transport-IDs aktualisieren
+    unique_ids = sorted(transport_ids)
+    combobox_transid['values'] = unique_ids
     if unique_ids:
-        combo_transid.current(0)  # Select the first ID by default
+        combobox_transid.current(0)  # Standardmäßig die erste ID auswählen
 
 def schließe_db():
     if cursor:
@@ -75,48 +62,34 @@ def schließe_db():
     if conn:
         conn.close()
 
-def button_click_1():
-    start_fenster_manuell()
-
-def button_click_2():
-    global transid_val
-    file_path = filedialog.askopenfilename(title="Datensatz auswählen", filetypes=[("CSV Files", ("*.csv")), ("All files", "*.*")])
-    if file_path:
-        with open(file_path, 'r') as file:
-            lines = file.readlines()  
-
-            data = []
-            for line in lines:
-                transid_val = line.strip().split(';')
-                data.append(transid_val)
-        datenauswertung_csv()
-    else:
-        tk.messagebox.showerror(title="Fehler", message="keine Datei ausgewählt oder falsches Format!")
-
 def start_fenster_manuell():
-    global combo_transid, label31, label32, tree
+    global combobox_transid, label_duration, tree, label_direction, label_datetime
 
     fenster_manuell = tk.Toplevel(fenster_hauptmenue)
     fenster_manuell.title("Manuelle Überprüfung")
     fenster_manuell.geometry("1000x600")
-    fenster_manuell.configure(bg="#f0f0f0")
+    fenster_manuell.configure(bg="#f0f0f0")  # Hintergrundfarbe setzen
 
     labelTop = tk.Label(fenster_manuell, text="Transport-ID auswählen:", bg="#f0f0f0", font=("Helvetica", 12))
     labelTop.grid(column=0, row=0, padx=10, pady=10)
 
-    combo_transid = ttk.Combobox(fenster_manuell, width=25, font=("Helvetica", 12), state="readonly")
-    combo_transid.grid(column=1, row=0, padx=10, pady=10)
+    combobox_transid = ttk.Combobox(fenster_manuell, width=25, font=("Helvetica", 12), state="readonly")
+    combobox_transid.grid(column=1, row=0, padx=10, pady=10)
 
     button3 = tk.Button(fenster_manuell, text="ID überprüfen", command=read_transid, bg="#007BFF", fg="white", font=("Helvetica", 12))
     button3.grid(column=2, row=0, padx=10, pady=10)
 
-    label31 = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
-    label31.grid(column=1, row=1, padx=10, pady=10)
-    label32 = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
-    label32.grid(column=1, row=2, padx=10, pady=10)
+    label_duration = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
+    label_duration.grid(column=1, row=1, padx=10, pady=10)
+    
+    label_direction = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
+    label_direction.grid(column=1, row=2, padx=10, pady=10)
+    
+    label_datetime = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
+    label_datetime.grid(column=1, row=3, padx=10, pady=10)
 
     tree = ttk.Treeview(fenster_manuell, columns=("company", "transportstation", "category", "direction", "datetime"), show='headings')
-    tree.grid(row=2, column=0, columnspan=3, padx=10, pady=10)
+    tree.grid(row=4, column=0, columnspan=3, padx=10, pady=10)
 
     tree.heading("company", text="Unternehmen")
     tree.heading("transportstation", text="Transport Station")
@@ -128,27 +101,43 @@ def start_fenster_manuell():
     tree.configure(yscrollcommand=scrollbar.set)
     scrollbar.grid(row=2, column=3, sticky="ns")
 
-    # Load data and populate combobox
+    # Canvas für LKW-Symbol und Freeze-Symbol erstellen
+    canvas = tk.Canvas(fenster_manuell, width=600, height=100, bg="#f0f0f0", highlightthickness=0)
+    canvas.grid(row=5, column=0, columnspan=4, pady=20)
+
+    # LKW-Symbol und Freeze-Symbol als Text hinzufügen
+    truck_icon_text = "🚚"  # Unicode LKW-Symbol
+    freeze_icon_text = "❄️"  # Unicode Freeze-Symbol
+    
+    truck_x = 100
+    freeze_x = 300
+    text_x = freeze_x + 130  # Abstand von 80 Einheiten hinter dem Freeze-Symbol
+    
+    # Icons und Text im Canvas platzieren
+    canvas.create_text(truck_x, 50, text=truck_icon_text, font=("Helvetica", 72), fill="black")
+    canvas.create_text(freeze_x, 50, text=freeze_icon_text, font=("Helvetica", 72), fill="blue")
+    canvas.create_text(text_x, 50, text="Coolchain-ETS", font=("Helvetica", 24), fill="black")
+
+    # Daten laden, um das Dropdown-Menü zu füllen
     lade_db_daten()
 
 def read_transid():
-    transid = combo_transid.get().strip()  # Get the selected ID from the combobox
-    if transid:
-        label31.config(text=transid)
-        verifikation_auswertung(transid)
+    transid = combobox_transid.get().strip()  # Die ausgewählte ID aus der Combobox abrufen und Leerzeichen entfernen
+
+    # Überprüfen, ob die ID Sonderzeichen enthält
+    if any(char not in "0123456789" for char in transid):
+        label_duration.config(text="Fehlerhafte Transport-ID!", fg="red")
+        for item in tree.get_children():
+            tree.delete(item)
     else:
-        tk.messagebox.showerror(title="Fehler", message="Keine Transport-ID ausgewählt!")
-
-def verifikation_auswertung(transid):
-    for item in tree.get_children():
-        tree.delete(item)
-
-    daten_id = list(filter(lambda item: item["transportid"] == transid, db_daten))
-
+        verifikation_auswertung(transid)
+    
+def check_direction(daten_direction):
     if daten_id:
-        daten_id.sort(key=lambda x: x["datetime"])  # Sort by datetime
-
-        # First, check if the transport duration exceeds 48 hours
+        daten_id.sort(key=lambda x: x["datetime"])  # Sortiere nach Datum
+        for eintrag in daten_id:
+            tree.insert("", "end", values=(eintrag["company"], eintrag["transportstation"], eintrag["category"], eintrag["direction"], eintrag["datetime"]))    
+        
         start_time = daten_id[0]["datetime"]
         end_time = daten_id[-1]["datetime"]
         duration = end_time - start_time
@@ -163,79 +152,101 @@ def verifikation_auswertung(transid):
             zeit_format = f"{tage} Tage, {stunden} Stunden, {minuten} Minuten"
 
         if duration > timedelta(hours=48):
-            label31.config(text=f'Transportdauer überschreitet 48 Stunden: {zeit_format}', fg="red")
+            label_duration.config(text=f'Transportdauer überschreitet 48 Stunden: {zeit_format}', fg="red")
         else:
-            label31.config(text=f'Transportdauer innerhalb von 48 Stunden: {zeit_format}', fg="green")
-
-        # Insert data into treeview
-        for eintrag in daten_id:
-            tree.insert("", "end", values=(eintrag["company"], eintrag["transportstation"], eintrag["category"], eintrag["direction"], eintrag["datetime"]))
-
-        # Check direction sequence
-        daten_direction = list(filter(lambda item: item["transportid"] == transid, db_direction))
-        if not check_direction(daten_direction):
-            return
-
+            label_duration.config(text=f'Transportdauer innerhalb von 48 Stunden: {zeit_format}', fg="green")
     else:
-        label31.config(text='Transport-ID nicht vorhanden.', fg="red")
-
-    schließe_db()
-
-def check_direction(daten_direction):
+        label_duration.config(text='Transport-ID nicht vorhanden.', fg="red")
     for index, item in enumerate(daten_direction):
         value_in_out = item['direction']
         if index % 2 == 0:
-            if value_in_out != "'in'":
-                label32.config(text='Fehler: Zweimal nacheinander ausgecheckt!', fg="red")
+            if value_in_out == "'in'":
+                print(value_in_out, "i.o.")
+            else:
+                label_direction.config(text='Fehler: Zweimal nacheinander ausgecheckt!', fg="red")
                 return False
         else:
-            if value_in_out != "'out'":
-                label32.config(text='Fehler: Zweimal nacheinander eingecheckt!', fg="red")
+            if value_in_out == "'out'":
+                print(value_in_out, "i.o.")
+            else:
+                label_direction.config(text='Fehler: Zweimal nacheinander eingecheckt!', fg="red")
                 return False
 
     last_line = daten_direction[-1]
     last_direction = last_line['direction']
-    if last_direction != "'out'":
-        label32.config(text='Auschecken am Ende fehlt', fg="red")
+    if last_direction == "'out'":
+        print("Am Ende wurde ausgecheckt")
+    else:
+        label_direction.config(text='Auschecken am Ende fehlt', fg="red")
         return False
 
     return True
 
-def datenauswertung_csv():
-    root = tk.Tk()
-    root.title("Tabelle mit drei Spalten")
+def verifikation_auswertung(transid):
+    global daten_id
+    for item in tree.get_children():
+        tree.delete(item)
 
-    table_frame = ttk.Frame(root)
-    table_frame.pack(fill="both", expand=True)
+    daten_id = list(filter(lambda item: item["transportid"] == transid, db_daten))
+    daten_datetime = list(filter(lambda item: item["transportid"] == transid, db_datetime))
+    daten_direction = list(filter(lambda item: item["transportid"] == transid, db_direction))
+    
+    if daten_id:
+        daten_id.sort(key=lambda x: x["datetime"])  # Sortiere nach Datum
+        for eintrag in daten_id:
+            tree.insert("", "end", values=(eintrag["company"], eintrag["transportstation"], eintrag["category"], eintrag["direction"], eintrag["datetime"]))
+    else:
+        label_duration.config(text='Transport-ID nicht vorhanden.', fg="red")
+    
+    # Check direction sequence first
+    if not check_direction(daten_direction):
+        return  # Exit early if there is a direction error
+    
+    daten_datetime.sort(key=lambda x: x['datetime'])
 
-    tree = ttk.Treeview(table_frame, columns=("Nr", "ID", "Verifikation"))
-    tree.heading("Nr", text="Nr")
-    tree.heading("ID", text="ID")
-    tree.heading("Verifikation", text="Verifikation")
-    tree.pack(fill="both", expand=True)
+    verification_failed = False
+    
 
-    transid_nr = 0
-    for transid_csv in transid_val:
-        transid_nr += 1
-        tree.insert("", "end", values=(transid_nr, transid_csv, "Verifikation"))
+    for i in range(1, len(daten_datetime) - 1, 2):
+        out_record = daten_datetime[i] 
+        in_record = daten_datetime[i + 1]
 
-    scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=tree.yview)
-    tree.configure(yscrollcommand=scrollbar.set)
-    scrollbar.pack(side="right", fill="y")
+        print(f"Comparing OUT: {out_record['datetime']} with IN: {in_record['datetime']}")
 
-# Hauptfenster erstellen
+        if out_record['direction'] == "'out'" and in_record['direction'] == "'in'":
+            if isinstance(out_record['datetime'], str):
+                out_record['datetime'] = datetime.datetime.strptime(out_record['datetime'], '%Y-%m-%d %H:%M:%S')
+            if isinstance(in_record['datetime'], str):
+                in_record['datetime'] = datetime.datetime.strptime(in_record['datetime'], '%Y-%m-%d %H:%M:%S')
+
+            time_diff = (in_record['datetime'] - out_record['datetime']).total_seconds()
+            print(f"Time difference: {time_diff} seconds")
+
+            if time_diff > 600:
+                verification_failed = True
+                break
+        else:
+            verification_failed = True
+            break
+    
+    if verification_failed:
+        label_direction.config(text='Zeitüberschreitung: Übergabe > 10min', fg="red")
+    else:
+        label_direction.config(text='Verifikation erfolgreich', fg="green")
+        
+    
+
+    schließe_db()
+
 fenster_hauptmenue = tk.Tk()
 fenster_hauptmenue.geometry("1000x500")
 fenster_hauptmenue.title("Coolchain")
-fenster_hauptmenue.configure(bg="#f0f0f0")
+fenster_hauptmenue.configure(bg="#f0f0f0")  # Hintergrundfarbe setzen
 
-label1 = tk.Label(fenster_hauptmenue, text="Willkommen beim ETS-Supplychain-Project", bg="#f0f0f0", font=("Helvetica", 14))
+label1 = tk.Label(fenster_hauptmenue, text="Willkommen beim ETS23-Supplychain-Project", bg="#f0f0f0", font=("Helvetica", 14))
 label1.pack(pady=20)
 
-button1 = tk.Button(fenster_hauptmenue, text="Manuelle Eingabe der Transport-IDs", command=button_click_1, bg="#007BFF", fg="white", font=("Helvetica", 12))
+button1 = tk.Button(fenster_hauptmenue, text="Transport-IDs prüfen", command=start_fenster_manuell, bg="#007BFF", fg="white", font=("Helvetica", 12))
 button1.pack(pady=10)
-
-button2 = tk.Button(fenster_hauptmenue, text="Überprüfung der Transport-IDs anhand einer Datei", command=button_click_2, bg="#007BFF", fg="white", font=("Helvetica", 12))
-button2.pack(pady=10)
 
 fenster_hauptmenue.mainloop()

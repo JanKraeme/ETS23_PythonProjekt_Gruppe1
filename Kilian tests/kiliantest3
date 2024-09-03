@@ -194,6 +194,7 @@ def verifikation_auswertung():
     
     daten_id = list(filter(lambda item: item["transportid"] == transid, db_daten))
     
+    #Abfrage für Fehler 8, 10, 15
     daten_direction = list(filter(lambda item: item["transportid"] == transid, db_direction))
     def check_direction(daten_direction):
         for index, item in enumerate(daten_direction):  # Erzeugen einer Schleife, die Eintragindexe und enthaltene Werte abspeichert

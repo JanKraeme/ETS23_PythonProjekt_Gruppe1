@@ -43,7 +43,17 @@ def lade_db_daten():
     db_daten = []
 
     for row in cursor:
+<<<<<<< Updated upstream
         db_daten.append({'company':row.company, 'transportid':row.transportid, 'transportstation':row.transportstation, 'category':row.category, 'direction':row.direction, 'datetime':row.datetime})
+=======
+        db_daten.append({'company':row.company,
+                         'transportid':row.transportid,
+                         'transportstation':row.transportstation,
+                         'category':row.category,
+                         'direction':row.direction,
+                         'datetime':row.datetime})
+
+>>>>>>> Stashed changes
     
 
 def schließe_db():
@@ -128,7 +138,7 @@ def start_fenster_manuell():
     transid_cb = []
     for i in range(len(db_daten)):    #jede Zeile
         #print(db_daten[i]['transportid'])
-        transid_cb_st = re.sub('\D', '', str(db_daten[i]['transportid']))   #überflüssige Zeichen entfernen
+        transid_cb_st = re.sub(r'\D', '', str(db_daten[i]['transportid']))   #überflüssige Zeichen entfernen
         if transid_cb_st not in transid_cb: #doppelte Werte ausschließen
             transid_cb.append(transid_cb_st)    #ID in liste hinufügen
 
