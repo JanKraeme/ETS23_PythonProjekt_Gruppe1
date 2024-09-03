@@ -133,6 +133,30 @@ def read_transid():
         verifikation_auswertung(transid)
     
 def check_direction(daten_direction):
+    if daten_id:
+        daten_id.sort(key=lambda x: x["datetime"])  # Sortiere nach Datum
+        for eintrag in daten_id:
+            tree.insert("", "end", values=(eintrag["company"], eintrag["transportstation"], eintrag["category"], eintrag["direction"], eintrag["datetime"]))    
+        
+        start_time = daten_id[0]["datetime"]
+        end_time = daten_id[-1]["datetime"]
+        duration = end_time - start_time
+
+        tage = duration.days
+        stunden, minuten = divmod(duration.seconds, 3600)
+        minuten //= 60
+
+        if tage == 1:
+            zeit_format = f"{tage} Tag, {stunden} Stunden, {minuten} Minuten"
+        else:
+            zeit_format = f"{tage} Tage, {stunden} Stunden, {minuten} Minuten"
+
+        if duration > timedelta(hours=48):
+            label_duration.config(text=f'Transportdauer überschreitet 48 Stunden: {zeit_format}', fg="red")
+        else:
+            label_duration.config(text=f'Transportdauer innerhalb von 48 Stunden: {zeit_format}', fg="green")
+    else:
+        label_duration.config(text='Transport-ID nicht vorhanden.', fg="red")
     for index, item in enumerate(daten_direction):
         value_in_out = item['direction']
         if index % 2 == 0:
@@ -159,6 +183,7 @@ def check_direction(daten_direction):
     return True
 
 def verifikation_auswertung(transid):
+    global daten_id
     for item in tree.get_children():
         tree.delete(item)
 
@@ -180,6 +205,7 @@ def verifikation_auswertung(transid):
     daten_datetime.sort(key=lambda x: x['datetime'])
 
     verification_failed = False
+    
 
     for i in range(1, len(daten_datetime) - 1, 2):
         out_record = daten_datetime[i] 
@@ -208,30 +234,7 @@ def verifikation_auswertung(transid):
     else:
         label_direction.config(text='Verifikation erfolgreich', fg="green")
         
-    if daten_id:
-        daten_id.sort(key=lambda x: x["datetime"])  # Sortiere nach Datum
-        for eintrag in daten_id:
-            tree.insert("", "end", values=(eintrag["company"], eintrag["transportstation"], eintrag["category"], eintrag["direction"], eintrag["datetime"]))    
-        
-        start_time = daten_id[0]["datetime"]
-        end_time = daten_id[-1]["datetime"]
-        duration = end_time - start_time
-
-        tage = duration.days
-        stunden, minuten = divmod(duration.seconds, 3600)
-        minuten //= 60
-
-        if tage == 1:
-            zeit_format = f"{tage} Tag, {stunden} Stunden, {minuten} Minuten"
-        else:
-            zeit_format = f"{tage} Tage, {stunden} Stunden, {minuten} Minuten"
-
-        if duration > timedelta(hours=48):
-            label_duration.config(text=f'Transportdauer überschreitet 48 Stunden: {zeit_format}', fg="red")
-        else:
-            label_duration.config(text=f'Transportdauer innerhalb von 48 Stunden: {zeit_format}', fg="green")
-    else:
-        label_duration.config(text='Transport-ID nicht vorhanden.', fg="red")
+    
 
     schließe_db()
 
