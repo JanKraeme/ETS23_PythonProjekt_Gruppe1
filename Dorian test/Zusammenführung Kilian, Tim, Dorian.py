@@ -106,7 +106,7 @@ def start_fenster_manuell():
     canvas.grid(row=5, column=0, columnspan=4, pady=20)
 
     # LKW-Symbol und Freeze-Symbol als Text hinzufügen
-    truck_icon_text = "🚚"  # Unicode LKW-Symbol
+    truck_icon_text = "⛟"  # Unicode LKW-Symbol
     freeze_icon_text = "❄️"  # Unicode Freeze-Symbol
     
     truck_x = 100
