@@ -43,17 +43,7 @@ def lade_db_daten():
     db_daten = []
 
     for row in cursor:
-<<<<<<< Updated upstream
         db_daten.append({'company':row.company, 'transportid':row.transportid, 'transportstation':row.transportstation, 'category':row.category, 'direction':row.direction, 'datetime':row.datetime})
-=======
-        db_daten.append({'company':row.company,
-                         'transportid':row.transportid,
-                         'transportstation':row.transportstation,
-                         'category':row.category,
-                         'direction':row.direction,
-                         'datetime':row.datetime})
-
->>>>>>> Stashed changes
     
 
 def schließe_db():
