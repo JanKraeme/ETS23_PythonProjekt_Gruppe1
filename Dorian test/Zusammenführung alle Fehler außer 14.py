@@ -200,7 +200,7 @@ def check_direction(daten_direction):
     if last_direction == "'out'":
         print("Am Ende wurde ausgecheckt")
     else:
-        label_direction.config(text='Auscheckzeitpunt fehlt am Ende(kein Fehler da Tr. nicht abgeschlossen!)', fg="green")
+        label_direction.config(text='Auscheckzeitpunt fehlt am Ende(kein Fehler da Transport noch nicht abgeschlossen!)', fg="green")
         return False
 
     return True
