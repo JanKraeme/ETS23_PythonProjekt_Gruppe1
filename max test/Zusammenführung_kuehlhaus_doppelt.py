@@ -169,7 +169,7 @@ def check_direction(daten_direction):
         if value_in_out == "'in'":
             # Check for repeated check-ins into the same cooling house
             if last_direction == "'in'" and last_transportstation == current_transportstation:
-                label_direction.config(text=f"Fehler: Wiederholtes Einchecken in {current_transportstation}!", fg="red")
+                label_direction.config(text=f"Fehler: Wiederholtes Einchecken {current_transportstation}!", fg="red")
                 return False
             print(value_in_out, "i.o.")
 
