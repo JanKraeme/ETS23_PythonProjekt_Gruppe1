@@ -168,32 +168,30 @@ def check_direction(daten_direction):
     # Prüfung der Direction-Logik
     for index, item in enumerate(daten_direction):
         value_in_out = item['direction']
-        if index % 2 == 0:
+        if index % 2 == 0: # ungerader Index mus IN sein
             if value_in_out == "'in'":
                 print(value_in_out, "i.o.")
             else:
                 label_direction.config(text='Fehler: Zweimal nacheinander ausgecheckt!', fg="red")
                 return False
         else:
-            if value_in_out == "'out'":
+            if value_in_out == "'out'":  # gerader Index muss OUT sein
                 print(value_in_out, "i.o.")
             else:
                 label_direction.config(text='Fehler: Zweimal nacheinander eingecheckt!', fg="red")
                 return False
 
-    # Jetzt die neue Prüfung mit db_zwischenzeit
+    # Prüfung der OUT Zeit des aktuellen gegen IN Zeit im nächsten Kühlabteil
     for i in range(1, len(daten_zwischenzeit)):
         previous_entry = daten_zwischenzeit[i - 1]
         current_entry = daten_zwischenzeit[i]
 
         # Nur Einträge prüfen, die in der Reihenfolge Out -> In gehen
         if previous_entry['direction'] == "'out'" and current_entry['direction'] == "'in'":
-            print("jau")
             # Prüfen, ob die Zeit des Eincheckens nach der Zeit des vorherigen Auscheckens liegt
             if current_entry['datetime'] < previous_entry['datetime']:
                 label_direction.config(text='Fehler: Einchecken vor Auschecken im nächsten Kühlhaus!', fg="red")
-                print("fehlerda")
-                return False  # Fehler gefunden, sofort abbrechen
+                return False
 
     last_line = daten_direction[-1]
     last_direction = last_line['direction']
