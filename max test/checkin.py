@@ -132,7 +132,7 @@ def read_transid():
     else:
         verifikation_auswertung(transid)
 
-def check_direction(daten_direction):
+""" def check_direction(daten_direction):
     if daten_id:
         daten_id.sort(key=lambda x: x["datetime"])  # Sortiere nach Datum
         for eintrag in daten_id:
@@ -180,7 +180,28 @@ def check_direction(daten_direction):
         label_direction.config(text='Auschecken am Ende fehlt', fg="red")
         return False
 
+    return True """
+    
+def check_double_entries(daten_direction):
+    """
+    Überprüft, ob es doppelte 'in' oder 'out' Einträge für dieselbe Transport-ID gibt.
+    """
+    previous_direction = None
+    for eintrag in daten_direction:
+        current_direction = eintrag['direction']
+        if previous_direction == current_direction:
+            # Wenn zwei aufeinanderfolgende Einträge die gleiche Richtung haben
+            if current_direction == "'in'":
+                #messagebox.showerror(title="Fehler", message="Einchecken und nochmal einchecken im gleichen Kühlhaus!")
+                print("Einchecken und nochmal einchecken im gleichen Kühlhaus!")
+                return False
+            elif current_direction == "'out'":
+                #messagebox.showerror(title="Fehler", message="Auschecken und nochmal auschecken im gleichen Kühlhaus!")
+                print("Auschecken und nochmal auschecken im gleichen Kühlhaus!")
+                return False
+        previous_direction = current_direction
     return True
+
 
 def verifikation_auswertung(transid):
     global daten_id

@@ -5,7 +5,7 @@ from tkinter import messagebox
 from datetime import datetime, timedelta
 
 def lade_db_daten():
-    global cursor, conn, db_daten, db_datetime, db_direction
+    global cursor, conn, db_daten, db_datetime, db_direction, db_zwischenzeit
     server = 'sc-db-server.database.windows.net'
     database = 'supplychain'
     username = 'rse'
@@ -18,7 +18,7 @@ def lade_db_daten():
         f'PWD={password}'
     )
 
-    try:
+    try: 
         conn = pyodbc.connect(conn_str)
     except Exception as e:
         messagebox.showerror(title="Fehler", message=f"Keine Verbindung zur Datenbank möglich! {e}")
@@ -35,6 +35,7 @@ def lade_db_daten():
     db_daten = []
     db_datetime = []
     db_direction = []
+    db_zwischenzeit = []  # Neue Liste für Zwischenzeiten
     transport_ids = set()
 
     for row in cursor:
@@ -49,6 +50,12 @@ def lade_db_daten():
             'datetime': row.datetime
         })
         transport_ids.add(row.transportid)
+        db_zwischenzeit.append({
+            'transportid':row.transportid,
+            'transportstation': row.transportstation,
+            'datetime': row.datetime,
+            'direction': row.direction
+        })  # Füge die Zwischenzeiten hinzu
 
     # Dropdown-Liste mit allen Transport-IDs aktualisieren
     unique_ids = sorted(transport_ids)
@@ -63,7 +70,7 @@ def schließe_db():
         conn.close()
 
 def start_fenster_manuell():
-    global combobox_transid, label_duration, tree, label_direction, label_datetime
+    global combobox_transid, label_duration, tree, label_direction, label_datetime, label_double_checkin
 
     fenster_manuell = tk.Toplevel(fenster_hauptmenue)
     fenster_manuell.title("Manuelle Überprüfung")
@@ -87,9 +94,12 @@ def start_fenster_manuell():
     
     label_datetime = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
     label_datetime.grid(column=1, row=3, padx=10, pady=10)
+    
+    label_double_checkin = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
+    label_double_checkin.grid(column=1, row=4, padx=10, pady=10)
 
     tree = ttk.Treeview(fenster_manuell, columns=("company", "transportstation", "category", "direction", "datetime"), show='headings')
-    tree.grid(row=4, column=0, columnspan=3, padx=10, pady=10)
+    tree.grid(row=5, column=0, columnspan=3, padx=10, pady=10)
 
     tree.heading("company", text="Unternehmen")
     tree.heading("transportstation", text="Transport Station")
@@ -103,10 +113,10 @@ def start_fenster_manuell():
 
     # Canvas für LKW-Symbol und Freeze-Symbol erstellen
     canvas = tk.Canvas(fenster_manuell, width=600, height=100, bg="#f0f0f0", highlightthickness=0)
-    canvas.grid(row=5, column=0, columnspan=4, pady=20)
+    canvas.grid(row=6, column=0, columnspan=4, pady=20)
 
     # LKW-Symbol und Freeze-Symbol als Text hinzufügen
-    truck_icon_text = "🚚"  # Unicode LKW-Symbol
+    truck_icon_text = "⛟"  # Unicode LKW-Symbol
     freeze_icon_text = "❄️"  # Unicode Freeze-Symbol
     
     truck_x = 100
@@ -132,76 +142,92 @@ def read_transid():
     else:
         verifikation_auswertung(transid)
     
-""" def check_direction(daten_direction):
+def check_direction(daten_direction):
+    if daten_id:
+        daten_id.sort(key=lambda x: x["datetime"])  # Sortiere nach Datum
+        for eintrag in daten_id:
+            tree.insert("", "end", values=(eintrag["company"], eintrag["transportstation"], eintrag["category"], eintrag["direction"], eintrag["datetime"]))    
+        
+        start_time = daten_id[0]["datetime"]
+        end_time = daten_id[-1]["datetime"]
+        duration = end_time - start_time
+
+        tage = duration.days
+        stunden, minuten = divmod(duration.seconds, 3600)
+        minuten //= 60
+
+        if tage == 1:
+            zeit_format = f"{tage} Tag, {stunden} Stunden, {minuten} Minuten"
+        else:
+            zeit_format = f"{tage} Tage, {stunden} Stunden, {minuten} Minuten"
+
+        if duration > timedelta(hours=48):
+            label_duration.config(text=f'Transportdauer überschreitet 48 Stunden: {zeit_format}', fg="red")
+        else:
+            label_duration.config(text=f'Transportdauer innerhalb von 48 Stunden: {zeit_format}', fg="green")
+    else:
+        label_duration.config(text='Transport-ID nicht vorhanden.', fg="red")
+        
+    # Prüfung der Direction-Logik
     for index, item in enumerate(daten_direction):
         value_in_out = item['direction']
-        if index % 2 == 0:
+        if index % 2 == 0: # ungerader Index mus IN sein
             if value_in_out == "'in'":
                 print(value_in_out, "i.o.")
             else:
                 label_direction.config(text='Fehler: Zweimal nacheinander ausgecheckt!', fg="red")
                 return False
         else:
-            if value_in_out == "'out'":
+            if value_in_out == "'out'":  # gerader Index muss OUT sein
                 print(value_in_out, "i.o.")
             else:
                 label_direction.config(text='Fehler: Zweimal nacheinander eingecheckt!', fg="red")
                 return False
 
-    last_line = daten_direction[-1]
-    last_direction = last_line['direction']
-    if last_direction == "'out'":
-        print("Am Ende wurde ausgecheckt")
-    else:
-        label_direction.config(text='Auschecken am Ende fehlt', fg="red")
-        return False
+    # Prüfung der OUT Zeit des aktuellen gegen IN Zeit im nächsten Kühlabteil
+    for i in range(1, len(daten_zwischenzeit)):
+        previous_entry = daten_zwischenzeit[i - 1]
+        current_entry = daten_zwischenzeit[i]
 
-    return True """
-    
-def check_direction(daten_direction):
-    last_transportstation = None  # Track the last transport station
-    last_direction = None  # Track the last direction ('in' or 'out')
-
-    for index, item in enumerate(daten_direction):
-        value_in_out = item['direction']
-        current_transportstation = item.get('transportstation', '')  # Get current transport station
-
-        if value_in_out == "'in'":
-            # Check for repeated check-ins into the same cooling house
-            if last_direction == "'in'" and last_transportstation == current_transportstation:
-                label_direction.config(text=f"Fehler: Wiederholtes Einchecken {current_transportstation}!", fg="red")
+        # Nur Einträge prüfen, die in der Reihenfolge Out -> In gehen
+        if previous_entry['direction'] == "'out'" and current_entry['direction'] == "'in'":
+            # Prüfen, ob die Zeit des Eincheckens nach der Zeit des vorherigen Auscheckens liegt
+            if current_entry['datetime'] < previous_entry['datetime']:
+                label_direction.config(text='Fehler: Einchecken vor Auschecken im nächsten Kühlhaus!', fg="red")
                 return False
-            print(value_in_out, "i.o.")
 
-        elif value_in_out == "'out'":
-            print(value_in_out, "i.o.")
-        else:
-            label_direction.config(text=f'Fehler: Ungültige Richtung {value_in_out}!', fg="red")
-            return False
-
-        # Update the last transport station and direction after processing
-        last_transportstation = current_transportstation
-        last_direction = value_in_out
-
-    # Check the last entry for correct exit
     last_line = daten_direction[-1]
     last_direction = last_line['direction']
     if last_direction == "'out'":
         print("Am Ende wurde ausgecheckt")
     else:
-        label_direction.config(text='Auschecken am Ende fehlt', fg="red")
+        label_direction.config(text='Auscheckzeitpunt fehlt am Ende(kein Fehler da Transport noch nicht abgeschlossen!)', fg="green")
         return False
+    
+    previous_direction = None
+    for eintrag in daten_direction:
+        current_direction = eintrag['direction']
+        if previous_direction == current_direction:
+            if current_direction == "'in'":
+                label_double_checkin.config(text='Doppelter Check-in im gleichen Kühlhaus!', fg="red")
+                return False
+            elif current_direction == "'out'":
+                label_double_checkin.config(text='Doppelter Check-out im gleichen Kühlhaus!', fg="red")
+                return False
+        previous_direction = current_direction
 
     return True
 
-
 def verifikation_auswertung(transid):
+    global daten_id, daten_zwischenzeit
     for item in tree.get_children():
         tree.delete(item)
 
     daten_id = list(filter(lambda item: item["transportid"] == transid, db_daten))
     daten_datetime = list(filter(lambda item: item["transportid"] == transid, db_datetime))
     daten_direction = list(filter(lambda item: item["transportid"] == transid, db_direction))
+    daten_zwischenzeit = list(filter(lambda item: item["transportid"] == transid, db_zwischenzeit))
+    
     
     if daten_id:
         daten_id.sort(key=lambda x: x["datetime"])  # Sortiere nach Datum
@@ -217,6 +243,7 @@ def verifikation_auswertung(transid):
     daten_datetime.sort(key=lambda x: x['datetime'])
 
     verification_failed = False
+    
 
     for i in range(1, len(daten_datetime) - 1, 2):
         out_record = daten_datetime[i] 
@@ -245,30 +272,7 @@ def verifikation_auswertung(transid):
     else:
         label_direction.config(text='Verifikation erfolgreich', fg="green")
         
-    if daten_id:
-        daten_id.sort(key=lambda x: x["datetime"])  # Sortiere nach Datum
-        for eintrag in daten_id:
-            tree.insert("", "end", values=(eintrag["company"], eintrag["transportstation"], eintrag["category"], eintrag["direction"], eintrag["datetime"]))    
-        
-        start_time = daten_id[0]["datetime"]
-        end_time = daten_id[-1]["datetime"]
-        duration = end_time - start_time
-
-        tage = duration.days
-        stunden, minuten = divmod(duration.seconds, 3600)
-        minuten //= 60
-
-        if tage == 1:
-            zeit_format = f"{tage} Tag, {stunden} Stunden, {minuten} Minuten"
-        else:
-            zeit_format = f"{tage} Tage, {stunden} Stunden, {minuten} Minuten"
-
-        if duration > timedelta(hours=48):
-            label_duration.config(text=f'Transportdauer überschreitet 48 Stunden: {zeit_format}', fg="red")
-        else:
-            label_duration.config(text=f'Transportdauer innerhalb von 48 Stunden: {zeit_format}', fg="green")
-    else:
-        label_duration.config(text='Transport-ID nicht vorhanden.', fg="red")
+    
 
     schließe_db()
 
