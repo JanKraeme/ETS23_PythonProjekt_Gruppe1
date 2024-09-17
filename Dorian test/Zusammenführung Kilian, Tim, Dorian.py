@@ -39,7 +39,7 @@ def lade_db_daten():
 
     for row in cursor:
         db_datetime.append({'datetime': row.datetime, 'direction': row.direction, 'transportid': row.transportid})
-        db_direction.append({'transportid': row.transportid, 'direction': row.direction})
+        db_direction.append({'transportid': row.transportid, 'direction': row.direction, 'datetime': row.datetime})
         db_daten.append({
             'company': row.company, 
             'transportid': row.transportid, 
@@ -63,7 +63,7 @@ def schließe_db():
         conn.close()
 
 def start_fenster_manuell():
-    global combobox_transid, label_duration, tree, label_direction, label_datetime
+    global combobox_transid, label_duration, tree, label_direction, label_datetime, label_1
 
     fenster_manuell = tk.Toplevel(fenster_hauptmenue)
     fenster_manuell.title("Manuelle Überprüfung")
@@ -87,9 +87,12 @@ def start_fenster_manuell():
     
     label_datetime = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
     label_datetime.grid(column=1, row=3, padx=10, pady=10)
+    
+    label_1 = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
+    label_1.grid(column=1, row=4, padx=10, pady=10)
 
     tree = ttk.Treeview(fenster_manuell, columns=("company", "transportstation", "category", "direction", "datetime"), show='headings')
-    tree.grid(row=4, column=0, columnspan=3, padx=10, pady=10)
+    tree.grid(row=5, column=0, columnspan=3, padx=10, pady=10)
 
     tree.heading("company", text="Unternehmen")
     tree.heading("transportstation", text="Transport Station")
@@ -103,7 +106,7 @@ def start_fenster_manuell():
 
     # Canvas für LKW-Symbol und Freeze-Symbol erstellen
     canvas = tk.Canvas(fenster_manuell, width=600, height=100, bg="#f0f0f0", highlightthickness=0)
-    canvas.grid(row=5, column=0, columnspan=4, pady=20)
+    canvas.grid(row=6, column=0, columnspan=4, pady=20)
 
     # LKW-Symbol und Freeze-Symbol als Text hinzufügen
     truck_icon_text = "⛟"  # Unicode LKW-Symbol

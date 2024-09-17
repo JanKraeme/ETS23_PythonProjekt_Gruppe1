@@ -5,7 +5,7 @@ from tkinter import messagebox
 from datetime import datetime, timedelta
 
 def lade_db_daten():
-    global cursor, conn, db_daten, db_datetime, db_direction, db_zwischenzeit
+    global cursor, conn, db_daten, db_datetime, db_direction, db_zwischenzeit, db_checkin
     server = 'sc-db-server.database.windows.net'
     database = 'supplychain'
     username = 'rse'
@@ -35,12 +35,14 @@ def lade_db_daten():
     db_daten = []
     db_datetime = []
     db_direction = []
-    db_zwischenzeit = []  # Neue Liste für Zwischenzeiten
+    db_zwischenzeit = []
+    db_checkin = []  # Neue Liste für Check-ins
     transport_ids = set()
 
     for row in cursor:
         db_datetime.append({'datetime': row.datetime, 'direction': row.direction, 'transportid': row.transportid})
         db_direction.append({'transportid': row.transportid, 'direction': row.direction})
+        db_checkin.append({'direction': row.direction, 'transportid': row.transportid, 'transportstation': row.transportstation, 'datetime': row.datetime})
         db_daten.append({
             'company': row.company, 
             'transportid': row.transportid, 
@@ -70,7 +72,7 @@ def schließe_db():
         conn.close()
 
 def start_fenster_manuell():
-    global combobox_transid, label_duration, tree, label_direction, label_datetime
+    global combobox_transid, label_duration, tree, label_direction, label_datetime, label_checkin
 
     fenster_manuell = tk.Toplevel(fenster_hauptmenue)
     fenster_manuell.title("Manuelle Überprüfung")
@@ -94,9 +96,12 @@ def start_fenster_manuell():
     
     label_datetime = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
     label_datetime.grid(column=1, row=3, padx=10, pady=10)
+    
+    label_checkin = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
+    label_checkin.grid(column=1, row=4, padx=10, pady=10)
 
     tree = ttk.Treeview(fenster_manuell, columns=("company", "transportstation", "category", "direction", "datetime"), show='headings')
-    tree.grid(row=4, column=0, columnspan=3, padx=10, pady=10)
+    tree.grid(row=5, column=0, columnspan=3, padx=10, pady=10)
 
     tree.heading("company", text="Unternehmen")
     tree.heading("transportstation", text="Transport Station")
@@ -110,7 +115,7 @@ def start_fenster_manuell():
 
     # Canvas für LKW-Symbol und Freeze-Symbol erstellen
     canvas = tk.Canvas(fenster_manuell, width=600, height=100, bg="#f0f0f0", highlightthickness=0)
-    canvas.grid(row=5, column=0, columnspan=4, pady=20)
+    canvas.grid(row=6, column=0, columnspan=4, pady=20)
 
     # LKW-Symbol und Freeze-Symbol als Text hinzufügen
     truck_icon_text = "⛟"  # Unicode LKW-Symbol
@@ -129,8 +134,7 @@ def start_fenster_manuell():
     lade_db_daten()
 
 def read_transid():
-    transid = combobox_transid.get().strip() # Die ausgewählte ID aus der Combobox abrufen und Leerzeichen entfernen
-    label_duration.config(text="", fg="red")
+    transid = combobox_transid.get().strip()  # Die ausgewählte ID aus der Combobox abrufen und Leerzeichen entfernen
 
     # Überprüfen, ob die ID Sonderzeichen enthält
     if any(char not in "0123456789" for char in transid):
@@ -139,61 +143,73 @@ def read_transid():
             tree.delete(item)
     else:
         verifikation_auswertung(transid)
-    
+
+def check_repeated_directions_in_station(daten_checkin):
+    """
+    Überprüft, ob für dieselbe Transportstation und dieselbe Transport-ID zweimal hintereinander
+    dieselbe Direction ("in" oder "out") vorkommt.
+    """
+    previous_entries = {}
+
+    for eintrag in daten_checkin:
+        transportstation = eintrag['transportstation']
+        direction = eintrag['direction']
+
+        # Prüfe nur für die ausgewählte Transportstation und ID, ob dieselbe Direction zweimal hintereinander vorkommt
+        if transportstation in previous_entries:
+            if previous_entries[transportstation] == direction:
+                label_checkin.config(text=f"Fehler: Zweimal hintereinander '{direction}' in Station '{transportstation}'!", fg="red")
+                return False
+
+        # Aktualisiere den letzten Eintrag für diese Station
+        previous_entries[transportstation] = direction
+
+    # Wenn keine doppelten 'in' oder 'out' gefunden wurden
+    label_checkin.config(text="Check-in/Check-out-Sequenz korrekt!", fg="green")
+    return True
+
 def check_direction(daten_direction):
-    global zeit_format
-    if not daten_id:
-        return {
-            'error_transport_id_missing': True,
-            'error_double_checkout': False,
-            'error_double_checkin': False,
-            'error_in_before_out': False,
-            'error_missing_final_checkout': False,
-            'error_duration_exceeded': False
-        }
+    if daten_id:
+        daten_id.sort(key=lambda x: x["datetime"])  # Sortiere nach Datum
+        for eintrag in daten_id:
+            tree.insert("", "end", values=(eintrag["company"], eintrag["transportstation"], eintrag["category"], eintrag["direction"], eintrag["datetime"]))    
+        
+        start_time = daten_id[0]["datetime"]
+        end_time = daten_id[-1]["datetime"]
+        duration = end_time - start_time
 
-    # Fehlerflags initialisieren
-    error_transport_id_missing = False
-    error_double_checkout = False
-    error_double_checkin = False
-    error_in_before_out = False
-    error_missing_final_checkout = False
-    error_duration_exceeded = False
+        tage = duration.days
+        stunden, minuten = divmod(duration.seconds, 3600)
+        minuten //= 60
 
-    # Sortiere nach Datum und füge Einträge in den Tree ein
-    daten_id.sort(key=lambda x: x["datetime"])
-    for eintrag in daten_id:
-        tree.insert("", "end", values=(eintrag["company"], eintrag["transportstation"], eintrag["category"], eintrag["direction"], eintrag["datetime"]))    
+        if tage == 1:
+            zeit_format = f"{tage} Tag, {stunden} Stunden, {minuten} Minuten"
+        else:
+            zeit_format = f"{tage} Tage, {stunden} Stunden, {minuten} Minuten"
 
-    start_time = daten_id[0]["datetime"]
-    end_time = daten_id[-1]["datetime"]
-    duration = end_time - start_time
-
-    tage = duration.days
-    stunden, minuten = divmod(duration.seconds, 3600)
-    minuten //= 60
-
-    if tage == 1:
-        zeit_format = f"{tage} Tag, {stunden} Stunden, {minuten} Minuten"
+        if duration > timedelta(hours=48):
+            label_duration.config(text=f'Transportdauer überschreitet 48 Stunden: {zeit_format}', fg="red")
+        else:
+            label_duration.config(text=f'Transportdauer innerhalb von 48 Stunden: {zeit_format}', fg="green")
     else:
-        zeit_format = f"{tage} Tage, {stunden} Stunden, {minuten} Minuten"
-
-    if duration > timedelta(hours=48):
-        error_duration_exceeded = True
-
+        label_duration.config(text='Transport-ID nicht vorhanden.', fg="red")
+        
+    
     # Prüfung der Direction-Logik
     for index, item in enumerate(daten_direction):
         value_in_out = item['direction']
-        if index % 2 == 0:  # ungerader Index muss 'in' sein
+        if index % 2 == 0: # ungerader Index mus IN sein
             if value_in_out == "'in'":
                 print(value_in_out, "i.o.")
             else:
-                error_double_checkout = True
-        else:  # gerader Index muss 'out' sein
-            if value_in_out == "'out'":
+                label_direction.config(text='Fehler: Zweimal nacheinander ausgecheckt!', fg="red")
+                return False
+        else:
+            if value_in_out == "'out'":  # gerader Index muss OUT sein
                 print(value_in_out, "i.o.")
             else:
-                error_double_checkin = True
+                label_direction.config(text='Fehler: Zweimal nacheinander eingecheckt!', fg="red")
+                return False
 
     # Prüfung der OUT Zeit des aktuellen gegen IN Zeit im nächsten Kühlabteil
     for i in range(1, len(daten_zwischenzeit)):
@@ -204,28 +220,22 @@ def check_direction(daten_direction):
         if previous_entry['direction'] == "'out'" and current_entry['direction'] == "'in'":
             # Prüfen, ob die Zeit des Eincheckens nach der Zeit des vorherigen Auscheckens liegt
             if current_entry['datetime'] < previous_entry['datetime']:
-                error_in_before_out = True
-
-    # Prüfung, ob die Kühlkette mit 'OUT' endet
+                label_direction.config(text='Fehler: Einchecken vor Auschecken im nächsten Kühlhaus!', fg="red")
+                return False
+    
+    #Prüfung ob Kühlkette mit OUT endet
     last_line = daten_direction[-1]
     last_direction = last_line['direction']
     if last_direction == "'out'":
         print("Am Ende wurde ausgecheckt")
     else:
-        error_missing_final_checkout = True
+        label_direction.config(text='Auscheckzeitpunkt fehlt am Ende (kein Fehler, da Transport noch nicht abgeschlossen!)', fg="green")
+        return False
 
-    # Rückgabe der Fehler als Dictionary
-    return {
-        'error_transport_id_missing': error_transport_id_missing,
-        'error_double_checkout': error_double_checkout,
-        'error_double_checkin': error_double_checkin,
-        'error_in_before_out': error_in_before_out,
-        'error_missing_final_checkout': error_missing_final_checkout,
-        'error_duration_exceeded': error_duration_exceeded
-    }
+    return True
 
 def verifikation_auswertung(transid):
-    global daten_id, daten_zwischenzeit
+    global daten_id, daten_zwischenzeit, daten_checkin
     for item in tree.get_children():
         tree.delete(item)
 
@@ -233,8 +243,8 @@ def verifikation_auswertung(transid):
     daten_datetime = list(filter(lambda item: item["transportid"] == transid, db_datetime))
     daten_direction = list(filter(lambda item: item["transportid"] == transid, db_direction))
     daten_zwischenzeit = list(filter(lambda item: item["transportid"] == transid, db_zwischenzeit))
-    
-    
+    daten_checkin = list(filter(lambda item: item["transportid"] == transid, db_checkin))  # Nur ausgewählte ID!
+
     if daten_id:
         daten_id.sort(key=lambda x: x["datetime"])  # Sortiere nach Datum
         for eintrag in daten_id:
@@ -242,42 +252,13 @@ def verifikation_auswertung(transid):
     else:
         label_duration.config(text='Transport-ID nicht vorhanden.', fg="red")
     
-    fehlerspeicher = check_direction(daten_direction)
-    print (fehlerspeicher)
-    
-    if fehlerspeicher['error_transport_id_missing']:
-        label_duration.config(text='Transport-ID nicht vorhanden.', fg="red")
-        print("Transport-ID nicht vorhanden.")
-        
-    if fehlerspeicher['error_double_checkout']:
-        label_direction.config(text='Fehler: Zweimal nacheinander ausgecheckt!', fg="red")
-        print("Fehler: Zweimal nacheinander ausgecheckt.")
-        
-    if fehlerspeicher[ 'error_double_checkin']:
-        label_direction.config(text='Fehler: Zweimal nacheinander eingecheckt!', fg="red")
-        print("Fehler: Zweimal nacheinander eingecheckt!")
-        
-    if fehlerspeicher['error_in_before_out']:
-        label_direction.config(text='Fehler: Einchecken vor Auschecken im nächsten Kühlhaus!', fg="red")
-        print("Fehler: Einchecken vor Auschecken im nächsten Kühlhaus!")
-        
-    if fehlerspeicher['error_missing_final_checkout']:
-        label_direction.config(text='Auscheckzeitpunkt fehlt am Ende (kein Fehler, da Transport noch nicht abgeschlossen!)', fg="green")
-        print("Auscheckzeitpunkt fehlt am Ende (kein Fehler, da Transport noch nicht abgeschlossen!)")
-    
-    if fehlerspeicher['error_duration_exceeded']:
-        label_duration.config(text=f'Transportdauer überschreitet 48 Stunden: {zeit_format}', fg="red")
-        print("Fehler: Die Transportdauer überschreitet 48 Stunden.")
-    else:
-        label_duration.config(text=f'Transportdauer innerhalb von 48 Stunden: {zeit_format}', fg="green")
-        
+    # Check direction sequence first
+    if not check_direction(daten_direction):
+        return  # Exit early if there is a direction error
 
-    
-    
     daten_datetime.sort(key=lambda x: x['datetime'])
 
     verification_failed = False
-    
 
     for i in range(1, len(daten_datetime) - 1, 2):
         out_record = daten_datetime[i] 
@@ -287,9 +268,9 @@ def verifikation_auswertung(transid):
 
         if out_record['direction'] == "'out'" and in_record['direction'] == "'in'":
             if isinstance(out_record['datetime'], str):
-                out_record['datetime'] = datetime.datetime.strptime(out_record['datetime'], '%Y-%m-%d %H:%M:%S')
+                out_record['datetime'] = datetime.strptime(out_record['datetime'], '%Y-%m-%d %H:%M:%S')
             if isinstance(in_record['datetime'], str):
-                in_record['datetime'] = datetime.datetime.strptime(in_record['datetime'], '%Y-%m-%d %H:%M:%S')
+                in_record['datetime'] = datetime.strptime(in_record['datetime'], '%Y-%m-%d %H:%M:%S')
 
             time_diff = (in_record['datetime'] - out_record['datetime']).total_seconds()
             print(f"Time difference: {time_diff} seconds")
@@ -300,13 +281,15 @@ def verifikation_auswertung(transid):
         else:
             verification_failed = True
             break
-    
+
     if verification_failed:
         label_direction.config(text='Zeitüberschreitung: Übergabe > 10min', fg="red")
     else:
         label_direction.config(text='Verifikation erfolgreich', fg="green")
-        
-    
+
+    # Check for repeated directions at the same station using daten_checkin (only for selected transid)
+    if not check_repeated_directions_in_station(daten_checkin):
+        return  # Exit early if there is an issue with the check-in/check-out sequence
 
     schließe_db()
 
