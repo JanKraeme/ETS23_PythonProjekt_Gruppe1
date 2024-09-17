@@ -5,7 +5,7 @@ from tkinter import messagebox
 from datetime import datetime, timedelta
 
 def lade_db_daten():
-    global cursor, conn, db_daten
+    global cursor, conn, db_daten, unique_ids
     server = 'sc-db-server.database.windows.net'
     database = 'supplychain'
     username = 'rse'
@@ -45,13 +45,15 @@ def lade_db_daten():
             'datetime': row.datetime
         })
         transport_ids.add(row.transportid)
-
+    transport_ids.groupby()
+    print(transport_ids)
     # Dropdown-Liste mit allen Transport-IDs aktualisieren
     unique_ids = sorted(transport_ids)
-    combobox_transid['values'] = unique_ids
+    unique_ids['values'] = unique_ids
+    print(unique_ids)
     if unique_ids:
         combobox_transid.current(0)  # Standardmäßig die erste ID auswählen
-
+    
 def schließe_db():
     if cursor:
         cursor.close()
@@ -114,15 +116,44 @@ def start_fenster_manuell():
 def read_transid():
     transid = combobox_transid.get().strip()  # Die ausgewählte ID aus der Combobox abrufen und Leerzeichen entfernen
 
-    # Überprüfen, ob die ID Sonderzeichen enthält
-    if any(char not in "0123456789" for char in transid):
-        label_duration.config(text="Fehlerhafte Transport-ID!", fg="red")
-        for item in tree.get_children():
-            tree.delete(item)
-    else:
-        verifikation_auswertung(transid)
 
-def verifikation_auswertung(transid):
+    verifikation_auswertung(unique_ids)
+
+def verifikation_auswertung(unique_ids):
+    for item in tree.get_children():
+        tree.delete(item)
+    for datenliste in unique_ids:
+        daten_id = list(filter(lambda item: item["transportid"] == datenliste, db_daten))
+
+        if daten_id:
+            daten_id.sort(key=lambda x: x["datetime"])  # Sortiere nach Datum
+            
+            for eintrag in daten_id:
+                tree.insert("", "end", values=(eintrag["company"], eintrag["transportstation"], eintrag["category"], eintrag["direction"], eintrag["datetime"]))
+                
+            start_time = daten_id[0]["datetime"]
+            end_time = daten_id[-1]["datetime"]
+            duration = end_time - start_time
+
+            tage = duration.days
+            stunden, minuten = divmod(duration.seconds, 3600)
+            minuten //= 60
+
+            if tage == 1:
+                zeit_format = f"{tage} Tag, {stunden} Stunden, {minuten} Minuten"
+            else:
+                zeit_format = f"{tage} Tage, {stunden} Stunden, {minuten} Minuten"
+
+            if duration > timedelta(hours=48):
+                label_duration.config(text=f'Transportdauer überschreitet 48 Stunden: {zeit_format}', fg="red")
+            else:
+                label_duration.config(text=f'Transportdauer innerhalb von 48 Stunden: {zeit_format}', fg="green")
+        else:
+            label_duration.config(text='Transport-ID nicht vorhanden.', fg="red")
+
+    schließe_db()
+
+def auswertung_automatisch(transid):
     for item in tree.get_children():
         tree.delete(item)
 
@@ -130,7 +161,7 @@ def verifikation_auswertung(transid):
 
     if daten_id:
         daten_id.sort(key=lambda x: x["datetime"])  # Sortiere nach Datum
-        daten_id.strip([''])
+
         for eintrag in daten_id:
             tree.insert("", "end", values=(eintrag["company"], eintrag["transportstation"], eintrag["category"], eintrag["direction"], eintrag["datetime"]))
         
@@ -155,7 +186,8 @@ def verifikation_auswertung(transid):
         label_duration.config(text='Transport-ID nicht vorhanden.', fg="red")
 
     schließe_db()
-    
+
+   
 
 def start_fenster_automatisch():
     global combobox_transid, label_duration, tree
