@@ -192,7 +192,7 @@ def check_direction(daten_direction):
             if current_entry['datetime'] < previous_entry['datetime']:
                 label_direction.config(text='Fehler: Einchecken vor Auschecken im nächsten Kühlhaus!', fg="red")
                 return False
-
+    #Prüfung ob Kühlkette mit OUT endet
     last_line = daten_direction[-1]
     last_direction = last_line['direction']
     if last_direction == "'out'":
