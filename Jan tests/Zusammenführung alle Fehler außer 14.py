@@ -241,6 +241,7 @@ def verifikation_auswertung(transid):
                 verifikation_string = 'Fehler: Einchecken vor Auschecken im nächsten Kühlhaus!'
                 label_direction.config(text=verifikation_string, fg="red")
                 return False
+            
 
     last_line = daten_direction[-1]
     last_direction = last_line['direction']
@@ -293,6 +294,29 @@ def verifikation_auswertung(transid):
     else:
         verifikation_string = 'Verifikation erfolgreich'
         label_direction.config(text=verifikation_string, fg="green")
+
+        letzte_station = {}
+    letzte_aktion = {}
+
+    for i in range(1, len(daten_zwischenzeit)):
+        aktueller_eintrag = daten_zwischenzeit[i]
+        transportid = aktueller_eintrag['transportid']
+        station = aktueller_eintrag['transportstation']
+        aktion = aktueller_eintrag['direction']
+
+        # Überprüfen, ob der Transport bereits zuvor aufgezeichnet wurde
+        if transportid in letzte_station:
+            # Wenn die letzte Aktion 'out' war und die aktuelle Aktion 'in' ist,
+            # überprüfen, ob die Station **dieselbe** ist
+            if letzte_aktion[transportid] == "'out'" and aktion == "'in'":
+                if letzte_station[transportid] == station:
+                    verifikation_string = f"Aus und wieder Einchecken im gleichen Kühllager"
+                    label_direction.config(text=verifikation_string, fg="red")
+                    # Hier können Sie weitere Aktionen ausführen, z.B. den Fehler in einer Liste speichern oder eine Benachrichtigung senden
+
+        # Aktualisiere die zuletzt besuchte Station und die letzte Aktion
+        letzte_station[transportid] = station
+        letzte_aktion[transportid] = aktion
         
     
 
