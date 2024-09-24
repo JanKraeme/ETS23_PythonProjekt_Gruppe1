@@ -173,13 +173,13 @@ def verifikation_auswertung(transid):
     daten_direction = list(filter(lambda item: item["transportid"] == transid, db_direction))
     daten_zwischenzeit = list(filter(lambda item: item["transportid"] == transid, db_zwischenzeit))
     
-#---------- ----------
-       
+#----------Sortieren nach Datum und in Tabelle einfügen----------
     if daten_id:
         daten_id.sort(key=lambda x: x["datetime"])  # Sortiere nach Datum
         for eintrag in daten_id:
             tree.insert("", "end", values=(eintrag["company"], eintrag["transportstation"], eintrag["category"], eintrag["direction"], eintrag["datetime"]))    
-        
+
+#----------Überprüfung Transportdauer----------
         start_time = daten_id[0]["datetime"]
         end_time = daten_id[-1]["datetime"]
         duration = end_time - start_time
@@ -228,13 +228,14 @@ def verifikation_auswertung(transid):
 
 #----------Nur Einträge prüfen, die in der Reihenfolge Out -> In gehen----------
         if previous_entry['direction'] == "'out'" and current_entry['direction'] == "'in'":
-            # Prüfen, ob die Zeit des Eincheckens nach der Zeit des vorherigen Auscheckens liegt
+            
+#----------Prüfen, ob die Zeit des Eincheckens nach der Zeit des vorherigen Auscheckens liegt----------
             if current_entry['datetime'] < previous_entry['datetime']:
                 verifikation_string = 'Fehler: Einchecken vor Auschecken im nächsten Kühlhaus!'
                 label_direction.config(text=verifikation_string, fg="red")
                 return False
             
-
+#----------Überprüfen ob am Ende Ausgecheckt wird----------
     last_line = daten_direction[-1]
     last_direction = last_line['direction']
     if last_direction == "'out'":
@@ -244,11 +245,11 @@ def verifikation_auswertung(transid):
         label_direction.config(text='Auscheckzeitpunt fehlt am Ende(kein Fehler da Transport noch nicht abgeschlossen!)', fg="green")
         return False
 
+#----------Überprüfen ob Übergabe < 10min----------
     daten_datetime.sort(key=lambda x: x['datetime'])
 
     verification_failed = False
     
-
     for i in range(1, len(daten_datetime) - 1, 2):
         out_record = daten_datetime[i] 
         in_record = daten_datetime[i + 1]
@@ -287,10 +288,10 @@ def verifikation_auswertung(transid):
         station = aktueller_eintrag['transportstation']
         aktion = aktueller_eintrag['direction']
 
-#----------Überprüfen, ob der Transport bereits zuvor aufgezeichnet wurde----------
+#----------Überprüfen, ob im gleichen Kühllager zweimal Eingecheckt wurde----------
         if transportid in letzte_station:
             #Wenn die letzte Aktion 'out' war und die aktuelle Aktion 'in' ist,
-            # überprüfen, ob die Station **dieselbe** ist
+            # überprüfen, ob die Station die Gleiche ist
             if letzte_aktion[transportid] == "'out'" and aktion == "'in'":
                 if letzte_station[transportid] == station:
                     verifikation_string = f"Aus und wieder Einchecken im gleichen Kühllager"
@@ -300,9 +301,8 @@ def verifikation_auswertung(transid):
         letzte_station[transportid] = station
         letzte_aktion[transportid] = aktion
         
-    
-
     schließe_db()
+    
 #--------------------Startfenster erstellen--------------------
 fenster_hauptmenue = tk.Tk()
 fenster_hauptmenue.geometry("1000x500")

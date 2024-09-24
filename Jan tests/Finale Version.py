@@ -1,3 +1,4 @@
+#--------------------Bibliotheken--------------------
 import pyodbc
 import tkinter as tk
 from tkinter import ttk
@@ -5,24 +6,27 @@ from tkinter import messagebox
 from datetime import datetime, timedelta
 from cryptography.fernet import Fernet
 
+#--------------------Funktion Daten aus datenbank Laden--------------------
 def lade_db_daten():
-    # Lade den Schlüssel
+#----------Lade den Schlüssel----------
     with open('key.key', 'rb') as file:
         key = file.read()
 
-# Lade die verschlüsselten Daten
+#----------Lade die verschlüsselten Daten----------
     with open('credentials.crypt', 'rb') as file:
         encrypted_data = file.read()
 
-# Entschlüssele die Daten
+#----------Entschlüssele die Daten----------
     cipher_suite = Fernet(key)
     decrypted_data = cipher_suite.decrypt(encrypted_data)
 
-# Verwende die entschlüsselten Daten
+#----------Verwende die entschlüsselten Daten----------
     usernamecypt, passwordcrypt = decrypted_data.decode().split(';')
     print(usernamecypt, passwordcrypt)
 
     global cursor, conn, db_daten, db_datetime, db_direction, db_zwischenzeit
+    
+#----------Zugang Datenbank----------
     server = 'sc-db-server.database.windows.net'
     database = 'supplychain'
     username = usernamecypt
@@ -34,7 +38,7 @@ def lade_db_daten():
         f'UID={username};'
         f'PWD={password}'
     )
-
+#----------Fehler falls keine Verbindung zur Datenbank möglich ist----------
     try:
         conn = pyodbc.connect(conn_str)
     except Exception as e:
@@ -42,58 +46,51 @@ def lade_db_daten():
         return
 
     cursor = conn.cursor()
-    
+#----------Fehler falls keine verwendbaren Daten in Datenbank vorhanden----------
     try:
         cursor.execute('SELECT company, transportid, transportstation, category, direction, datetime FROM coolchain1')
     except Exception as e:
         messagebox.showerror(title="Fehler", message=f"Kein Datensatz in der Datenbank gefunden! {e}")
         return
     
+#----------Erstellen von benötigten Listen----------
     db_daten = []
     db_datetime = []
     db_direction = []
-    db_zwischenzeit = []  # Neue Liste für Zwischenzeiten
+    db_zwischenzeit = [] 
     transport_ids = set()
-
+    
+#----------Daten in erstellte Listen fügen----------
     for row in cursor:
         db_datetime.append({'datetime': row.datetime, 'direction': row.direction, 'transportid': row.transportid})
         db_direction.append({'transportid': row.transportid, 'direction': row.direction})
-        db_daten.append({
-            'company': row.company, 
-            'transportid': row.transportid, 
-            'transportstation': row.transportstation, 
-            'category': row.category, 
-            'direction': row.direction, 
-            'datetime': row.datetime
-        })
+        db_daten.append({'company': row.company, 'transportid': row.transportid, 'transportstation': row.transportstation, 'category': row.category, 'direction': row.direction, 'datetime': row.datetime})
         transport_ids.add(row.transportid)
-        db_zwischenzeit.append({
-            'transportid':row.transportid,
-            'transportstation': row.transportstation,
-            'datetime': row.datetime,
-            'direction': row.direction
-        })  # Füge die Zwischenzeiten hinzu
+        db_zwischenzeit.append({'transportid':row.transportid,'transportstation': row.transportstation,'datetime': row.datetime,'direction': row.direction})
 
-    # Dropdown-Liste mit allen Transport-IDs aktualisieren
+#----------Dropdown-Liste mit allen Transport-IDs aktualisieren----------
     unique_ids = sorted(transport_ids)
     combobox_transid['values'] = unique_ids
     if unique_ids:
         combobox_transid.current(0)  # Standardmäßig die erste ID auswählen
-
+#--------------------Funktion Fenster Schließen--------------------
 def schließe_db():
-    #if cursor:
+    #----------if cursor:----------
         cursor.close()
-    #if conn:
+    #----------if conn:----------
         conn.close()
-
+#--------------------Funktion erstellung Startfenster--------------------
 def start_fenster_manuell():
+#----------Variablen global übergeben----------
     global combobox_transid, label_duration, tree, label_direction, label_datetime
-
+    
+#----------Fenster zur Auswahl manueller Überprüfung erstellen----------
     fenster_manuell = tk.Toplevel(fenster_hauptmenue)
     fenster_manuell.title("Manuelle Überprüfung")
     fenster_manuell.geometry("1000x600")
     fenster_manuell.configure(bg="#f0f0f0")  # Hintergrundfarbe setzen
-
+    
+#----------Label für Darstellung der Fehler erstellen----------
     labelTop = tk.Label(fenster_manuell, text="Transport-ID auswählen:", bg="#f0f0f0", font=("Helvetica", 12))
     labelTop.grid(column=0, row=0, padx=10, pady=10)
 
@@ -125,11 +122,11 @@ def start_fenster_manuell():
     tree.configure(yscrollcommand=scrollbar.set)
     scrollbar.grid(row=2, column=3, sticky="ns")
 
-    # Canvas für LKW-Symbol und Freeze-Symbol erstellen
+#----------Canvas für LKW-Symbol und Freeze-Symbol erstellen----------
     canvas = tk.Canvas(fenster_manuell, width=600, height=100, bg="#f0f0f0", highlightthickness=0)
     canvas.grid(row=5, column=0, columnspan=4, pady=20)
 
-    # LKW-Symbol und Freeze-Symbol als Text hinzufügen
+#---------- LKW-Symbol und Freeze-Symbol als Text hinzufügen----------
     truck_icon_text = "⛟"  # Unicode LKW-Symbol
     freeze_icon_text = "❄️"  # Unicode Freeze-Symbol
     
@@ -137,22 +134,24 @@ def start_fenster_manuell():
     freeze_x = 300
     text_x = freeze_x + 130  # Abstand von 80 Einheiten hinter dem Freeze-Symbol
     
-    # Icons und Text im Canvas platzieren
+#----------Icons und Text im Canvas platzieren----------
     canvas.create_text(truck_x, 50, text=truck_icon_text, font=("Helvetica", 72), fill="black")
     canvas.create_text(freeze_x, 50, text=freeze_icon_text, font=("Helvetica", 72), fill="blue")
     canvas.create_text(text_x, 50, text="Coolchain-ETS", font=("Helvetica", 24), fill="black")
 
-    # Daten laden, um das Dropdown-Menü zu füllen
+#----------Daten laden, um das Dropdown-Menü zu füllen----------
     lade_db_daten()
-
+#--------------------Funktion Lesen der ID--------------------
 def read_transid():
-    transid = combobox_transid.get().strip()  # Die ausgewählte ID aus der Combobox abrufen und Leerzeichen entfernen
+#----------Die ausgewählte ID aus der Combobox abrufen und Leerzeichen entfernen----------
+    transid = combobox_transid.get().strip()
     
-    #Bei erneuter Überprüfen die Labels leeren
+#----------Bei erneuter Überprüfen die Labels leeren----------
     verifikation_string = ""
     label_duration.config(text=verifikation_string, fg="red")
     label_direction.config(text=verifikation_string, fg="red")
-    # Überprüfen, ob die ID Sonderzeichen enthält
+    
+#----------Überprüfen, ob die ID Sonderzeichen enthält----------
     if any(char not in "0123456789" for char in transid):
         verifikation_string = "Fehlerhafte Transport-ID!"
         label_duration.config(text=verifikation_string, fg="red")
@@ -160,34 +159,27 @@ def read_transid():
             tree.delete(item)
     else:
         verifikation_auswertung(transid)
-    
-
+        
+#--------------------Funktion Fehleridetifikation--------------------
 def verifikation_auswertung(transid):
+#----------Variablen global übergeben----------
     global daten_id, daten_zwischenzeit
     for item in tree.get_children():
         tree.delete(item)
-
+        
+#----------Erstellte Liste nach eingegebener ID durchsuchen----------
     daten_id = list(filter(lambda item: item["transportid"] == transid, db_daten))
     daten_datetime = list(filter(lambda item: item["transportid"] == transid, db_datetime))
     daten_direction = list(filter(lambda item: item["transportid"] == transid, db_direction))
     daten_zwischenzeit = list(filter(lambda item: item["transportid"] == transid, db_zwischenzeit))
     
-    
-    if daten_id:
-        daten_id.sort(key=lambda x: x["datetime"])  # Sortiere nach Datum
-        for eintrag in daten_id:
-            tree.insert("", "end", values=(eintrag["company"], eintrag["transportstation"], eintrag["category"], eintrag["direction"], eintrag["datetime"]))
-    else:
-        verifikation_string = 'Transport-ID nicht vorhanden.'
-        label_duration.config(text=verifikation_string, fg="red")
-    
-    # Check direction sequence first
-    #Hier direction check    
+#----------Sortieren nach Datum und in Tabelle einfügen----------
     if daten_id:
         daten_id.sort(key=lambda x: x["datetime"])  # Sortiere nach Datum
         for eintrag in daten_id:
             tree.insert("", "end", values=(eintrag["company"], eintrag["transportstation"], eintrag["category"], eintrag["direction"], eintrag["datetime"]))    
-        
+
+#----------Überprüfung Transportdauer----------
         start_time = daten_id[0]["datetime"]
         end_time = daten_id[-1]["datetime"]
         duration = end_time - start_time
@@ -211,7 +203,7 @@ def verifikation_auswertung(transid):
         verifikation_string = 'Transport-ID nicht vorhanden.'
         label_duration.config(text=verifikation_string, fg="red")
         
-    # Prüfung der Direction-Logik
+#----------Prüfung der Direction-Logik----------
     for index, item in enumerate(daten_direction):
         value_in_out = item['direction']
         if index % 2 == 0: # ungerader Index mus IN sein
@@ -229,20 +221,21 @@ def verifikation_auswertung(transid):
                 label_direction.config(text=verifikation_string, fg="red")
                 return False
 
-    # Prüfung der OUT Zeit des aktuellen gegen IN Zeit im nächsten Kühlabteil
+#----------Prüfung der OUT Zeit des aktuellen gegen IN Zeit im nächsten Kühlabteil----------
     for i in range(1, len(daten_zwischenzeit)):
         previous_entry = daten_zwischenzeit[i - 1]
         current_entry = daten_zwischenzeit[i]
 
-        # Nur Einträge prüfen, die in der Reihenfolge Out -> In gehen
+#----------Nur Einträge prüfen, die in der Reihenfolge Out -> In gehen----------
         if previous_entry['direction'] == "'out'" and current_entry['direction'] == "'in'":
-            # Prüfen, ob die Zeit des Eincheckens nach der Zeit des vorherigen Auscheckens liegt
+            
+#----------Prüfen, ob die Zeit des Eincheckens nach der Zeit des vorherigen Auscheckens liegt----------
             if current_entry['datetime'] < previous_entry['datetime']:
                 verifikation_string = 'Fehler: Einchecken vor Auschecken im nächsten Kühlhaus!'
                 label_direction.config(text=verifikation_string, fg="red")
                 return False
             
-
+#----------Überprüfen ob am Ende Ausgecheckt wird----------
     last_line = daten_direction[-1]
     last_direction = last_line['direction']
     if last_direction == "'out'":
@@ -252,11 +245,11 @@ def verifikation_auswertung(transid):
         label_direction.config(text='Auscheckzeitpunt fehlt am Ende(kein Fehler da Transport noch nicht abgeschlossen!)', fg="green")
         return False
 
+#----------Überprüfen ob Übergabe < 10min----------
     daten_datetime.sort(key=lambda x: x['datetime'])
 
     verification_failed = False
     
-
     for i in range(1, len(daten_datetime) - 1, 2):
         out_record = daten_datetime[i] 
         in_record = daten_datetime[i + 1]
@@ -295,24 +288,22 @@ def verifikation_auswertung(transid):
         station = aktueller_eintrag['transportstation']
         aktion = aktueller_eintrag['direction']
 
-        # Überprüfen, ob der Transport bereits zuvor aufgezeichnet wurde
+#----------Überprüfen, ob im gleichen Kühllager zweimal Eingecheckt wurde----------
         if transportid in letzte_station:
-            # Wenn die letzte Aktion 'out' war und die aktuelle Aktion 'in' ist,
-            # überprüfen, ob die Station **dieselbe** ist
+            #Wenn die letzte Aktion 'out' war und die aktuelle Aktion 'in' ist,
+            # überprüfen, ob die Station die Gleiche ist
             if letzte_aktion[transportid] == "'out'" and aktion == "'in'":
                 if letzte_station[transportid] == station:
                     verifikation_string = f"Aus und wieder Einchecken im gleichen Kühllager"
                     label_direction.config(text=verifikation_string, fg="red")
-                    # Hier können Sie weitere Aktionen ausführen, z.B. den Fehler in einer Liste speichern oder eine Benachrichtigung senden
 
-        # Aktualisiere die zuletzt besuchte Station und die letzte Aktion
+#----------Aktualisiere die zuletzt besuchte Station und die letzte Aktion----------
         letzte_station[transportid] = station
         letzte_aktion[transportid] = aktion
         
-    
-
     schließe_db()
-
+    
+#--------------------Startfenster erstellen--------------------
 fenster_hauptmenue = tk.Tk()
 fenster_hauptmenue.geometry("1000x500")
 fenster_hauptmenue.title("Coolchain")
@@ -323,5 +314,5 @@ label1.pack(pady=20)
 
 button1 = tk.Button(fenster_hauptmenue, text="Transport-IDs prüfen", command=start_fenster_manuell, bg="#007BFF", fg="white", font=("Helvetica", 12))
 button1.pack(pady=10)
-
+#--------------------Mainloop--------------------
 fenster_hauptmenue.mainloop()
