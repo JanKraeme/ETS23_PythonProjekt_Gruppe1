@@ -1,3 +1,12 @@
+# ETS32 Gruppe 1
+# Python Projekt IoT-Kühlkettenüberwachung
+# Programmunktion: Tool zur verschlüsselung der Zugangsdaten für das das Programm Coolchain
+# Beschreibung:
+# Diese Funktion dient zur sicheren Speicherung von Benutzeranmeldeinformationen.
+# Die eingegebenen Daten (Benutzername und Passwort) werden mittels des
+# Fernet-Verschlüsselungsverfahrens verschlüsselt und lokal gespeichert.
+# Ein neuer Fernet-Schlüssel wird generiert und ebenfalls gespeichert.
+
 from cryptography.fernet import Fernet
 import tkinter as tk
 
@@ -14,13 +23,13 @@ def submit():
         file.write(key)
 
     # Verschlüssele die Zugangsdaten
-    data = username + trennzeichen + password
-    databyte = bytes(data, 'utf-8')
-    cipher_suite = Fernet(key)
-    encrypted_databyte = cipher_suite.encrypt(databyte)
+    data = username + trennzeichen + password   #erstelle simplen String
+    databyte = bytes(data, 'utf-8') #umwandlung in datenbyte also Byte
+    key_data = Fernet(key)  
+    encrypted_databyte = key_data.encrypt(databyte)
 
     # Speichere die verschlüsselten Daten
-    with open('credentials.crypt', 'wb') as file:
+    with open('keydata.crypt', 'wb') as file:
         file.write(encrypted_databyte)
         
 
