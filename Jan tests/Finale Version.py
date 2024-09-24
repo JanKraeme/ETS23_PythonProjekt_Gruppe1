@@ -252,15 +252,6 @@ def verifikation_auswertung(transid):
         label_direction.config(text='Auscheckzeitpunt fehlt am Ende(kein Fehler da Transport noch nicht abgeschlossen!)', fg="green")
         return False
 
-    
-
-
-
-
-
-
-
-    
     daten_datetime.sort(key=lambda x: x['datetime'])
 
     verification_failed = False
