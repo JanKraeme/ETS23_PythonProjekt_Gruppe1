@@ -247,27 +247,27 @@ def verifikation_auswertung(transid):
     
     if fehlerspeicher['error_transport_id_missing']:
         label_duration.config(text='Transport-ID nicht vorhanden.', fg="red")
-        print("Transport-ID nicht vorhanden.")
+        #print("Transport-ID nicht vorhanden.")
         
     if fehlerspeicher['error_double_checkout']:
         label_direction.config(text='Fehler: Zweimal nacheinander ausgecheckt!', fg="red")
-        print("Fehler: Zweimal nacheinander ausgecheckt.")
+        #print("Fehler: Zweimal nacheinander ausgecheckt.")
         
     if fehlerspeicher[ 'error_double_checkin']:
         label_direction.config(text='Fehler: Zweimal nacheinander eingecheckt!', fg="red")
-        print("Fehler: Zweimal nacheinander eingecheckt!")
+        #print("Fehler: Zweimal nacheinander eingecheckt!")
         
     if fehlerspeicher['error_in_before_out']:
         label_direction.config(text='Fehler: Einchecken vor Auschecken im nächsten Kühlhaus!', fg="red")
-        print("Fehler: Einchecken vor Auschecken im nächsten Kühlhaus!")
+        #print("Fehler: Einchecken vor Auschecken im nächsten Kühlhaus!")
         
     if fehlerspeicher['error_missing_final_checkout']:
         label_direction.config(text='Auscheckzeitpunkt fehlt am Ende (kein Fehler, da Transport noch nicht abgeschlossen!)', fg="green")
-        print("Auscheckzeitpunkt fehlt am Ende (kein Fehler, da Transport noch nicht abgeschlossen!)")
+        #print("Auscheckzeitpunkt fehlt am Ende (kein Fehler, da Transport noch nicht abgeschlossen!)")
     
     if fehlerspeicher['error_duration_exceeded']:
         label_duration.config(text=f'Transportdauer überschreitet 48 Stunden: {zeit_format}', fg="red")
-        print("Fehler: Die Transportdauer überschreitet 48 Stunden.")
+        #print("Fehler: Die Transportdauer überschreitet 48 Stunden.")
     else:
         label_duration.config(text=f'Transportdauer innerhalb von 48 Stunden: {zeit_format}', fg="green")
         
