@@ -1,3 +1,38 @@
+#--------------------------------------------------------
+# Programm: Coolchain ETS23 Supply Chain Project
+# Version: 1.0 (Erste Vollversion)
+# Datum: 24. September 2024
+# Autor: Jan Krämer, Max Kohnen, Tim Heikebrügge, Dorian Bohlken, Christian Rudolf, Kilian Tenfelde
+#--------------------------------------------------------
+# Beschreibung:
+# Dieses Programm ermöglicht es dem Benutzer, Transportdaten 
+# einer Supply Chain zu überprüfen. Es verwendet eine GUI 
+# (Graphical User Interface), um Transport-
+# IDs zu laden und verschiedene Transportinformationen wie Dauer 
+# und Transportverlauf zu überprüfen und evenetuelle Fehler zu erkennen.
+#
+# Hauptfunktionen:
+# - Verschlüsselte Datenbankzugriffsdaten entschlüsseln.
+# - Transportdaten aus einer SQL-Datenbank laden.
+# - Überprüfung der Transportdauer und Logik (z.B. "in" und "out").
+# - Manuelle Auswahl und Überprüfung der Transport-IDs über die GUI.
+# - Visualisierung der Transportereignisse (z.B. LKW- und Freeze-Symbole).
+#
+# Verwendete Bibliotheken:
+# - pyodbc: Für den Datenbankzugriff (ODBC-Verbindung).
+# - tkinter: Für die GUI-Erstellung.
+# - cryptography.fernet: Für das Entschlüsseln der Zugangsdaten.
+# - datetime: Für die Zeit- und Datumsoperationen.
+#
+# Voraussetzungen:
+# - Eine funktionierende SQL-Server-Datenbank.
+# - ODBC-Treiber 18 für SQL-Server.
+# - Vorhandene Schlüssel- und Anmeldedaten in verschlüsselten Dateien.
+#
+#Verschlüsselungen
+# Es wird eine AES-Verschlüsselung (128Bit) verwendet, um die Anmeldedaten der Datenbank zu schützen
+#--------------------------------------------------------
+
 #--------------------Bibliotheken--------------------
 import pyodbc
 import tkinter as tk
