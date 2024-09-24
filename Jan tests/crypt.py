@@ -49,7 +49,7 @@ password_entry = tk.Entry(window, show="*")
 password_entry.pack()
 
 # Button zum Absenden
-submit_button = tk.Button(window, text="Sicherheitsdatei erstellen", command=submit)
+submit_button = tk.Button(window, text="Key erstellen", command=submit)
 submit_button.pack()
 
 
