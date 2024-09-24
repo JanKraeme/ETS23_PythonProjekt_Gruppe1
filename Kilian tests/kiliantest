@@ -243,7 +243,6 @@ def verifikation_auswertung(transid):
         label_duration.config(text='Transport-ID nicht vorhanden.', fg="red")
     
     fehlerspeicher = check_direction(daten_direction)
-    print (fehlerspeicher)
     
     if fehlerspeicher['error_transport_id_missing']:
         label_duration.config(text='Transport-ID nicht vorhanden.', fg="red")
