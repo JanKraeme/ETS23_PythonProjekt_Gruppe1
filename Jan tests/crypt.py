@@ -9,29 +9,37 @@
 
 from cryptography.fernet import Fernet
 import tkinter as tk
+from tkinter import messagebox
 
 trennzeichen = ';'
 
-def submit():
+def erstelle_daten():
     username = username_entry.get()
     password = password_entry.get()
     print("Benutzername:", username)
     print("Passwort:", password)
 
-    # Speichere den Schlüssel sicher
-    with open('key.key', 'wb') as file:
-        file.write(key)
+    if username == "" or password == "":
+        messagebox.showerror(title="Fehler", message=f"Eingabe Fehlerhaft!")
+    else:
+        # Speichere den Schlüssel sicher
+        with open('key.key', 'wb') as file:
+            file.write(key)
 
-    # Verschlüssele die Zugangsdaten
-    data = username + trennzeichen + password   #erstelle simplen String
-    databyte = bytes(data, 'utf-8') #umwandlung in datenbyte also Byte
-    key_data = Fernet(key)  
-    encrypted_databyte = key_data.encrypt(databyte)
+        # Verschlüssele die Zugangsdaten
+        data = username + trennzeichen + password   #erstelle simplen String
+        databyte = bytes(data, 'utf-8') #umwandlung in datenbyte also Byte
+        key_data = Fernet(key)  
+        encrypted_databyte = key_data.encrypt(databyte)
 
-    # Speichere die verschlüsselten Daten
-    with open('keydata.crypt', 'wb') as file:
-        file.write(encrypted_databyte)
-        
+        # Speichere die verschlüsselten Daten
+        with open('keydata.crypt', 'wb') as file:
+            file.write(encrypted_databyte)
+            messagebox.showinfo(title="Erfolgreich", message=f"Verschlüsselung erfolgreich!")
+
+        window.quit()
+
+
 
 
 # Hauptfenster erstellen
@@ -58,7 +66,7 @@ password_entry = tk.Entry(window, show="*")
 password_entry.pack()
 
 # Button zum Absenden
-submit_button = tk.Button(window, text="Key erstellen", command=submit)
+submit_button = tk.Button(window, text="Key erstellen", command=erstelle_daten)
 submit_button.pack()
 
 
