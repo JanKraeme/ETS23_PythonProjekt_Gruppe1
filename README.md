@@ -13,5 +13,5 @@ Verwendung des Verzeichnises:
 - Im Ordner "Code" befindet sich einmal der Hauptcode des Programms, sowie die "crypt.py" die zum Verschlüsseln der Benutzerdaten benötigt wird.
 - Ein Beispielbenutzerkonto ist im Ordner "Code" zum ausführen des Codes in VS-Code.
 - Im Ordner "Coolchain ETS23" befinden sich zwei .exe Dateien.
-- Mit "coolchainsecure.exe" werden die Benutzerzugangsdaten für eine Datenbank verschlüsselt.
-- Mit "coolchain.exe" kann man die vorher angemeldete Datenbank auf ihre Transport-IDs prüfen.
+- Mit "coolchainsecure.exe" werden die Benutzerzugangsdaten für die hinterlegte Datenbank verschlüsselt.
+- Mit "coolchain.exe" verbindet man sich mit der Datenbank und kann ihre Transport-IDs prüfen.
