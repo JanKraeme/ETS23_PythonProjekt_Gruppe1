@@ -1,1 +1,0 @@
-Wenn 'in' oder 'out' 2x zu transportstation, dann Aus und wieder einchecken im gleichen Kühlhaus.

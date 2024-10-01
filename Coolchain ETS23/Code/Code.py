@@ -44,13 +44,22 @@ from cryptography.fernet import Fernet
 #--------------------Funktion Daten aus datenbank Laden--------------------
 def lade_db_daten():
 #----------Lade den Schlüssel----------
-    with open('key.key', 'rb') as file:
-        key = file.read()
+    try:
+        with open('key.key', 'rb') as file:
+            key = file.read()
+    except FileNotFoundError:
+        fenster_manuell.destroy()
+        messagebox.showerror(title="Fehler", message=f"kein Sicherheitsschlüssel gefunden!")
+        return
 
 #----------Lade die verschlüsselten Daten----------
-    with open('credentials.crypt', 'rb') as file:
-        encrypted_data = file.read()
-
+    try:
+        with open('keydata.crypt', 'rb') as file:
+            encrypted_data = file.read()
+    except FileNotFoundError:
+        fenster_manuell.destroy()
+        messagebox.showerror(title="Fehler", message=f"keine Zugangsdaten vorhanden!")
+        return
 #----------Entschlüssele die Daten----------
     cipher_suite = Fernet(key)
     decrypted_data = cipher_suite.decrypt(encrypted_data)
@@ -76,16 +85,18 @@ def lade_db_daten():
 #----------Fehler falls keine Verbindung zur Datenbank möglich ist----------
     try:
         conn = pyodbc.connect(conn_str)
-    except Exception as e:
-        messagebox.showerror(title="Fehler", message=f"Keine Verbindung zur Datenbank möglich! {e}")
+    except:
+        fenster_manuell.destroy()
+        messagebox.showerror(title="Fehler", message=f"Keine Verbindung zur Datenbank möglich!")
         return
 
     cursor = conn.cursor()
 #----------Fehler falls keine verwendbaren Daten in Datenbank vorhanden----------
     try:
         cursor.execute('SELECT company, transportid, transportstation, category, direction, datetime FROM coolchain1')
-    except Exception as e:
-        messagebox.showerror(title="Fehler", message=f"Kein Datensatz in der Datenbank gefunden! {e}")
+    except:
+        fenster_manuell.destroy()
+        messagebox.showerror(title="Fehler", message=f"Kein Datensatz in der Datenbank gefunden!")
         return
     
 #----------Erstellen von benötigten Listen----------
@@ -117,7 +128,7 @@ def schließe_db():
 #--------------------Funktion erstellung Startfenster--------------------
 def start_fenster_manuell():
 #----------Variablen global übergeben----------
-    global combobox_transid, label_duration, tree, label_direction, label_datetime
+    global combobox_transid, label_duration, tree, label_direction, label_datetime, fenster_manuell
     
 #----------Fenster zur Auswahl manueller Überprüfung erstellen----------
     fenster_manuell = tk.Toplevel(fenster_hauptmenue)
