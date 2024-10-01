@@ -1,4 +1,4 @@
-# ETS32 Gruppe 1
+# ETS23 Gruppe 1
 # Python Projekt IoT-Kühlkettenüberwachung
 # Programmunktion: Tool zur verschlüsselung der Zugangsdaten für das das Programm Coolchain
 # Beschreibung:
