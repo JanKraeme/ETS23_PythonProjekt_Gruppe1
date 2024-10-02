@@ -1,7 +1,7 @@
 Coolchain ETS23 Supplychain Project
 - Dieses Projekt dient zur manuellen Überprüfung von Transportdaten in einer Coolchain-Umgebung. 
 - Die Anwendung verbindet sich mit einer Datenbank, lädt Transportdaten und ermöglicht die Überprüfung von Transport-IDs hinsichtlich Dauer, 
-- Reihenfolge der Checkpoints und Übergabezeiten zwischen verschiedenen Kühlstationen.
+  Reihenfolge der Checkpoints und Übergabezeiten zwischen verschiedenen Kühlstationen.
 
 Hauptfunktionen:
 - Transport-ID Auswahl: Über eine Dropdown-Liste kann der Benutzer eine Transport-ID auswählen.
