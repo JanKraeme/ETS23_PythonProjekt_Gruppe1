@@ -1,4 +1,4 @@
-/**
+""" /**
  * @file Coolchain_IoT.py
  * @brief IoT-Kühlkettenüberwachung - Phase 2
  * @author Jan Krämer, Max Kohnen, Tim Heikebrügge, Dorian Bohlken, Christian Rudolf, Kilian Tenfelde
@@ -9,7 +9,7 @@
  * - Temperaturüberwachung der Kühlstationen
  * - Verschlüsselung & Entschlüsselung der Lieferdaten
  * - Wetterdatenabfrage an den Auslagerorten
- */
+ */ """
 
 #-------------------- Bibliotheken --------------------
 import pyodbc
@@ -33,7 +33,7 @@ def temperatur_ueberwachung():
     Diese Funktion liest Temperaturdaten aus der Datenbank und überprüft, 
     ob die Werte zwischen +2°C und +4°C liegen.
     """
-    conn = pyodbc.connect('DRIVER={ODBC Driver 18 for SQL Server};SERVER=sc-db-server.database.windows.net;DATABASE=supplychain;UID=user;PWD=pass')
+    conn = pyodbc.connect('DRIVER={DBC Driver 18 for SQL};SERVER=sc-db-server.database.windows.net;DATABASE=supplychain;UID=user;PWD=pass')
     cursor = conn.cursor()
     cursor.execute("SELECT stationID, temperatur FROM tempdata")
     for row in cursor.fetchall():
