@@ -1,4 +1,4 @@
-/**
+""" /**
  * @file Coolchain_IoT.py
  * @brief IoT-Kühlkettenüberwachung - Phase 2
  * @author Jan Krämer, Max Kohnen, Tim Heikebrügge, Dorian Bohlken, Christian Rudolf, Kilian Tenfelde
@@ -9,7 +9,7 @@
  * - Temperaturüberwachung der Kühlstationen
  * - Verschlüsselung & Entschlüsselung der Lieferdaten
  * - Wetterdatenabfrage an den Auslagerorten
- */
+ */ """
 
 #-------------------- Bibliotheken --------------------
 import pyodbc
