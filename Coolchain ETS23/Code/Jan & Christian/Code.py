@@ -43,40 +43,17 @@ from cryptography.fernet import Fernet
 
 #--------------------Funktion Daten aus datenbank Laden--------------------
 def lade_db_daten():
-#----------Lade den Schlüssel----------
-    try:
-        with open('key.key', 'rb') as file:
-            key = file.read()
-    except FileNotFoundError:
-        fenster_manuell.destroy()
-        messagebox.showerror(title="Fehler", message=f"kein Sicherheitsschlüssel gefunden!")
-        return
 
-#----------Lade die verschlüsselten Daten----------
-    try:
-        with open('keydata.crypt', 'rb') as file:
-            encrypted_data = file.read()
-    except FileNotFoundError:
-        fenster_manuell.destroy()
-        messagebox.showerror(title="Fehler", message=f"keine Zugangsdaten vorhanden!")
-        return
-#----------Entschlüssele die Daten----------
-    cipher_suite = Fernet(key)
-    decrypted_data = cipher_suite.decrypt(encrypted_data)
-
-#----------Verwende die entschlüsselten Daten----------
-    usernamecypt, passwordcrypt = decrypted_data.decode().split(';')
-    print(usernamecypt, passwordcrypt)
 
     global cursor, conn, db_daten, db_datetime, db_direction, db_zwischenzeit
     
 #----------Zugang Datenbank----------
     server = 'sc-db-server.database.windows.net'
     database = 'supplychain'
-    username = usernamecypt
-    password = passwordcrypt
+    username = 'rse'
+    password = 'Pa$$w0rd'
     conn_str = (
-        f'DRIVER={{ODBC Driver 18 for SQL Server}};'
+        f'DRIVER={{ODBC Driver 17 for SQL Server}};'
         f'SERVER={server};'
         f'DATABASE={database};'
         f'UID={username};'
