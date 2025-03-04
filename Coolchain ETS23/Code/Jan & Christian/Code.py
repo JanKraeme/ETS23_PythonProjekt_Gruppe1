@@ -53,7 +53,7 @@ def lade_db_daten():
     username = 'rse'
     password = 'Pa$$w0rd'
     conn_str = (
-        f'DRIVER={{ODBC Driver 17 for SQL Server}};'
+        f'DRIVER={{ODBC Driver 18 for SQL Server}};'
         f'SERVER={server};'
         f'DATABASE={database};'
         f'UID={username};'
