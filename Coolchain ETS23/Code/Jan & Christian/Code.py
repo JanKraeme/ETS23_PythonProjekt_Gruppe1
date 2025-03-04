@@ -68,13 +68,9 @@ def lade_db_daten():
         return
 
     cursor = conn.cursor()
+    cursor.execute('SELECT companyid, transportid, transportstationid, direction, datetime FROM coolchain')
 #----------Fehler falls keine verwendbaren Daten in Datenbank vorhanden----------
-    try:
-        cursor.execute('SELECT company, transportid, transportstation, direction, datetime FROM coolchain')
-    except:
-        fenster_manuell.destroy()
-        messagebox.showerror(title="Fehler", message=f"Kein Datensatz in der Datenbank gefunden!")
-        return
+
     
 #----------Erstellen von benötigten Listen----------
     db_daten = []
@@ -87,9 +83,9 @@ def lade_db_daten():
     for row in cursor:
         db_datetime.append({'datetime': row.datetime, 'direction': row.direction, 'transportid': row.transportid})
         db_direction.append({'transportid': row.transportid, 'direction': row.direction})
-        db_daten.append({'company': row.company, 'transportid': row.transportid, 'transportstation': row.transportstation, 'category': row.category, 'direction': row.direction, 'datetime': row.datetime})
+        db_daten.append({'companyid': row.companyid, 'transportid': row.transportid, 'transportstationid': row.transportstationid, 'direction': row.direction, 'datetime': row.datetime})
         transport_ids.add(row.transportid)
-        db_zwischenzeit.append({'transportid':row.transportid,'transportstation': row.transportstation,'datetime': row.datetime,'direction': row.direction})
+        db_zwischenzeit.append({'transportid':row.transportid,'transportstationid': row.transportstationid,'datetime': row.datetime,'direction': row.direction})
 
 #----------Dropdown-Liste mit allen Transport-IDs aktualisieren----------
     unique_ids = sorted(transport_ids)
@@ -132,12 +128,12 @@ def start_fenster_manuell():
     label_datetime = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
     label_datetime.grid(column=1, row=3, padx=10, pady=10)
 
-    tree = ttk.Treeview(fenster_manuell, columns=("company", "transportstation", "category", "direction", "datetime"), show='headings')
+    tree = ttk.Treeview(fenster_manuell, columns=("companyid", "transportstationid", "direction", "datetime"), show='headings')
     tree.grid(row=4, column=0, columnspan=3, padx=10, pady=10)
 
-    tree.heading("company", text="Unternehmen")
-    tree.heading("transportstation", text="Transport Station")
-    tree.heading("category", text="Kategorie")
+    tree.heading("companyid", text="Unternehmen")
+    tree.heading("transportstationid", text="Transport Station")
+
     tree.heading("direction", text="Richtung")
     tree.heading("datetime", text="Uhrzeit")
 
@@ -200,7 +196,7 @@ def verifikation_auswertung(transid):
     if daten_id:
         daten_id.sort(key=lambda x: x["datetime"])  # Sortiere nach Datum
         for eintrag in daten_id:
-            tree.insert("", "end", values=(eintrag["company"], eintrag["transportstation"], eintrag["category"], eintrag["direction"], eintrag["datetime"]))    
+            tree.insert("", "end", values=(eintrag["companyid"], eintrag["transportstationid"], eintrag["direction"], eintrag["datetime"]))    
 
 #----------Überprüfung Transportdauer----------
         start_time = daten_id[0]["datetime"]
@@ -308,7 +304,7 @@ def verifikation_auswertung(transid):
     for i in range(1, len(daten_zwischenzeit)):
         aktueller_eintrag = daten_zwischenzeit[i]
         transportid = aktueller_eintrag['transportid']
-        station = aktueller_eintrag['transportstation']
+        station = aktueller_eintrag['transportstationid']
         aktion = aktueller_eintrag['direction']
 
 #----------Überprüfen, ob im gleichen Kühllager zweimal Eingecheckt wurde----------
