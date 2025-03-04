@@ -36,18 +36,12 @@
 #--------------------Bibliotheken--------------------
 import pyodbc
 import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox
+from tkinter import ttk, messagebox
 from datetime import datetime, timedelta
-from cryptography.fernet import Fernet
 
-#--------------------Funktion Daten aus datenbank Laden--------------------
 def lade_db_daten():
+    global cursor, conn, db_daten, db_datetime, db_direction, db_zwischenzeit, db_transportstation, db_tempdata
 
-
-    global cursor, conn, db_daten, db_datetime, db_direction, db_zwischenzeit
-    
-#----------Zugang Datenbank----------
     server = 'sc-db-server.database.windows.net'
     database = 'supplychain'
     username = 'rse'
@@ -59,44 +53,63 @@ def lade_db_daten():
         f'UID={username};'
         f'PWD={password}'
     )
-#----------Fehler falls keine Verbindung zur Datenbank möglich ist----------
+
     try:
         conn = pyodbc.connect(conn_str)
     except:
         fenster_manuell.destroy()
-        messagebox.showerror(title="Fehler", message=f"Keine Verbindung zur Datenbank möglich!")
+        messagebox.showerror(title="Fehler", message="Keine Verbindung zur Datenbank möglich!")
         return
 
     cursor = conn.cursor()
-    cursor.execute('SELECT companyid, transportid, transportstationid, direction, datetime FROM coolchain')
-#----------Fehler falls keine verwendbaren Daten in Datenbank vorhanden----------
 
+    # Erste Abfrage für Transportdaten
+    cursor.execute('SELECT companyid, transportid, transportstationid, direction, datetime FROM coolchain')
+    coolchain_data = cursor.fetchall()
+
+    # Zweite Abfrage für Transportstationen
+    cursor.execute('SELECT transportstationID, transportstation, plz FROM transportstation')
+    transportstation_data = cursor.fetchall()
     
-#----------Erstellen von benötigten Listen----------
+    # Dritte Abfrage für Tempdata
+    cursor.execute('SELECT transportstationID, datetime, temperature FROM tempdata')
+    tempdata_data = cursor.fetchall()
+
     db_daten = []
     db_datetime = []
     db_direction = []
-    db_zwischenzeit = [] 
+    db_zwischenzeit = []
     transport_ids = set()
-    
-#----------Daten in erstellte Listen fügen----------
-    for row in cursor:
+    db_transportstation = []
+    db_tempdata = []
+
+    # Daten aus Coolchain Abfrage verarbeiten
+    for row in coolchain_data:
         db_datetime.append({'datetime': row.datetime, 'direction': row.direction, 'transportid': row.transportid})
         db_direction.append({'transportid': row.transportid, 'direction': row.direction})
         db_daten.append({'companyid': row.companyid, 'transportid': row.transportid, 'transportstationid': row.transportstationid, 'direction': row.direction, 'datetime': row.datetime})
         transport_ids.add(row.transportid)
-        db_zwischenzeit.append({'transportid':row.transportid,'transportstationid': row.transportstationid,'datetime': row.datetime,'direction': row.direction})
+        db_zwischenzeit.append({'transportid': row.transportid, 'transportstationid': row.transportstationid, 'datetime': row.datetime, 'direction': row.direction})
 
-#----------Dropdown-Liste mit allen Transport-IDs aktualisieren----------
+    # Daten aus Transportstation Abfrage verarbeiten
+    for row in transportstation_data:
+        db_transportstation.append({'transportstationID': row.transportstationID, 'transportstation': row.transportstation, 'plz': row.plz})
+    print(db_transportstation)
+    
+    # Daten aus Tempdata Abfrage verarbeiten
+    for row in tempdata_data:
+        db_tempdata.append({'transportstationID': row.transportstationID, 'datetime': row.datetime, 'temperature': row.temperature})
+    print(db_tempdata)
+    
     unique_ids = sorted(transport_ids)
     combobox_transid['values'] = unique_ids
     if unique_ids:
-        combobox_transid.current(0)  # Standardmäßig die erste ID auswählen
-#--------------------Funktion Fenster Schließen--------------------
+        combobox_transid.current(0)
+
 def schließe_db():
-    #----------if cursor:----------
+    if cursor:
         cursor.close()
-    #----------if conn:----------
+    if conn:
         conn.close()
 #--------------------Funktion erstellung Startfenster--------------------
 def start_fenster_manuell():
