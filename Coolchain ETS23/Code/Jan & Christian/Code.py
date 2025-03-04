@@ -70,7 +70,7 @@ def lade_db_daten():
     cursor = conn.cursor()
 #----------Fehler falls keine verwendbaren Daten in Datenbank vorhanden----------
     try:
-        cursor.execute('SELECT company, transportid, transportstation, category, direction, datetime FROM coolchain')
+        cursor.execute('SELECT company, transportid, transportstation, direction, datetime FROM coolchain')
     except:
         fenster_manuell.destroy()
         messagebox.showerror(title="Fehler", message=f"Kein Datensatz in der Datenbank gefunden!")
