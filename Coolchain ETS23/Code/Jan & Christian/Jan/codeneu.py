@@ -43,6 +43,11 @@ from cryptography.fernet import Fernet
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 
+#Listen
+daten_Company = []
+daten_Coolchain = []
+daten_Temp = []
+daten_Transstation = []
 
     # Initialisierung
 key = b'mysecretpassword'                # 16 Byte Passwort
@@ -59,12 +64,6 @@ def lade_db_daten():
 
     global cursor, conn, db_daten, db_datetime, db_direction, db_zwischenzeit
     
-
-  
-    coolchain_db_sort = []
-    company_db_sort = []
-    transportstation_db_sort = []
-    data = []
 
 #----------Zugang Datenbank----------
     server = 'sc-db-server.database.windows.net'
@@ -100,6 +99,37 @@ def lade_db_daten():
     transport_ids = set()
     
 #----------Daten in erstellte Listen fügen----------
+    # Verbindung herstellen
+    try:
+        conn = pyodbc.connect(conn_str)
+        cursor = conn.cursor()
+    except Exception as e:
+        print(f"Verbindung zu {server} , Datenbank {database}, nicht möglich!!!")
+        print("Fehler", e)
+
+    # Datensätze auslesen
+    select_query = f'SELECT * FROM company_crypt'
+    cursor.execute(select_query)
+    # Für jeden Datensatz die Entschlüsselung durchführen und ausgeben
+    cipher = AES.new(key, AES.MODE_CBC, iv) 
+    for row in cursor:
+        # Da die Daten als binär gespeichert wurden, sollte hier keine Umwandlung mit str() erfolgen
+        daten_Company.append({
+            "companyID": row[0], 
+            "company_name": decrypt_value(row[1]), 
+            "strasse": decrypt_value(row[2]), 
+            "ort": decrypt_value(row[3]), 
+            "plz": decrypt_value(row[4])
+            })
+        print("")
+        print("")
+        print("")
+        print(daten_Company)
+        print("")
+        print("")
+        print("")
+        print("")
+
     for row in cursor:
         db_datetime.append({'datetime': row.datetime, 'direction': row.direction, 'transportid': row.transportid})
         db_direction.append({'transportid': row.transportid, 'direction': row.direction})
@@ -107,12 +137,32 @@ def lade_db_daten():
         transport_ids.add(row.transportid)
         db_zwischenzeit.append({'transportid':row.transportid,'transportstationid': row.transportstationid,'datetime': row.datetime,'direction': row.direction})
 
+
+    # Transportstation_db auslesen und entschlüsseln
+    #############################################################################################################
+    select_query = 'SELECT transportstationID, transportstation, category, plz FROM transportstation_crypt'
+    cursor.execute(select_query)
+    transportstation_db = cursor
+    cipher = AES.new(key, AES.MODE_CBC, iv)  # Verschlüsselung initialisieren, nochmal weil dumme scheisse
+    # Abspeichern
+    for row in transportstation_db:
+        daten_Transstation.append({
+            "transportstationID": str(row[0]),
+            "transportstation": decrypt_value(row[1]),
+            "category": decrypt_value(row[2]),
+            "plz": decrypt_value(row[3])
+        })
+    print(daten_Transstation)
+
 #----------Dropdown-Liste mit allen Transport-IDs aktualisieren----------
     unique_ids = sorted(transport_ids)
     combobox_transid['values'] = unique_ids
     if unique_ids:
         combobox_transid.current(0)  # Standardmäßig die erste ID auswählen
 #--------------------Funktion Fenster Schließen--------------------
+
+
+
 def schließe_db():
     #----------if cursor:----------
         cursor.close()
