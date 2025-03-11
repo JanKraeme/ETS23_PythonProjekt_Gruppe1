@@ -13,12 +13,13 @@ from Crypto.Util.Padding import unpad
 # Initialisierung
 key = b'mysecretpassword'                # 16 Byte Passwort
 iv = b'passwort-salzen!'                 # 16 Byte Initialization Vektor
-cipher = AES.new(key, AES.MODE_CBC, iv)  # Verschlüsselung initialisieren
+
 
 # Entschlüsselungsfunktion
 def decrypt_value(encrypted_data):
+    cipher = AES.new(key, AES.MODE_CBC, iv)  # Verschlüsselung initialisieren
     return unpad(cipher.decrypt(encrypted_data), AES.block_size).decode()
-   
+    
 # Verbindungsdaten
 server = 'sc-db-server.database.windows.net'
 database = 'supplychain'

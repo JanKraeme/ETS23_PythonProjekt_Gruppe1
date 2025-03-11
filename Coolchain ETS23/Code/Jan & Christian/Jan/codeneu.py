@@ -40,6 +40,18 @@ from tkinter import ttk
 from tkinter import messagebox
 from datetime import datetime, timedelta
 from cryptography.fernet import Fernet
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
+
+
+    # Initialisierung
+key = b'mysecretpassword'                # 16 Byte Passwort
+iv = b'passwort-salzen!'                 # 16 Byte Initialization Vektor
+
+    # Entschlüsselungsfunktion
+def decrypt_value(encrypted_data):
+    cipher = AES.new(key, AES.MODE_CBC, iv)  # Verschlüsselung initialisieren
+    return unpad(cipher.decrypt(encrypted_data), AES.block_size).decode()
 
 #--------------------Funktion Daten aus datenbank Laden--------------------
 def lade_db_daten():
@@ -47,6 +59,13 @@ def lade_db_daten():
 
     global cursor, conn, db_daten, db_datetime, db_direction, db_zwischenzeit
     
+
+  
+    coolchain_db_sort = []
+    company_db_sort = []
+    transportstation_db_sort = []
+    data = []
+
 #----------Zugang Datenbank----------
     server = 'sc-db-server.database.windows.net'
     database = 'supplychain'
@@ -59,6 +78,7 @@ def lade_db_daten():
         f'UID={username};'
         f'PWD={password}'
     )
+
 #----------Fehler falls keine Verbindung zur Datenbank möglich ist----------
     try:
         conn = pyodbc.connect(conn_str)
