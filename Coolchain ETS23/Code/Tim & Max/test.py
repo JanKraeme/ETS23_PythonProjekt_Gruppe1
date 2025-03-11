@@ -1,7 +1,6 @@
 import pyodbc
 import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox
+from tkinter import ttk, scrolledtext, messagebox
 from datetime import datetime, timedelta
 
 def lade_db_daten():
@@ -38,7 +37,9 @@ def lade_db_daten():
         transport_ids.add(row.transportid)
     
     cursor.execute('SELECT transportstationid, datetime, temperature FROM tempdata')
-    db_tempdata = {row.transportstationid: {'datetime': row.datetime, 'temperature': row.temperature} for row in cursor}
+    db_tempdata = {}
+    for row in cursor:
+        db_tempdata.setdefault(row.transportstationid, {})[row.datetime] = row.temperature
 
     unique_ids = sorted(transport_ids)
     combobox_transid['values'] = unique_ids
@@ -48,10 +49,12 @@ def lade_db_daten():
 def read_transid():
     transid = combobox_transid.get().strip()
     label_duration.config(text="", fg="red")
-    label_temperature.config(text="", fg="red")
+    text_temperature.delete("1.0", tk.END)
     
     if transid not in db_daten:
         label_duration.config(text="Transport-ID nicht vorhanden.", fg="red")
+        for item in tree.get_children():
+            tree.delete(item)
         return
     
     verifikation_auswertung(transid)
@@ -75,26 +78,45 @@ def verifikation_auswertung(transid):
     duration = end_time - start_time
     label_duration.config(text=("Transportdauer innerhalb von 48 Stunden." if duration <= timedelta(hours=48) else "Transportdauer überschreitet 48 Stunden!"), fg=("green" if duration <= timedelta(hours=48) else "red"))
 
-    temperatur_fehler = [f"Fehler: {db_tempdata[entry['transportstationid']]['temperature']}°C an Station {entry['transportstationid']} am {db_tempdata[entry['transportstationid']]['datetime']}" for entry in daten_id if entry['transportstationid'] in db_tempdata and not (2.0 <= db_tempdata[entry['transportstationid']]['temperature'] <= 4.0)]
+    temperatur_fehler = []
+    for entry in daten_id:
+        temp_values = db_tempdata.get(entry['transportstationid'], {})
+        for datetime, temperature in temp_values.items():
+            if not (2.0 <= temperature <= 4.0):
+                fehler_text = f"Fehler: {temperature}°C an Station {entry['transportstationid']} am {datetime}"
+                if fehler_text not in temperatur_fehler:
+                    temperatur_fehler.append(fehler_text)
     
-    label_temperature.config(text="\n".join(temperatur_fehler) if temperatur_fehler else "Alle Temperaturen im gültigen Bereich.", fg=("red" if temperatur_fehler else "green"))
+    text_temperature.delete("1.0", tk.END)
+    if temperatur_fehler:
+        text_temperature.insert(tk.END, "\n".join(temperatur_fehler))
+        text_temperature.config(fg="red")
+    else:
+        text_temperature.insert(tk.END, "Alle Temperaturen im gültigen Bereich.")
+        text_temperature.config(fg="green")
 
 def start_fenster_manuell():
-    global combobox_transid, label_duration, label_temperature, tree, fenster_manuell
+    global combobox_transid, label_duration, text_temperature, tree, fenster_manuell
 
     fenster_manuell = tk.Toplevel(fenster_hauptmenue)
     fenster_manuell.title("Manuelle Überprüfung")
     fenster_manuell.geometry("1000x600")
+    fenster_manuell.configure(bg="#f0f0f0")
     
-    tk.Label(fenster_manuell, text="Transport-ID auswählen:", font=("Helvetica", 12)).grid(column=0, row=0, padx=10, pady=10)
+    labelTop = tk.Label(fenster_manuell, text="Transport-ID auswählen:", bg="#f0f0f0", font=("Helvetica", 12))
+    labelTop.grid(column=0, row=0, padx=10, pady=10)
+
     combobox_transid = ttk.Combobox(fenster_manuell, width=25, font=("Helvetica", 12), state="readonly")
     combobox_transid.grid(column=1, row=0, padx=10, pady=10)
-    tk.Button(fenster_manuell, text="ID überprüfen", command=read_transid, bg="#007BFF", fg="white", font=("Helvetica", 12)).grid(column=2, row=0, padx=10, pady=10)
+
+    button3 = tk.Button(fenster_manuell, text="ID überprüfen", command=read_transid, bg="#007BFF", fg="white", font=("Helvetica", 12))
+    button3.grid(column=2, row=0, padx=10, pady=10)
     
-    label_duration = tk.Label(fenster_manuell, text="", font=("Helvetica", 12))
+    label_duration = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
     label_duration.grid(column=1, row=1, padx=10, pady=10)
-    label_temperature = tk.Label(fenster_manuell, text="", font=("Helvetica", 12))
-    label_temperature.grid(column=1, row=3, padx=10, pady=10)
+    
+    text_temperature = scrolledtext.ScrolledText(fenster_manuell, width=80, height=5, wrap=tk.WORD, font=("Helvetica", 12))
+    text_temperature.grid(column=0, row=3, columnspan=3, padx=10, pady=10)
     
     tree = ttk.Treeview(fenster_manuell, columns=("companyid", "transportstationid", "direction", "datetime"), show='headings')
     tree.grid(row=4, column=0, columnspan=3, padx=10, pady=10)
@@ -108,6 +130,7 @@ def start_fenster_manuell():
 fenster_hauptmenue = tk.Tk()
 fenster_hauptmenue.geometry("1000x500")
 fenster_hauptmenue.title("Coolchain")
+fenster_hauptmenue.configure(bg="#f0f0f0")
 
 tk.Button(fenster_hauptmenue, text="Transport-IDs prüfen", command=start_fenster_manuell, bg="#007BFF", fg="white", font=("Helvetica", 12)).pack(pady=10)
 
