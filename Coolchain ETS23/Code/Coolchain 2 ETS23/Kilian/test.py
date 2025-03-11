@@ -1,59 +1,7 @@
-import requests
 import pyodbc
-def get_coordinates_from_postcode(postcode: str):
-   #Holt die Koordinaten (Breiten- und Längengrad) für eine deutsche Postleitzahl.
-   
-    url = f"https://nominatim.openstreetmap.org/search?postalcode={postcode}&country=Germany&format=json"
-    try:
-        response = requests.get(url, headers={"User-Agent": "temperature-fetcher"})
-        response.raise_for_status()
-        data = response.json()
-        
-        if data:
-            return float(data[0]["lat"]), float(data[0]["lon"])
-        else:
-            return None, None
-    except requests.exceptions.RequestException as e:
-        return None, None
-
-def get_past_temperature(postcode: str, date: str, time: str):
-    
-    #Ruft die Temperatur für eine bestimmte Postleitzahl, ein Datum und eine Uhrzeit ab.
-
-    latitude, longitude = get_coordinates_from_postcode(postcode)
-    
-    if latitude is None or longitude is None:
-        return f"❌ Fehler: Keine Geodaten für Postleitzahl {postcode} gefunden."
-    
-    url = (
-        f"https://archive-api.open-meteo.com/v1/archive?"
-        f"latitude={latitude}&longitude={longitude}"
-        f"&start_date={date}&end_date={date}"
-        f"&hourly=temperature_2m&timezone=auto"
-    )
-    
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        data = response.json()
-        
-        timestamps = data["hourly"]["time"]
-        temperatures = data["hourly"]["temperature_2m"]
-        target_time = f"{date}T{time}"
-        
-        if target_time in timestamps:
-            index = timestamps.index(target_time)
-            return f"🌡 Temperatur in {postcode} am {date} um {time}: {temperatures[index]}°C"
-        else:
-            return f"⚠️ Keine Temperaturdaten für {date} um {time} gefunden."
-    
-    except requests.exceptions.RequestException as e:
-        return f"❌ API-Fehler: {e}"
-    except KeyError as e:
-        return f"⚠️ Fehlerhafte API-Antwort. Fehlendes Feld: {e}"
-
 
 def connect_to_db():
+    global conn
     #----------Zugang Datenbank----------
     server = 'sc-db-server.database.windows.net'
     database = 'supplychain'
@@ -74,25 +22,19 @@ def connect_to_db():
 
 
 connect_to_db()
-cursor = connect_to_db.conn.cursor()
-cursor.execute('SELECT transportstationID, transportstation, category, plz FROM transportstation')
+cursor = conn.cursor()
+cursor.execute('SELECT transportID, direction, datetime FROM coolchain')
 
 eintrage = []
 for row in cursor:
-    eintrage.append({'transportstationID': row.transportstationID, 'transportstation': row.transportstation, 'category': row.category, 'plz': row.plz})
-
-
-for index, item in enumerate(eintrage):
-    plz = item['plz']
-    if plz == "0":
-        eintrage.remove(item)
+    eintrage.append({'transportID': row.transportID, 'direction': row.direction, 'datetime': row.datetime})
     
-    else:
-        print(plz)
 
+eintrage.sort(key=lambda x: x['datetime'])
+for eintrag in eintrage:
+    print(eintrag)
 
-
-
-
-#print(eintrage)
-print(get_past_temperature("26123", "2022-09-08", "10:00"))
+for i in range(1, len(eintrage)):
+    differenz = eintrage[i]['datetime'] - eintrage[i-1]['datetime']
+    differenz_in_minuten = differenz.total_seconds() / 60
+    print(f"Differenz zwischen Eintrag {i-1} und {i}: {differenz_in_minuten:.2f} Minuten")
