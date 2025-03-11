@@ -1,34 +1,41 @@
-"""
-ID´s zum testen:
-13456783852887496020345
-15668407856331648336231
-23964376768701928340034
-"""
-#############################################################################################################
-
 import pyodbc
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 
+
 # Initialisierung
-key = b'mysecretpassword'                # 16 Byte Passwort
-iv = b'passwort-salzen!'                 # 16 Byte Initialization Vektor
-cipher = AES.new(key, AES.MODE_CBC, iv)  # Verschlüsselung initialisieren
+key = b'mysecretpassword' # 16 Byte Passwort
+iv = b'passwort-salzen!' # 16 Byte Initialization Vektor
+
 
 # Entschlüsselungsfunktion
 def decrypt_value(encrypted_data):
+    cipher = AES.new(key, AES.MODE_CBC, iv)
     return unpad(cipher.decrypt(encrypted_data), AES.block_size).decode()
-   
-# Verbindungsdaten
+"""
+#def decrypt_value(encrypted_data):
+    try:
+        unpadded_data = unpad(cipher.decrypt(encrypted_data), AES.block_size).decode()
+
+        return unpadded_data 
+    except ValueError as e:
+        print(f"Fehler bei der Entschlüsselung: {e}")
+        return None
+"""
+#----------Zugang Datenbank----------
 server = 'sc-db-server.database.windows.net'
 database = 'supplychain'
 username = 'rse'
 password = 'Pa$$w0rd'
 
-coolchain_db_sort = []
-company_db_sort = []
-transportstation_db_sort = []
-data = []
+
+#Listen
+daten_Company = []
+daten_Coolchain = []
+daten_Temp = []
+daten_Transstation = []
+
+cursor = []
 
 # Verbindungsstring
 conn_str = (
@@ -39,47 +46,95 @@ conn_str = (
     f'PWD={password}'
 )
 
-transportID = "13456783852887496020345"
-#####################################################################################################################################################
-# Verbindung herstellen
-conn = pyodbc.connect(conn_str)
-cursor = conn.cursor()
 
-# Company Name auslesen und entschlüsseln
-#############################################################################################################
-select_query = f'SELECT * FROM company_crypt'
-cursor.execute(select_query)
-company_db = cursor
-cipher = AES.new(key, AES.MODE_CBC, iv)  # Verschlüsselung initialisieren
-# Abspeichern
-for row in company_db:
-    company_db_sort.append({
-        "companyID": row[0],
-        "company": decrypt_value(row[1]),
-        "strasse": decrypt_value(row[2]),
-        "ort": decrypt_value(row[3]),
-        "plz": decrypt_value(row[4])
-    })
 
-# Transportstation_db auslesen und entschlüsseln
-#############################################################################################################
-select_query = 'SELECT transportstationID, transportstation, category, plz FROM transportstation_crypt'
-cursor.execute(select_query)
-transportstation_db = cursor
-cipher = AES.new(key, AES.MODE_CBC, iv)  # Verschlüsselung initialisieren, nochmal weil dumme scheisse
-# Abspeichern
-for row in transportstation_db:
-    transportstation_db_sort.append({
-        "transportstationID": str(row[0]),
-        "transportstation": decrypt_value(row[1]),
-        "category": decrypt_value(row[2]),
-        "plz": decrypt_value(row[3])
-    })
 
-# Verbindung schließen
-cursor.close()
-conn.close()
+#--------------------Funktion Fenster Schließen--------------------
+def schließe_db():
+    #----------if cursor:----------
+    cursor.close()
+    #----------if conn:----------
+    conn.close()
 
-print(company_db_sort)
 
-print(transportstation_db_sort)
+
+
+
+def lade_Company():
+    global conn, cursor
+    # Verbindung herstellen
+    try:
+        conn = pyodbc.connect(conn_str)
+        cursor = conn.cursor()
+    except Exception as e:
+        print(f"Verbindung zu {server} , Datenbank {database}, nicht möglich!!!")
+        print("Fehler", e)
+
+    # Datensätze auslesen
+    select_query = f'SELECT * FROM company_crypt'
+    cursor.execute(select_query)
+    # Für jeden Datensatz die Entschlüsselung durchführen und ausgeben
+    cipher = AES.new(key, AES.MODE_CBC, iv) 
+    for row in cursor:
+        # Da die Daten als binär gespeichert wurden, sollte hier keine Umwandlung mit str() erfolgen
+        daten_Company.append({
+            "companyID": row[0], 
+            "company_name": decrypt_value(row[1]), 
+            "strasse": decrypt_value(row[2]), 
+            "ort": decrypt_value(row[3]), 
+            "plz": decrypt_value(row[4])
+            })
+        print("")
+        print("")
+        print("")
+        print(daten_Company)
+        print("")
+        print("")
+        print("")
+        print("")
+
+def lade_Transstation():
+    global cursor, conn
+    # Transportstation_db auslesen und entschlüsseln
+    #############################################################################################################
+    select_query = 'SELECT transportstationID, transportstation, category, plz FROM transportstation_crypt'
+    cursor.execute(select_query)
+    transportstation_db = cursor
+    cipher = AES.new(key, AES.MODE_CBC, iv)  # Verschlüsselung initialisieren, nochmal weil dumme scheisse
+    # Abspeichern
+    for row in transportstation_db:
+        daten_Transstation.append({
+            "transportstationID": str(row[0]),
+            "transportstation": decrypt_value(row[1]),
+            "category": decrypt_value(row[2]),
+            "plz": decrypt_value(row[3])
+        })
+    print(daten_Transstation)
+
+
+
+lade_Company()
+
+lade_Transstation()
+
+schließe_db()
+
+"""
+
+# Bibliotheken
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
+# Initialisierung
+key = b'mysecretpassword' # 16 Byte Passwort
+iv = b'passwort-salzen!' # 16 Byte Initialization Vektor
+cipher = AES.new(key, AES.MODE_CBC, iv) # Verschlüsselung initialisieren
+# Entschlüsselung
+#ciphertext = b'\xe0\xdc*\x84l\x87;p\xd22\xd9\x94\xabH6\xcd\xf0&\xeduO\x19\x17$+K*wke\x81\xdf'
+ciphertext = b'N\xc8\x17\x95\xdd\xaeY\xa4P\x8e\xd8\x10\xd7P\t#h\xc7z\xd6\x16\xf9\xc6*\x0e8\xb1\x89r\xd1U@'
+plaintext = unpad(cipher.decrypt(ciphertext), AES.block_size) # Text entschlüsseln
+# Ausgabe
+print ('--------------------------------------------------------------------------')
+print ("Entschlüsselter Text als Bytewert: ", plaintext)
+print ("Entschlüsselter Text als String: ", plaintext.decode())
+print ('--------------------------------------------------------------------------')
+"""
