@@ -85,7 +85,7 @@ def lade_db_daten():
 
     # Daten aus Coolchain Abfrage verarbeiten
     for row in coolchain_data:
-        db_datetime.append({'datetime': row.datetime, 'direction': row.direction, 'transportid': row.transportid})
+        db_datetime.append({'datetime': row.datetime, 'direction': row.direction, 'transportid': row.transportid, 'transportstationID': row.transportstationID})
         db_direction.append({'transportid': row.transportid, 'direction': row.direction})
         db_daten.append({'companyid': row.companyid, 'transportid': row.transportid, 'transportstationid': row.transportstationid, 'direction': row.direction, 'datetime': row.datetime})
         transport_ids.add(row.transportid)
@@ -94,12 +94,10 @@ def lade_db_daten():
     # Daten aus Transportstation Abfrage verarbeiten
     for row in transportstation_data:
         db_transportstation.append({'transportstationID': row.transportstationID, 'transportstation': row.transportstation, 'plz': row.plz})
-    print(db_transportstation)
     
     # Daten aus Tempdata Abfrage verarbeiten
     for row in tempdata_data:
         db_tempdata.append({'transportstationID': row.transportstationID, 'datetime': row.datetime, 'temperature': row.temperature})
-    print(db_tempdata)
     
     unique_ids = sorted(transport_ids)
     combobox_transid['values'] = unique_ids

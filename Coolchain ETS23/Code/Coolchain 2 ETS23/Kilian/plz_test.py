@@ -1,11 +1,5 @@
-# -Abfrage der Wetterdaten zu einem bestimmten Zeitpunkt mit Eingabe einer Postleitzahl
-# -Postleitzahl wird über Funktion get_coordinates_from_postcode mit einer Website-Anfrage
-#  in Korrdinaten umgewandelt um über Bib request gesucht
-#
-#
-#
 import requests
-
+import pyodbc
 def get_coordinates_from_postcode(postcode: str):
    #Holt die Koordinaten (Breiten- und Längengrad) für eine deutsche Postleitzahl.
    
@@ -58,5 +52,48 @@ def get_past_temperature(postcode: str, date: str, time: str):
     except KeyError as e:
         return f"⚠️ Fehlerhafte API-Antwort. Fehlendes Feld: {e}"
 
-# ✅ Test für Berlin (Postleitzahl 10115)
-print(get_past_temperature("10115", "2022-09-08", "10:00"))
+
+def connect_to_db():
+    global conn
+    #----------Zugang Datenbank----------
+    server = 'sc-db-server.database.windows.net'
+    database = 'supplychain'
+    username = 'rse'
+    password = 'Pa$$w0rd'
+    conn_str = (
+        f'DRIVER={{ODBC Driver 17 for SQL Server}};'
+        f'SERVER={server};'
+        f'DATABASE={database};'
+        f'UID={username};'
+        f'PWD={password}'
+    )
+    #----------Fehler falls keine Verbindung zur Datenbank möglich ist----------
+    try:
+        conn = pyodbc.connect(conn_str)
+    except:
+        print("Fehler")
+
+
+connect_to_db()
+cursor = conn.cursor()
+cursor.execute('SELECT transportstationID, transportstation, category, plz FROM transportstation')
+
+eintrage = []
+for row in cursor:
+    eintrage.append({'transportstationID': row.transportstationID, 'transportstation': row.transportstation, 'category': row.category, 'plz': row.plz})
+
+
+for index, item in enumerate(eintrage):
+    plz = item['plz']
+    if plz == "0":
+        eintrage.remove(item)
+    
+    else:
+        print(f"------------------{index}-------------------")
+        print(plz)
+
+
+
+
+#print(eintrage)
+print(get_past_temperature("26123", "2022-09-08", "10:00"))

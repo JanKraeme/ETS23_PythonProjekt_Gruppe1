@@ -175,7 +175,7 @@ def verifikation_auswertung(transid):
 
 # -------------------- Hauptmenü Fenster --------------------
 fenster_hauptmenue = tk.Tk()
-fenster_hauptmenue.geometry("500x250")
+fenster_hauptmenue.geometry("1000x500")
 fenster_hauptmenue.title("Coolchain")
 fenster_hauptmenue.configure(bg="#f0f0f0")
 
