@@ -39,9 +39,7 @@ def lade_db_daten():
     cursor.execute('SELECT transportstationid, datetime, temperature FROM tempdata')
     db_tempdata = {}
     for row in cursor:
-        if row.transportstationid not in db_tempdata:
-            db_tempdata[row.transportstationid] = []
-        db_tempdata[row.transportstationid].append({'datetime': row.datetime, 'temperature': row.temperature})
+        db_tempdata.setdefault(row.transportstationid, {})[row.datetime] = row.temperature
 
     unique_ids = sorted(transport_ids)
     combobox_transid['values'] = unique_ids
@@ -82,10 +80,12 @@ def verifikation_auswertung(transid):
 
     temperatur_fehler = []
     for entry in daten_id:
-        if entry['transportstationid'] in db_tempdata:
-            for temp_entry in db_tempdata[entry['transportstationid']]:
-                if not (2.0 <= temp_entry['temperature'] <= 4.0):
-                    temperatur_fehler.append(f"Fehler: {temp_entry['temperature']}°C an Station {entry['transportstationid']} am {temp_entry['datetime']}")
+        temp_values = db_tempdata.get(entry['transportstationid'], {})
+        for datetime, temperature in temp_values.items():
+            if not (2.0 <= temperature <= 4.0):
+                fehler_text = f"Fehler: {temperature}°C an Station {entry['transportstationid']} am {datetime}"
+                if fehler_text not in temperatur_fehler:
+                    temperatur_fehler.append(fehler_text)
     
     text_temperature.delete("1.0", tk.END)
     if temperatur_fehler:
