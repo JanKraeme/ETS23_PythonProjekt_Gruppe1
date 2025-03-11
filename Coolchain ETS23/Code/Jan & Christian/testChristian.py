@@ -6,25 +6,37 @@ from Crypto.Util.Padding import unpad
 # Initialisierung
 key = b'mysecretpassword' # 16 Byte Passwort
 iv = b'passwort-salzen!' # 16 Byte Initialization Vektor
-cipher = AES.new(key, AES.MODE_CBC, iv)
+
 
 # Entschlüsselungsfunktion
-#def decrypt_value(encrypted_data):
-#    return unpad(cipher.decrypt(encrypted_data), AES.block_size).decode()
-
 def decrypt_value(encrypted_data):
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    return unpad(cipher.decrypt(encrypted_data), AES.block_size).decode()
+"""
+#def decrypt_value(encrypted_data):
     try:
-        unpadded_data = unpad(cipher.decrypt(encrypted_data), AES.block_size)
-        return unpadded_data.decode("utf-8", errors="ignore")  # Fehlerbehandlung bei ungültigen Zeichen
+        unpadded_data = unpad(cipher.decrypt(encrypted_data), AES.block_size).decode()
+
+        return unpadded_data 
     except ValueError as e:
         print(f"Fehler bei der Entschlüsselung: {e}")
         return None
-
-# Verbindungsdaten
+"""
+#----------Zugang Datenbank----------
 server = 'sc-db-server.database.windows.net'
 database = 'supplychain'
 username = 'rse'
 password = 'Pa$$w0rd'
+
+
+#Listen
+daten_Company = []
+daten_Coolchain = []
+daten_Temp = []
+daten_Transstation = []
+
+cursor = []
+
 # Verbindungsstring
 conn_str = (
     f'DRIVER={{ODBC Driver 18 for SQL Server}};'
@@ -35,54 +47,79 @@ conn_str = (
 )
 
 
-def load_Company():
-    global cursor, conn
+
+
+#--------------------Funktion Fenster Schließen--------------------
+def schließe_db():
+    #----------if cursor:----------
+    cursor.close()
+    #----------if conn:----------
+    conn.close()
+
+
+
+
+
+def lade_Company():
+    global conn, cursor
     # Verbindung herstellen
-    conn = pyodbc.connect(conn_str)
-    cursor = conn.cursor()
+    try:
+        conn = pyodbc.connect(conn_str)
+        cursor = conn.cursor()
+    except Exception as e:
+        print(f"Verbindung zu {server} , Datenbank {database}, nicht möglich!!!")
+        print("Fehler", e)
+
     # Datensätze auslesen
-    select_query = 'SELECT companyID, company, strasse, ort, plz FROM company_crypt'
+    select_query = f'SELECT * FROM company_crypt'
     cursor.execute(select_query)
     # Für jeden Datensatz die Entschlüsselung durchführen und ausgeben
-
-    for row in cursor.fetchall():
-        companyID, encrypted_company, encrypted_strasse, encrypted_ort, encrypted_plz = row
+    cipher = AES.new(key, AES.MODE_CBC, iv) 
+    for row in cursor:
         # Da die Daten als binär gespeichert wurden, sollte hier keine Umwandlung mit str() erfolgen
-        decrypted_company = decrypt_value(encrypted_company)
-        decrypted_strasse = decrypt_value(encrypted_strasse)
-        decrypted_ort = decrypt_value(encrypted_ort)
-        decrypted_plz = decrypt_value(encrypted_plz)
+        daten_Company.append({
+            "companyID": row[0], 
+            "company_name": decrypt_value(row[1]), 
+            "strasse": decrypt_value(row[2]), 
+            "ort": decrypt_value(row[3]), 
+            "plz": decrypt_value(row[4])
+            })
         print("")
         print("")
         print("")
-        print(f"ID: {companyID}, Company: {decrypted_company}, Strasse: {decrypted_strasse}, Ort: {decrypted_ort}, PLZ: {decrypted_plz}")
+        print(daten_Company)
         print("")
         print("")
         print("")
         print("")
-    #Verbindung schließen
- #   cursor.close()
 
-def lade_Transportdaten():
-
+def lade_Transstation():
+    global cursor, conn
+    # Transportstation_db auslesen und entschlüsseln
+    #############################################################################################################
     select_query = 'SELECT transportstationID, transportstation, category, plz FROM transportstation_crypt'
     cursor.execute(select_query)
-    results = cursor.fetchall()
-    for row in results:
-        deprypted_transportstation = decrypt_value(row.transportstation)
-        deprypted_category = decrypt_value(row.category)
-        deprypted_plz = decrypt_value(row.plz)
-        print("")
-        print(f"ID: {row.transportstationID}, Transportstation: {deprypted_transportstation}, Kategorie: {deprypted_category}, PLZ: {deprypted_plz}")
-        print("")
-    cursor.close()
-    conn.close()   
-
-load_Company()
-lade_Transportdaten()
+    transportstation_db = cursor
+    cipher = AES.new(key, AES.MODE_CBC, iv)  # Verschlüsselung initialisieren, nochmal weil dumme scheisse
+    # Abspeichern
+    for row in transportstation_db:
+        daten_Transstation.append({
+            "transportstationID": str(row[0]),
+            "transportstation": decrypt_value(row[1]),
+            "category": decrypt_value(row[2]),
+            "plz": decrypt_value(row[3])
+        })
+    print(daten_Transstation)
 
 
 
+lade_Company()
+
+lade_Transstation()
+
+schließe_db()
+
+"""
 
 # Bibliotheken
 from Crypto.Cipher import AES
@@ -100,4 +137,4 @@ print ('------------------------------------------------------------------------
 print ("Entschlüsselter Text als Bytewert: ", plaintext)
 print ("Entschlüsselter Text als String: ", plaintext.decode())
 print ('--------------------------------------------------------------------------')
-
+"""
