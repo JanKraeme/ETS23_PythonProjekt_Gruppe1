@@ -45,7 +45,7 @@ transportID = "13456783852887496020345"
 conn = pyodbc.connect(conn_str)
 cursor = conn.cursor()
 
-# Company Name auslesen und entschlüsseln
+# Campany Name auslesen und entschlüsseln
 #############################################################################################################
 select_query = f'SELECT * FROM company_crypt'
 cursor.execute(select_query)
@@ -81,5 +81,4 @@ cursor.close()
 conn.close()
 
 print(company_db_sort)
-
 print(transportstation_db_sort)
