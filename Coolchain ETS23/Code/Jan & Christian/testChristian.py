@@ -12,16 +12,8 @@ iv = b'passwort-salzen!' # 16 Byte Initialization Vektor
 def decrypt_value(encrypted_data):
     cipher = AES.new(key, AES.MODE_CBC, iv)
     return unpad(cipher.decrypt(encrypted_data), AES.block_size).decode()
-"""
-#def decrypt_value(encrypted_data):
-    try:
-        unpadded_data = unpad(cipher.decrypt(encrypted_data), AES.block_size).decode()
 
-        return unpadded_data 
-    except ValueError as e:
-        print(f"Fehler bei der Entschlüsselung: {e}")
-        return None
-"""
+
 #----------Zugang Datenbank----------
 server = 'sc-db-server.database.windows.net'
 database = 'supplychain'
@@ -46,19 +38,12 @@ conn_str = (
     f'PWD={password}'
 )
 
-
-
-
 #--------------------Funktion Fenster Schließen--------------------
 def schließe_db():
     #----------if cursor:----------
     cursor.close()
     #----------if conn:----------
     conn.close()
-
-
-
-
 
 def lade_Company():
     global conn, cursor
@@ -109,8 +94,9 @@ def lade_Transstation():
             "category": decrypt_value(row[2]),
             "plz": decrypt_value(row[3])
         })
-    print(daten_Transstation)
 
+    for i in range(len(daten_Transstation)):
+        print(f"Transportstation ID: {daten_Transstation[i]['transportstationID']}, Transportstation: {daten_Transstation[i]['transportstation']}, Kategorie: {daten_Transstation[i]['category']}, PLZ: {daten_Transstation[i]['plz']}")
 
 
 lade_Company()
@@ -118,23 +104,3 @@ lade_Company()
 lade_Transstation()
 
 schließe_db()
-
-"""
-
-# Bibliotheken
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import unpad
-# Initialisierung
-key = b'mysecretpassword' # 16 Byte Passwort
-iv = b'passwort-salzen!' # 16 Byte Initialization Vektor
-cipher = AES.new(key, AES.MODE_CBC, iv) # Verschlüsselung initialisieren
-# Entschlüsselung
-#ciphertext = b'\xe0\xdc*\x84l\x87;p\xd22\xd9\x94\xabH6\xcd\xf0&\xeduO\x19\x17$+K*wke\x81\xdf'
-ciphertext = b'N\xc8\x17\x95\xdd\xaeY\xa4P\x8e\xd8\x10\xd7P\t#h\xc7z\xd6\x16\xf9\xc6*\x0e8\xb1\x89r\xd1U@'
-plaintext = unpad(cipher.decrypt(ciphertext), AES.block_size) # Text entschlüsseln
-# Ausgabe
-print ('--------------------------------------------------------------------------')
-print ("Entschlüsselter Text als Bytewert: ", plaintext)
-print ("Entschlüsselter Text als String: ", plaintext.decode())
-print ('--------------------------------------------------------------------------')
-"""
