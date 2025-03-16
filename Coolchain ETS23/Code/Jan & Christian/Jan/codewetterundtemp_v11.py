@@ -102,7 +102,7 @@ def lade_db_daten():
         transport_ids.add(row[1])
 
     # Coolchain (verschlüsselt) - Ersetzt die vorherige Abfrage
-    cursor.execute('SELECT companyid, transportid, transportstationid, direction, datetime FROM v_coolchain_crypt')
+    cursor.execute('SELECT companyid, transportid, transportstationid, direction, datetime FROM coolchain_crypt')
     for row in cursor.fetchall():
         # Entschlüsseln der Daten
         decrypted_companyid = decrypt_value(row[0])
