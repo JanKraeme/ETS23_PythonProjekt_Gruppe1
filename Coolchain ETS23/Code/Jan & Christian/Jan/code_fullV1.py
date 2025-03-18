@@ -74,7 +74,7 @@ def get_coordinates(postal_code: str):
 def get_past_temperature(postal_code: str, date: str, time: str):
     latitude, longitude = get_coordinates(postal_code)
     if latitude is None or longitude is None:
-        return "Fehler: Ungültige Postleitzahl oder keine Daten verfügbar."
+        return "Ungültige Postleitzahl oder keine Daten verfügbar."
     url = (
         f"https://archive-api.open-meteo.com/v1/archive?"
         f"latitude={latitude}&longitude={longitude}"
