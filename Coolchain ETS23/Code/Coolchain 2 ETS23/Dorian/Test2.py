@@ -29,10 +29,8 @@ def lade_db_daten():
         # Zweite SQL-Abfrage
         query2 = "SELECT transportstationID, transportstation, plz FROM transportstation"
         cursor.execute(query2)
-        daten_liste_2 = [
-            {'transportstationID': row.transportstationID, 'transportstation': row.transportstation, 'plz': row.plz}
-            for row in cursor.fetchall()
-        ]
+        daten_liste_2 = [{'transportstationID': row.transportstationID, 'transportstation': row.transportstation, 'plz': row.plz}
+            for row in cursor.fetchall()]
 
         cursor.close()
         conn.close()
@@ -96,9 +94,9 @@ def get_past_temperature(postal_code: str, date: str, time: str):
 
 
 # ---- 3. Prüfung (sortiert + logisch korrekt) ----
-def pruefe_transport_kette(transport_id, coolchain_daten, transportstation_daten):
+def pruefe_transport_kette(transport_id, daten_liste_1, transportstation_daten):
     # TransportID Filter + Debug
-    relevante_daten = [eintrag for eintrag in coolchain_daten if str(eintrag[1]) == str(transport_id)]
+    relevante_daten = [eintrag for eintrag in daten_liste_1 if str(eintrag[1]) == str(transport_id)]
     print(f"Gefundene {len(relevante_daten)} Einträge für TransportID {transport_id}")
 
     if not relevante_daten:

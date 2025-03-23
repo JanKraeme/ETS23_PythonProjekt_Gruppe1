@@ -51,10 +51,15 @@ def lade_stammdaten():
 
     cursor.execute('SELECT transportstationID, transportstation, plz FROM transportstation_crypt')
     for row in cursor.fetchall():
-        station_dict[row[0]] = {'station': decrypt_value(row[1]), 'plz': decrypt_value(row[2])}
+        # Bereinige die station-Daten von überflüssigen Anführungszeichen
+        station_name = decrypt_value(row[1]).strip("'")
+        station_dict[row[0]] = {'station': station_name, 'plz': decrypt_value(row[2])}
 
     cursor.close()
     conn.close()
+
+    # Ausgabe der station_dict
+    print("Station Dictionary:", station_dict)
 
 
 # -------------------- Wetterdaten mit Open-Meteo --------------------
@@ -106,28 +111,78 @@ def start_fenster_manuell():
             tree.delete(item)
         conn = connect_db()
         cursor = conn.cursor()
-        cursor.execute('SELECT companyID, transportstationID, direction, datetime FROM coolchain WHERE transportID = ?', transid)
+        cursor.execute('SELECT companyid, transportid, transportstationid, direction, datetime FROM coolchain WHERE transportID = ?', transid)
         daten = cursor.fetchall()
-        daten.sort(key=lambda x: x[3])
-        start, end = daten[0][3], daten[-1][3]
-        dauer = end - start
-        farbe = "red" if dauer > timedelta(hours=48) else "green"
-        label_duration.config(text=f"Transportdauer: {dauer}", fg=farbe)
-        in_out_ok, uebergabe_ok = True, True
-        for i, row in enumerate(daten):
-            company = company_dict.get(row[0], 'Unbekannt')
-            station_info = station_dict.get(row[1], {'station': 'Unbekannt', 'plz': '0'})
-            temp = get_past_temperature(station_info['plz'], row[3].strftime('%Y-%m-%d'), row[3].strftime('%H:00'))
-            tree.insert('', 'end', values=(company, station_info['station'], row[2], row[3], temp))
-            if i > 0:
-                diff = (row[3] - daten[i-1][3]).total_seconds()
-                if daten[i-1][2] == 'out' and row[2] == 'in' and diff > 600:
-                    messagebox.showwarning("Warnung", f"Übergabe > 10min ({diff:.0f} min). Wetter: {temp}")
-                    uebergabe_ok = False
-        label_direction.config(text='In/Out Prüfung: OK' if in_out_ok else 'Fehler in In/Out', fg='green' if in_out_ok else 'red')
-        label_uebergabe.config(text='Übergabezeit: OK' if uebergabe_ok else 'Fehler bei Übergabe', fg='green' if uebergabe_ok else 'red')
+
+        # Übernahme der Funktion 'pruefe_transport_kette' ohne Änderungen
+        def pruefe_transport_kette(transport_id, daten, transportstation_daten):
+            relevante_daten = [eintrag for eintrag in daten if str(eintrag[1]) == str(transport_id)]
+            print(f"Gefundene {len(relevante_daten)} Einträge für TransportID {transport_id}")
+
+            if not relevante_daten:
+                print(f"❌ Keine Daten für TransportID {transport_id} gefunden.")
+                return
+
+            # Datum umwandeln (falls nötig)
+            for eintrag in relevante_daten:
+                if isinstance(eintrag[4], str):
+                    eintrag[4] = datetime.fromisoformat(eintrag[4])
+
+            # Sortierung
+            relevante_daten.sort(key=lambda x: x[4])  # Sortiert nach datetime
+
+            # Debug nach Sortierung
+            print("\nSortierte Einträge:")
+            for row in relevante_daten:
+                print(row)
+
+            last_out = None  # Merker für letztes 'out'
+
+            for eintrag in relevante_daten:
+                station_id = eintrag[2]
+                direction = eintrag[3].replace("'", "").lower()  # <<< WICHTIG: Hochkomma entfernen!
+                timestamp = eintrag[4]
+
+                if direction == 'out':
+                    print(f"[OUT] Gefunden an Station {station_id} um {timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
+                    last_out = (station_id, timestamp)  # Speichern
+
+                elif direction == 'in' and last_out:
+                    out_station_id, out_time = last_out
+                    time_diff = (timestamp - out_time).total_seconds()
+                    print(f"[IN] Gefunden an Station {station_id} um {timestamp.strftime('%Y-%m-%d %H:%M:%S')}, "
+                        f"Differenz zu letztem OUT: {int(time_diff)} Sekunden")
+
+                    if time_diff > 600:  # Zeitüberschreitung
+                        # PLZ suchen
+                        plz = next((item['plz'] for item in transportstation_daten if item['transportstationID'] == out_station_id), None)
+                        
+                        if plz:
+                            datum = timestamp.date().isoformat()  # YYYY-MM-DD
+                            uhrzeit = timestamp.time().strftime("%H:%M:%S")  # HH:MM:SS
+                            print(f"\n⚠️ Überschreitung! StationID: {out_station_id}, PLZ: {plz}, "
+                                f"Datum: {datum}, Uhrzeit: {uhrzeit}, Differenz: {int(time_diff)} Sekunden")
+
+                            # Temperatur holen
+                            temperatur = get_past_temperature(plz, datum, timestamp.time().strftime("%H:00"))
+                            print(f"🌡️ Temperatur um {datum} {timestamp.time().strftime('%H:00')}: {temperatur}°C\n")
+                        else:
+                            print(f"⚠️ Keine PLZ für StationID {out_station_id} gefunden.")
+                        
+                        # Last out zurücksetzen
+                        last_out = None
+                    else:
+                        print(f"✅ Zeit zwischen OUT und IN ist in Ordnung ({int(time_diff)} Sekunden).\n")
+                        last_out = None
+
+        # Aufruf der Funktion, um die Einträge zu prüfen
+        pruefe_transport_kette(transid, daten, station_dict)
+        
+
+
         cursor.close()
         conn.close()
+
 
     fenster = tk.Toplevel(fenster_hauptmenue)
     fenster.title("Manuelle Überprüfung")
