@@ -121,11 +121,9 @@ def start_fenster_manuell():
             tree.insert('', 'end', values=(company, station_info['station'], row[2], row[3], temp))
             if i > 0:
                 diff = (row[3] - daten[i-1][3]).total_seconds()
-                if diff > 600:
-                    # messagebox.showwarning("Warnung", f"Übergabe > 10min ({diff:.0f} min). Wetter: {temp}")
+                if daten[i-1][2] == 'out' and row[2] == 'in' and diff > 600:
+                    messagebox.showwarning("Warnung", f"Übergabe > 10min ({diff:.0f} min). Wetter: {temp}")
                     uebergabe_ok = False
-                if daten[i-1][2] == 'out' and row[2] == 'in':
-                    in_out_ok = False
         label_direction.config(text='In/Out Prüfung: OK' if in_out_ok else 'Fehler in In/Out', fg='green' if in_out_ok else 'red')
         label_uebergabe.config(text='Übergabezeit: OK' if uebergabe_ok else 'Fehler bei Übergabe', fg='green' if uebergabe_ok else 'red')
         cursor.close()
