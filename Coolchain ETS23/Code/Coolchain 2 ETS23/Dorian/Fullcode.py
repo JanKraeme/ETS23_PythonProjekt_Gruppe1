@@ -11,7 +11,6 @@ import requests
 key = b'mysecretpassword'
 iv = b'passwort-salzen!'
 
-
 # -------------------- Globale Daten --------------------
 company_dict = {}
 station_dict = {}
@@ -51,18 +50,12 @@ def lade_stammdaten():
 
     cursor.execute('SELECT transportstationID, transportstation, plz FROM transportstation_crypt')
     for row in cursor.fetchall():
-        # Bereinige die station-Daten von überflüssigen Anführungszeichen
-        station_name = decrypt_value(row[1]).strip("'")
-        station_dict[row[0]] = {'station': station_name, 'plz': decrypt_value(row[2])}
+        station_dict[row[0]] = {'station': decrypt_value(row[1]), 'plz': decrypt_value(row[2])}
 
     cursor.close()
     conn.close()
 
-    # Ausgabe der station_dict
-    print("Station Dictionary:", station_dict)
-
-
-# -------------------- Wetterdaten mit Open-Meteo --------------------
+    # -------------------- Wetterdaten mit Open-Meteo --------------------
 def get_coordinates(postal_code: str):
     geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={postal_code}&count=1&language=de&format=json"
     try:
@@ -103,76 +96,96 @@ def get_past_temperature(postal_code: str, date: str, time: str):
     except KeyError:
         return "Fehler: Ungültige API-Antwort."
 
+# -------------------- Temperaturüberwachung --------------------
+def temperatur_ueberwachung(transid):
+    conn = connect_db()
+    cursor = conn.cursor()
+    
+    # Transportstationen zur Transport-ID sammeln
+    cursor.execute('SELECT DISTINCT transportstationID FROM coolchain WHERE transportID = ?', transid)
+    station_ids = [row[0] for row in cursor.fetchall()]
+    
+    if not station_ids:
+        cursor.close()
+        conn.close()
+        return "Keine Temperaturdaten gefunden."
+    
+    # Temperaturdaten für die gesammelten Stationen abrufen
+    query = 'SELECT temperature FROM tempdata WHERE transportstationID IN ({})'.format(','.join('?' * len(station_ids)))
+    cursor.execute(query, station_ids)
+    temperaturwerte = [row[0] for row in cursor.fetchall()]
+    
+    cursor.close()
+    conn.close()
+    
+    # Überprüfung der Temperaturgrenzen
+    for temp in temperaturwerte:
+        if temp < 2 or temp > 4:
+            return "Achtung: Temperaturabweichung während des Transports festgestellt!"
+    return ""
 
-# -------------------- GUI --------------------
+# -------------------- Transport-ID Prüfung --------------------
 def start_fenster_manuell():
     def zeiten_auswertung(transid):
         for item in tree.get_children():
             tree.delete(item)
+        
         conn = connect_db()
         cursor = conn.cursor()
-        cursor.execute('SELECT companyid, transportid, transportstationid, direction, datetime FROM coolchain WHERE transportID = ?', transid)
+        cursor.execute('SELECT companyID, transportstationID, direction, datetime FROM coolchain WHERE transportID = ?', (transid,))
         daten = cursor.fetchall()
-
-        # Übernahme der Funktion 'pruefe_transport_kette' ohne Änderungen
-        def pruefe_transport_kette(transport_id, daten, transportstation_daten):
-            relevante_daten = [eintrag for eintrag in daten if str(eintrag[1]) == str(transport_id)]
-            print(f"Gefundene {len(relevante_daten)} Einträge für TransportID {transport_id}")
-
-            if not relevante_daten:
-                print(f"❌ Keine Daten für TransportID {transport_id} gefunden.")
-                return
-
-            # Datum umwandeln (falls nötig)
-            for eintrag in relevante_daten:
-                if isinstance(eintrag[4], str):
-                    eintrag[4] = datetime.fromisoformat(eintrag[4])
-
-            # Sortierung
-            relevante_daten.sort(key=lambda x: x[4])  # Sortiert nach datetime
-
-            # Debug nach Sortierung
-            print("\nSortierte Einträge:")
-            for row in relevante_daten:
-                print(row)
-
-            last_out = None  # Merker für letztes 'out'
-
-            for eintrag in relevante_daten:
-                station_id = eintrag[2]
-                direction = eintrag[3].replace("'", "").lower()  # <<< WICHTIG: Hochkomma entfernen!
-                timestamp = eintrag[4]
-
-                if direction == 'out':
-                    last_out = (station_id, timestamp)  # Speichern
-
-                elif direction == 'in' and last_out:
-                    out_station_id, out_time = last_out
-                    time_diff = (timestamp - out_time).total_seconds()
-
-                    if time_diff > 600:  # Zeitüberschreitung
-                        # PLZ suchen
-                        plz = station_dict.get(out_station_id, {}).get('plz', None)
-                        
-                        if plz:
-                            datum = timestamp.date().isoformat()  # YYYY-MM-DD
-                            uhrzeit = timestamp.time().strftime("%H:%M:%S")  # HH:MM:SS
-                            print(f"\n Überschreitung! StationID: {out_station_id}, PLZ: {plz}, "
-                                f"Datum: {datum}, Uhrzeit: {uhrzeit}, Differenz: {int(time_diff)} Sekunden")
-
-                            # Temperatur holen
-                            temperatur = get_past_temperature(plz, datum, timestamp.time().strftime("%H:00"))
-                            print(f"Temperatur um {datum} {timestamp.time().strftime('%H:00')}: {temperatur}°C\n")                        
-                        # Last out zurücksetzen
-                        last_out = None
-
-        # Aufruf der Funktion, um die Einträge zu prüfen
-        pruefe_transport_kette(transid, daten, station_dict)
         
+        if not daten:
+            messagebox.showerror("Fehler", "Keine Daten für diese Transport-ID gefunden.")
+            return
 
+        daten.sort(key=lambda x: x[3])  # Sortieren nach Datum & Uhrzeit
+        start, end = daten[0][3], daten[-1][3]
+        dauer = end - start
+        farbe = "red" if dauer > timedelta(hours=48) else "green"
+        label_duration.config(text=f"Transportdauer: {dauer}", fg=farbe)
+
+        in_out_ok = True
+        uebergabe_ok = True
+
+        last_direction = None
+        last_out_time = None  # Speichert das letzte 'out' für die Übergabeprüfung
+
+        for row in daten:
+            company = company_dict.get(row[0], 'Unbekannt')
+            station_info = station_dict.get(row[1], {'station': 'Unbekannt', 'plz': '0'})
+            temp = get_past_temperature(station_info['plz'], row[3].strftime('%Y-%m-%d'), row[3].strftime('%H:00'))
+            tree.insert('', 'end', values=(company, station_info['station'], row[2], row[3], temp))
+
+            if last_direction is not None:
+                if row[2] == last_direction:
+                    in_out_ok = False  # Fehler, wenn sich 'in' oder 'out' wiederholt
+                    
+            if row[2] == "'out'":
+                last_out_time = row[3]  # Speichere Zeitpunkt von 'out'
+
+            if row[2] == "'in'" and last_out_time:
+                # Berechne den Zeitunterschied (nur Stunden, Minuten, Sekunden)
+                time_diff = (row[3] - last_out_time).total_seconds()
+
+                if time_diff > 600:  
+                    #messagebox.showwarning("Warnung", f"Übergabe > 10min ({time_diff:.0f} Sekunden). Wetter: {temp}")
+                    uebergabe_ok = False
+
+                last_out_time = None  # Nach Prüfung zurücksetzen
+
+            last_direction = row[2]
+
+        label_direction.config(text='In/Out Prüfung: OK' if in_out_ok else 'Fehler in In/Out', fg='green' if in_out_ok else 'red')
+        label_uebergabe.config(text='Übergabezeit: OK' if uebergabe_ok else 'Fehler bei Übergabe', fg='green' if uebergabe_ok else 'red')
+
+        temperatur_warnung = temperatur_ueberwachung(transid)
+        label_temperatur.config(text=temperatur_warnung, fg='red' if temperatur_warnung else 'black')
 
         cursor.close()
         conn.close()
+
+
 
 
     fenster = tk.Toplevel(fenster_hauptmenue)
@@ -188,32 +201,14 @@ def start_fenster_manuell():
     cursor.close()
     conn.close()
     tk.Button(fenster, text="Prüfen", command=lambda: zeiten_auswertung(transid_box.get())).pack()
-    global label_duration, label_direction, label_uebergabe
-    label_duration, label_direction, label_uebergabe = tk.Label(fenster), tk.Label(fenster), tk.Label(fenster)
-    label_duration.pack(), label_direction.pack(), label_uebergabe.pack()
+    global label_duration, label_direction, label_uebergabe, label_temperatur
+    label_duration, label_direction, label_uebergabe, label_temperatur = tk.Label(fenster), tk.Label(fenster), tk.Label(fenster), tk.Label(fenster)
+    label_duration.pack(), label_direction.pack(), label_uebergabe.pack(), label_temperatur.pack()
     global tree
     tree = ttk.Treeview(fenster, columns=("Firma", "Station", "Richtung", "Zeitpunkt", "Wetter"), show='headings')
     for col in ("Firma", "Station", "Richtung", "Zeitpunkt", "Wetter"):
         tree.heading(col, text=col)
     tree.pack(expand=True, fill='both')
-
-# -------------------- Temperaturüberwachung --------------------
-def temperatur_überwachung():
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute('SELECT transportstationID, datetime, temperature FROM tempdata')
-    daten = cursor.fetchall()
-    fenster = tk.Toplevel(fenster_hauptmenue)
-    fenster.title("Temperaturüberwachung")
-    tree_temp = ttk.Treeview(fenster, columns=("Station", "Datum", "Temperatur"), show='headings')
-    for col in ("Station", "Datum", "Temperatur"):
-        tree_temp.heading(col, text=col)
-    tree_temp.pack(expand=True, fill='both')
-    for row in daten:
-        if row[2] < 2 or row[2] > 4:
-            tree_temp.insert('', 'end', values=(row[0], row[1], f"{row[2]} °C"))
-    cursor.close()
-    conn.close()
 
 # -------------------- Hauptmenü --------------------
 fenster_hauptmenue = tk.Tk()
@@ -222,5 +217,4 @@ fenster_hauptmenue.title("Coolchain Überwachung")
 lade_stammdaten()
 tk.Label(fenster_hauptmenue, text="ETS Supplychain-Projekt", font=("Helvetica", 16)).pack(pady=20)
 tk.Button(fenster_hauptmenue, text="Transport-IDs prüfen", command=start_fenster_manuell, bg="#007BFF", fg="white").pack(pady=10)
-tk.Button(fenster_hauptmenue, text="Temperaturüberwachung", command=temperatur_überwachung, bg="#28a745", fg="white").pack(pady=10)
 fenster_hauptmenue.mainloop()
