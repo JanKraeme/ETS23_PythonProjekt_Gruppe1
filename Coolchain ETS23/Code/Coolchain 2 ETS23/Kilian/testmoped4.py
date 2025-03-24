@@ -113,19 +113,25 @@ def start_fenster_manuell():
         dauer = end - start
         farbe = "red" if dauer > timedelta(hours=48) else "green"
         label_duration.config(text=f"Transportdauer: {dauer}", fg=farbe)
-        in_out_ok, uebergabe_ok = True, True
+        direction_errors = []
         for i, row in enumerate(daten):
             company = company_dict.get(row[0], 'Unbekannt')
             station_info = station_dict.get(row[1], {'station': 'Unbekannt', 'plz': '0'})
             temp = get_past_temperature(station_info['plz'], row[3].strftime('%Y-%m-%d'), row[3].strftime('%H:00'))
             tree.insert('', 'end', values=(company, station_info['station'], row[2], row[3], temp))
-            if i > 0:
-                diff = (row[3] - daten[i-1][3]).total_seconds()
-                if daten[i-1][2] == 'out' and row[2] == 'in' and diff > 600:
-                    messagebox.showwarning("Warnung", f"Übergabe > 10min ({diff:.0f} min). Wetter: {temp}")
-                    uebergabe_ok = False
-        label_direction.config(text='In/Out Prüfung: OK' if in_out_ok else 'Fehler in In/Out', fg='green' if in_out_ok else 'red')
-        label_uebergabe.config(text='Übergabezeit: OK' if uebergabe_ok else 'Fehler bei Übergabe', fg='green' if uebergabe_ok else 'red')
+            direction_errors = []
+            if daten[0][2] != "'in'":
+                direction_errors.append(f"Fehler: Erster Eintrag ist nicht 'in'.")
+
+            for i in range(1, len(daten)):
+                if daten[i][2] == daten[i-1][2]:
+                    direction_errors.append(f"Fehler: Falsche Reihenfolge an Position {i+1} ({daten[i]['direction']} nach {daten[i-1]['direction']}).")
+
+            if daten[-1][2] != "'out'":
+                direction_errors.append(f"Fehler: Letzter Eintrag ist nicht 'out'.")
+
+        print(direction_errors)
+        print(daten)
         cursor.close()
         conn.close()
 
