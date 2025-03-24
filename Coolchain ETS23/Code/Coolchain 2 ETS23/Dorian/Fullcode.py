@@ -97,6 +97,7 @@ def get_past_temperature(postal_code: str, date: str, time: str):
         return "Fehler: Ungültige API-Antwort."
 
 # -------------------- Temperaturüberwachung --------------------
+zeitueberschreitung = 0
 def temperatur_ueberwachung(transid):
     conn = connect_db()
     cursor = conn.cursor()
@@ -171,13 +172,14 @@ def start_fenster_manuell():
                 if time_diff > 600:  
                     #messagebox.showwarning("Warnung", f"Übergabe > 10min ({time_diff:.0f} Sekunden). Wetter: {temp}")
                     uebergabe_ok = False
+                    zeitueberschreitung = time_diff
 
                 last_out_time = None  # Nach Prüfung zurücksetzen
 
             last_direction = row[2]
 
         label_direction.config(text='In/Out Prüfung: OK' if in_out_ok else 'Fehler in In/Out', fg='green' if in_out_ok else 'red')
-        label_uebergabe.config(text='Übergabezeit: OK' if uebergabe_ok else 'Fehler bei Übergabe', fg='green' if uebergabe_ok else 'red')
+        label_uebergabe.config(text=f'Übergabezeit: OK' if uebergabe_ok else f'Fehler bei Übergabe, {zeitueberschreitung:.2f} Sekunden > 600 Sekunden max. zugelassen',fg='green' if uebergabe_ok else 'red')
 
         temperatur_warnung = temperatur_ueberwachung(transid)
         label_temperatur.config(text=temperatur_warnung, fg='red' if temperatur_warnung else 'black')
