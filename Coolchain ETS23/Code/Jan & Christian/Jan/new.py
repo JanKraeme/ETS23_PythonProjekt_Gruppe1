@@ -124,9 +124,6 @@ def temperatur_ueberwachung(transid):
             return "Achtung: Temperaturabweichung während des Transports festgestellt!"
     return ""
 
-
-
-
 # -------------------- Transport-ID Prüfung --------------------
 def start_fenster_manuell():
     def zeiten_auswertung(transid):
@@ -141,7 +138,7 @@ def start_fenster_manuell():
         dauer = end - start
         farbe = "red" if dauer > timedelta(hours=48) else "green"
         label_duration.config(text=f"Transportdauer: {dauer}", fg=farbe)
-        uebergabe_ok = True
+        in_out_ok, uebergabe_ok = True, True
         for i, row in enumerate(daten):
             company = company_dict.get(row[0], 'Unbekannt')
             station_info = station_dict.get(row[1], {'station': 'Unbekannt', 'plz': '0'})
@@ -152,78 +149,48 @@ def start_fenster_manuell():
                 if daten[i-1][2] == 'out' and row[2] == 'in' and diff > 600:
                     messagebox.showwarning("Warnung", f"Übergabe > 10min ({diff:.0f} min). Wetter: {temp}")
                     uebergabe_ok = False
-        
         label_uebergabe.config(text='Übergabezeit: OK' if uebergabe_ok else 'Fehler bei Übergabe', fg='green' if uebergabe_ok else 'red')
-        
         temperatur_warnung = temperatur_ueberwachung(transid)
         label_temperatur.config(text=temperatur_warnung, fg='red' if temperatur_warnung else 'black')
         cursor.close()
         conn.close()
 
-    def zeiten_auswertung(transid):
-        for item in tree.get_children():
-            tree.delete(item)
-        conn = connect_db()
-        cursor = conn.cursor()
-        cursor.execute('SELECT companyid, transportid, transportstationid, direction, datetime FROM coolchain WHERE transportID = ?', transid)
-        daten = cursor.fetchall()
+        # Aufruf der Funktion zur Überprüfung der Transportkette
+        meldung_transportkette = pruefe_transport_kette(transid, daten, station_dict, transid)
+        label_direction.config(text=meldung_transportkette, fg='red' if meldung_transportkette else 'black')
 
-        # Übernahme der Funktion 'pruefe_transport_kette' ohne Änderungen
-        def pruefe_transport_kette(transport_id, daten, transportstation_daten):
-            meldung = ""
-            relevante_daten = [eintrag for eintrag in daten if str(eintrag[1]) == str(transport_id)]
-            print(f"Gefundene {len(relevante_daten)} Einträge für TransportID {transport_id}")
+# ... (übriger Code)
 
-            if not relevante_daten:
-                print(f"❌ Keine Daten für TransportID {transport_id} gefunden.")
-                return
-
-            # Datum umwandeln (falls nötig)
-            for eintrag in relevante_daten:
-                if isinstance(eintrag[4], str):
-                    eintrag[4] = datetime.fromisoformat(eintrag[4])
-
-            # Sortierung
-            relevante_daten.sort(key=lambda x: x[4])  # Sortiert nach datetime
-
-            # Debug nach Sortierung
-            print("\nSortierte Einträge:")
-            for row in relevante_daten:
-                print(row)
-
-            last_out = None  # Merker für letztes 'out'
-
-            for eintrag in relevante_daten:
-                station_id = eintrag[2]
-                direction = eintrag[3].replace("'", "").lower()  # <<< WICHTIG: Hochkomma entfernen!
-                timestamp = eintrag[4]
-
-                if direction == 'out':
-                    last_out = (station_id, timestamp)  # Speichern
-
-                elif direction == 'in' and last_out:
-                    out_station_id, out_time = last_out
-                    time_diff = (timestamp - out_time).total_seconds()
-
-                    if time_diff > 600:  # Zeitüberschreitung
-                        # PLZ suchen
-                        plz = station_dict.get(out_station_id, {}).get('plz', None)
-                        
-                        if plz:
-                            datum = timestamp.date().isoformat()
-                            temperatur = get_past_temperature(plz, datum, timestamp.time().strftime("%H:00"))
-                            meldung += f"\n Überschreitung! StationID: {out_station_id}, PLZ: {plz}, "
-                            meldung += f"Datum: {datum}, Differenz: {int(time_diff)} Sekunden, Temperatur: {temperatur}\n"
-                        last_out = None
-            cursor.close()
-            conn.close()
-            label_direction.config(text=meldung, fg='red')
-            # Aufruf der Funktion, um die Einträge zu prüfen
-        pruefe_transport_kette(transid, daten, station_dict)
-        
-
-
-
+    def pruefe_transport_kette(transport_id, daten, transportstation_daten, transid):
+        meldung = ""
+        relevante_daten = [eintrag for eintrag in daten if str(eintrag[1]) == str(transport_id)]
+        print(f"Gefundene {len(relevante_daten)} Einträge für TransportID {transport_id}")
+        for eintrag in relevante_daten:
+            if isinstance(eintrag[4], str):
+                eintrag[4] = datetime.fromisoformat(eintrag[4])
+        relevante_daten.sort(key=lambda x: x[4])
+        print("\nSortierte Einträge:")
+        for row in relevante_daten:
+            print(row)
+        last_out = None
+        for eintrag in relevante_daten:
+            station_id = eintrag[2]
+            direction = eintrag[3].replace("'", "").lower()
+            timestamp = eintrag[4]
+            if direction == 'out':
+                last_out = (station_id, timestamp)
+            elif direction == 'in' and last_out:
+                out_station_id, out_time = last_out
+                time_diff = (timestamp - out_time).total_seconds()
+                if time_diff > 600:
+                    plz = station_dict.get(out_station_id, {}).get('plz', None)
+                    if plz:
+                        datum = timestamp.date().isoformat()
+                        temperatur = get_past_temperature(plz, datum, timestamp.time().strftime("%H:00"))
+                        meldung += f"\n Überschreitung! StationID: {out_station_id}, PLZ: {plz}, "
+                        meldung += f"Datum: {datum}, Differenz: {int(time_diff)} Sekunden, Temperatur: {temperatur}\n"
+                    last_out = None
+        return meldung
 
     fenster = tk.Toplevel(fenster_hauptmenue)
     fenster.title("Manuelle Überprüfung")
