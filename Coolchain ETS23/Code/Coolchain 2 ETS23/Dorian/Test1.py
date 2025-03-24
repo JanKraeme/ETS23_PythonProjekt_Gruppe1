@@ -97,7 +97,6 @@ def get_past_temperature(postal_code: str, date: str, time: str):
         return "Fehler: Ungültige API-Antwort."
 
 # -------------------- Temperaturüberwachung --------------------
-zeitueberschreitung = 0
 def temperatur_ueberwachung(transid):
     conn = connect_db()
     cursor = conn.cursor()
@@ -151,6 +150,7 @@ def start_fenster_manuell():
 
         last_direction = None
         last_out_time = None  # Speichert das letzte 'out' für die Übergabeprüfung
+        zeitueberschreitung = None
 
         for row in daten:
             company = company_dict.get(row[0], 'Unbekannt')

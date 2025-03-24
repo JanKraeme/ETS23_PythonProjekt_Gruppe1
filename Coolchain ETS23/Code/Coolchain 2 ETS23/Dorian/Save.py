@@ -97,6 +97,7 @@ def get_past_temperature(postal_code: str, date: str, time: str):
         return "Fehler: Ungültige API-Antwort."
 
 # -------------------- Temperaturüberwachung --------------------
+zeitueberschreitung = 0
 def temperatur_ueberwachung(transid):
     conn = connect_db()
     cursor = conn.cursor()
@@ -150,7 +151,6 @@ def start_fenster_manuell():
 
         last_direction = None
         last_out_time = None  # Speichert das letzte 'out' für die Übergabeprüfung
-        zeitueberschreitung = None  # Initialisiere die Variable
 
         for row in daten:
             company = company_dict.get(row[0], 'Unbekannt')
@@ -161,6 +161,7 @@ def start_fenster_manuell():
             if last_direction is not None:
                 if row[2] == last_direction:
                     in_out_ok = False  # Fehler, wenn sich 'in' oder 'out' wiederholt
+                    
             if row[2] == "'out'":
                 last_out_time = row[3]  # Speichere Zeitpunkt von 'out'
 
@@ -169,22 +170,25 @@ def start_fenster_manuell():
                 time_diff = (row[3] - last_out_time).total_seconds()
 
                 if time_diff > 600:  
-                    zeitueberschreitung = time_diff  # Speichere den Wert von time_diff, wenn > 600
+                    #messagebox.showwarning("Warnung", f"Übergabe > 10min ({time_diff:.0f} Sekunden). Wetter: {temp}")
                     uebergabe_ok = False
+                    zeitueberschreitung = time_diff / 60
 
                 last_out_time = None  # Nach Prüfung zurücksetzen
 
             last_direction = row[2]
 
-        # Ausgabe der Übergabezeit und des gespeicherten Werts, wenn es eine Zeitüberschreitung gab
         label_direction.config(text='In/Out Prüfung: OK' if in_out_ok else 'Fehler in In/Out', fg='green' if in_out_ok else 'red')
-        label_uebergabe.config(text=f'Übergabezeit: OK, Wert: {zeitueberschreitung:.2f}' if uebergabe_ok else f'Fehler bei Übergabe, Wert: {zeitueberschreitung:.2f}', fg='green' if uebergabe_ok else 'red')
+        label_uebergabe.config(text=f'Übergabezeit: OK' if uebergabe_ok else f'Fehler bei Übergabe, {zeitueberschreitung:.2f} Minuten > 10 Minuten max. zugelassen',fg='green' if uebergabe_ok else 'red')
 
         temperatur_warnung = temperatur_ueberwachung(transid)
         label_temperatur.config(text=temperatur_warnung, fg='red' if temperatur_warnung else 'black')
 
         cursor.close()
         conn.close()
+
+
+
 
     fenster = tk.Toplevel(fenster_hauptmenue)
     fenster.title("Manuelle Überprüfung")
@@ -207,7 +211,6 @@ def start_fenster_manuell():
     for col in ("Firma", "Station", "Richtung", "Zeitpunkt", "Wetter"):
         tree.heading(col, text=col)
     tree.pack(expand=True, fill='both')
-
 
 # -------------------- Hauptmenü --------------------
 fenster_hauptmenue = tk.Tk()
