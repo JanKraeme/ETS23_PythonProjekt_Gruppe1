@@ -155,7 +155,7 @@ def start_fenster_manuell():
 
                     if time_diff > 600:  # Zeitüberschreitung
                         # PLZ suchen
-                        plz = next((item['plz'] for item in transportstation_daten if item['transportstationID'] == out_station_id), None)
+                        plz = station_dict.get(out_station_id, {}).get('plz', None)
                         
                         if plz:
                             datum = timestamp.date().isoformat()  # YYYY-MM-DD
