@@ -170,6 +170,8 @@ def temperatur_ueberwachung(transid): #Funktion: Überprüfung der Temperaturen 
     for temp in temperaturwerte:
         if temp < 2 or temp > 4:
             return f"Achtung: Temperaturabweichung während des Transports festgestellt! {temp} Grad Temperatur muss zwischen 2 und 4 Grad liegen."
+        else:
+            return "Temperaturen wurden eingehalten."
     return ""
 
 # -------------------- Transport-ID Prüfung --------------------
