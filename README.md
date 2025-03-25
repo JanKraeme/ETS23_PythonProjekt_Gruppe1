@@ -1,3 +1,5 @@
+[![Doku verfügbar](https://img.shields.io/badge/Dokumentation-online-blue)](https://jankraeme.github.io/ETS23_PythonProjekt_Gruppe1/)
+
 # --------------------------------------------------------
 # Programm: Coolchain ETS23 Supply Chain Project 2
 # Version: 2.0 (Erweiterung Coolchain)
