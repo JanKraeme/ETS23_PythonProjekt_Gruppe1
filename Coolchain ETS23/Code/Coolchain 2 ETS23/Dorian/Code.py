@@ -1,348 +1,274 @@
 #--------------------------------------------------------
-# Programm: Coolchain ETS23 Supply Chain Project
-# Version: 1.0 (Erste Vollversion)
-# Datum: 24. September 2024
-# Autor: Jan Krämer, Max Kohnen, Tim Heikebrügge, Dorian Bohlken, Christian Rudolf, Kilian Tenfelde
+# Programm: Coolchain ETS23 Supply Chain Project 2
+# Version: 2.0 (Erweiterung Coolchain)
+# Erstelldatum: 25.03.2025
+# Autoren: Jan Krämer, Max Kohnen, Tim Heikebrügge, Dorian Bohlken, Christian Rudolf, Kilian Tenfelde
 #--------------------------------------------------------
 # Beschreibung:
-# Dieses Programm ermöglicht es dem Benutzer, Transportdaten 
-# einer Supply Chain zu überprüfen. Es verwendet eine GUI 
-# (Graphical User Interface), um Transport-
+# Das Programm dient zur Überprüfung von Transportdaten einer Kühlkette eines FastFood-Lieferanten.
+# Es verwendet eine GUI (Graphical User Interface), um Transport-
 # IDs zu laden und verschiedene Transportinformationen wie Dauer 
-# und Transportverlauf zu überprüfen und evenetuelle Fehler zu erkennen.
+# und Transportverlauf zu überprüfen und eventuelle Fehler zu erkennen.
+# Die Erweiterung des Programms ermüberprüft zusätzlich zu den alten Funktionen
+# die Wetterlage zu  ungekühlten Zeiten sowie eine ständige Temperaturüberwachung des Transports
+# Die Einträge der Datenbank liegen nun im verschlüsselten Zustand vor und werden erst im Programm selbst entschlüsslt
 #
 # Hauptfunktionen:
 # - Verschlüsselte Datenbankzugriffsdaten entschlüsseln.
 # - Transportdaten aus einer SQL-Datenbank laden.
-# - Überprüfung der Transportdauer und Logik (z.B. "in" und "out").
+# - Überprüfung der Transportlogik ()"in" und "out").
+# - Überprüfung der Gesamttransportzeit von maximal 48 Std.
+# - Überprüfung der Umladungszeit zwischen den Kühltansportern bzw. Kühlhäusern
+# - Überprüfung der Kühltemperartur innerhalb der Kühltransportern und Kühlhäusern
+# - Abgleich der Postleitzahl der Kühlhäuser mit den Wetterdaten vor Ort zur Zeit des Umladens
 # - Manuelle Auswahl und Überprüfung der Transport-IDs über die GUI.
+# - Darstellung der Transportdaten zur ausgewählten TransportID in einer Liste
+# - Anzeige aller überprüften Daten und evtl. Fehlern auf der GUI
 # - Visualisierung der Transportereignisse (z.B. LKW- und Freeze-Symbole).
 #
 # Verwendete Bibliotheken:
 # - pyodbc: Für den Datenbankzugriff (ODBC-Verbindung).
 # - tkinter: Für die GUI-Erstellung.
-# - cryptography.fernet: Für das Entschlüsseln der Zugangsdaten.
+# - pythoncryptodome: Zur Entschlüsseluung der Daten aus der Datenbank
 # - datetime: Für die Zeit- und Datumsoperationen.
+# - requests: Abfrage der historischen Wetterdaten aus dem Internet
 #
 # Voraussetzungen:
 # - Eine funktionierende SQL-Server-Datenbank.
 # - ODBC-Treiber 18 für SQL-Server.
 # - Vorhandene Schlüssel- und Anmeldedaten in verschlüsselten Dateien.
+# - Installationen aller verwendeten Bibliotheken (pyodbc, tkinker, pythoncryptodome, requests)
+# - Internetverbindung
 #
 #Verschlüsselungen
 # Es wird eine AES-Verschlüsselung (128Bit) verwendet, um die Anmeldedaten der Datenbank zu schützen
 #--------------------------------------------------------
 
-#--------------------Bibliotheken--------------------
+# -------------------- Bibliotheken --------------------
 import pyodbc
 import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime, timedelta
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
+import requests
+import time
 
-def lade_db_daten():
-    global cursor, conn, db_daten, db_datetime, db_direction, db_zwischenzeit, db_transportstation, db_tempdata
+# -------------------- Initialisierung-Verschlüsselungsdaten --------------------
+key = b'mysecretpassword'
+iv = b'passwort-salzen!'
 
-    server = 'sc-db-server.database.windows.net'
-    database = 'supplychain'
-    username = 'rse'
-    password = 'Pa$$w0rd'
-    conn_str = (
-        f'DRIVER={{ODBC Driver 18 for SQL Server}};'
-        f'SERVER={server};'
-        f'DATABASE={database};'
-        f'UID={username};'
-        f'PWD={password}'
-    )
+# -------------------- Globale Daten --------------------
+company_dict = {}
+station_dict = {}
 
+# -------------------- Entschlüsselungsfunktion --------------------
+def decrypt_value(encrypted_data):
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    return unpad(cipher.decrypt(encrypted_data), AES.block_size).decode()
+
+# -------------------- Datenbankverbindung --------------------
+def connect_db(): # Funktioen: Verbindung zur Datenbank mit verschlüsselten Anmeldedaten
     try:
-        conn = pyodbc.connect(conn_str)
-    except:
-        fenster_manuell.destroy()
-        messagebox.showerror(title="Fehler", message="Keine Verbindung zur Datenbank möglich!")
-        return
+        conn = pyodbc.connect(
+            'DRIVER={ODBC Driver 18 for SQL Server};'
+            'SERVER=sc-db-server.database.windows.net;'
+            'DATABASE=supplychain;'
+            'UID=rse;'
+            'PWD=Pa$$w0rd'
+        )
+        return conn
+    except Exception as e:
+        messagebox.showerror("Fehler", "Keine Verbindung zur Datenbank möglich!")
+        print("Fehler:", e)
+        return None
 
+# -------------------- Stammdaten laden --------------------
+def lade_stammdaten(): #Funktion: Herunterladen der verschlüsslten Daten und Entschlüsselung
+    global company_dict, station_dict
+    conn = connect_db()
+    if not conn:
+        return
     cursor = conn.cursor()
 
-    # Erste Abfrage für Transportdaten
-    cursor.execute('SELECT companyid, transportid, transportstationid, direction, datetime FROM coolchain')
-    coolchain_data = cursor.fetchall()
+    cursor.execute('SELECT companyID, company FROM company_crypt')
+    for row in cursor.fetchall():
+        company_dict[row[0]] = decrypt_value(row[1])
 
-    # Zweite Abfrage für Transportstationen
-    cursor.execute('SELECT transportstationID, transportstation, plz FROM transportstation')
-    transportstation_data = cursor.fetchall()
-    
-    # Dritte Abfrage für Tempdata
-    cursor.execute('SELECT transportstationID, datetime, temperature FROM tempdata')
-    tempdata_data = cursor.fetchall()
+    cursor.execute('SELECT transportstationID, transportstation, plz FROM transportstation_crypt')
+    for row in cursor.fetchall():
+        station_dict[row[0]] = {'station': decrypt_value(row[1]), 'plz': decrypt_value(row[2])}
 
-    db_daten = []
-    db_datetime = []
-    db_direction = []
-    db_zwischenzeit = []
-    transport_ids = set()
-    db_transportstation = []
-    db_tempdata = []
+    cursor.close()
+    conn.close()
 
-    # Daten aus Coolchain Abfrage verarbeiten
-    for row in coolchain_data:
-        db_datetime.append({'datetime': row.datetime, 'direction': row.direction, 'transportid': row.transportid, 'transportstationID': row.transportstationID})
-        db_direction.append({'transportid': row.transportid, 'direction': row.direction})
-        db_daten.append({'companyid': row.companyid, 'transportid': row.transportid, 'transportstationid': row.transportstationid, 'direction': row.direction, 'datetime': row.datetime})
-        transport_ids.add(row.transportid)
-        db_zwischenzeit.append({'transportid': row.transportid, 'transportstationid': row.transportstationid, 'datetime': row.datetime, 'direction': row.direction})
+    # -------------------- Wetterdaten mit Open-Meteo --------------------
+def get_coordinates(postal_code: str): #Funktion: Generieren der Koordinaten anhand der Postleitzahl
+    geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={postal_code}&count=1&language=de&format=json"
+    try:
+        response = requests.get(geo_url)
+        response.raise_for_status()
+        data = response.json()
+        if "results" in data and data["results"]:
+            return data["results"][0]["latitude"], data["results"][0]["longitude"]
+        else:
+            return None, None
+    except requests.exceptions.RequestException:
+        return None, None
 
-    # Daten aus Transportstation Abfrage verarbeiten
-    for row in transportstation_data:
-        db_transportstation.append({'transportstationID': row.transportstationID, 'transportstation': row.transportstation, 'plz': row.plz})
-    
-    # Daten aus Tempdata Abfrage verarbeiten
-    for row in tempdata_data:
-        db_tempdata.append({'transportstationID': row.transportstationID, 'datetime': row.datetime, 'temperature': row.temperature})
-    
-    unique_ids = sorted(transport_ids)
-    combobox_transid['values'] = unique_ids
-    if unique_ids:
-        combobox_transid.current(0)
+def get_past_temperature(postal_code: str, date: str, time: str): #Funktion: Abfrage der historischen Wetterdaten anhand von PLZ und Datum/Uhrzeit
+    latitude, longitude = get_coordinates(postal_code)
+    if latitude is None or longitude is None:
+        return "Ungültige Postleitzahl oder keine Daten verfügbar."
+    url = (
+        f"https://archive-api.open-meteo.com/v1/archive?"
+        f"latitude={latitude}&longitude={longitude}"
+        f"&start_date={date}&end_date={date}"
+        f"&hourly=temperature_2m&timezone=auto"
+    )
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        timestamps = data["hourly"]["time"]
+        temperatures = data["hourly"]["temperature_2m"]
+        target_time = f"{date}T{time}"
+        if target_time in timestamps:
+            index = timestamps.index(target_time)
+            return f"{temperatures[index]} °C"
+        else:
+            return "Keine Temperaturdaten gefunden."
+    except requests.exceptions.RequestException:
+        return "Fehler: API nicht erreichbar."
+    except KeyError:
+        return "Fehler: Ungültige API-Antwort."
 
-def schließe_db():
-    if cursor:
+# -------------------- Temperaturüberwachung --------------------
+zeitueberschreitung = 0
+def temperatur_ueberwachung(transid):
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    # Transportstationen zur Transport-ID sammeln
+    cursor.execute('SELECT DISTINCT transportstationID FROM coolchain WHERE transportID = ?', (transid,))
+    station_ids = [row[0] for row in cursor.fetchall()]
+
+    if not station_ids:
         cursor.close()
-    if conn:
         conn.close()
-#--------------------Funktion erstellung Startfenster--------------------
-def start_fenster_manuell():
-#----------Variablen global übergeben----------
-    global combobox_transid, label_duration, tree, label_direction, label_datetime, fenster_manuell
-    
-#----------Fenster zur Auswahl manueller Überprüfung erstellen----------
-    fenster_manuell = tk.Toplevel(fenster_hauptmenue)
-    fenster_manuell.title("Manuelle Überprüfung")
-    fenster_manuell.geometry("1000x600")
-    fenster_manuell.configure(bg="#f0f0f0")  # Hintergrundfarbe setzen
-    
-#----------Label für Darstellung der Fehler erstellen----------
-    labelTop = tk.Label(fenster_manuell, text="Transport-ID auswählen:", bg="#f0f0f0", font=("Helvetica", 12))
-    labelTop.grid(column=0, row=0, padx=10, pady=10)
+        return "Keine Temperaturdaten gefunden.", "black"  # Neutralfarbe
 
-    combobox_transid = ttk.Combobox(fenster_manuell, width=25, font=("Helvetica", 12), state="readonly")
-    combobox_transid.grid(column=1, row=0, padx=10, pady=10)
+    # Temperaturdaten abrufen
+    query = 'SELECT temperature FROM tempdata WHERE transportstationID IN ({})'.format(','.join('?' * len(station_ids)))
+    cursor.execute(query, station_ids)
+    temperaturwerte = [row[0] for row in cursor.fetchall()]
 
-    button3 = tk.Button(fenster_manuell, text="ID überprüfen", command=read_transid, bg="#007BFF", fg="white", font=("Helvetica", 12))
-    button3.grid(column=2, row=0, padx=10, pady=10)
+    cursor.close()
+    conn.close()
 
-    label_duration = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
-    label_duration.grid(column=1, row=1, padx=10, pady=10)
-    
-    label_direction = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
-    label_direction.grid(column=1, row=2, padx=10, pady=10)
-    
-    label_datetime = tk.Label(fenster_manuell, text="", bg="#f0f0f0", font=("Helvetica", 12))
-    label_datetime.grid(column=1, row=3, padx=10, pady=10)
+    # Temperaturprüfung
+    abweichungen = [temp for temp in temperaturwerte if temp < 2 or temp > 4]
 
-    tree = ttk.Treeview(fenster_manuell, columns=("companyid", "transportstationid", "direction", "datetime"), show='headings')
-    tree.grid(row=4, column=0, columnspan=3, padx=10, pady=10)
+    if abweichungen:
+        warnung = f"Achtung: Temperaturabweichung festgestellt! Werte: {', '.join(map(str, abweichungen))} Grad."
+        return warnung, "red"
+    else:
+        return "Alle Temperaturen im sicheren Bereich.", "green"
 
-    tree.heading("companyid", text="Unternehmen")
-    tree.heading("transportstationid", text="Transport Station")
-
-    tree.heading("direction", text="Richtung")
-    tree.heading("datetime", text="Uhrzeit")
-
-    scrollbar = ttk.Scrollbar(fenster_manuell, orient="vertical", command=tree.yview)
-    tree.configure(yscrollcommand=scrollbar.set)
-    scrollbar.grid(row=2, column=3, sticky="ns")
-
-#----------Canvas für LKW-Symbol und Freeze-Symbol erstellen----------
-    canvas = tk.Canvas(fenster_manuell, width=600, height=100, bg="#f0f0f0", highlightthickness=0)
-    canvas.grid(row=5, column=0, columnspan=4, pady=20)
-
-#---------- LKW-Symbol und Freeze-Symbol als Text hinzufügen----------
-    truck_icon_text = "⛟"  # Unicode LKW-Symbol
-    freeze_icon_text = "❄️"  # Unicode Freeze-Symbol
-    
-    truck_x = 100
-    freeze_x = 300
-    text_x = freeze_x + 130  # Abstand von 80 Einheiten hinter dem Freeze-Symbol
-    
-#----------Icons und Text im Canvas platzieren----------
-    canvas.create_text(truck_x, 50, text=truck_icon_text, font=("Helvetica", 72), fill="black")
-    canvas.create_text(freeze_x, 50, text=freeze_icon_text, font=("Helvetica", 72), fill="blue")
-    canvas.create_text(text_x, 50, text="Coolchain-ETS", font=("Helvetica", 24), fill="black")
-
-#----------Daten laden, um das Dropdown-Menü zu füllen----------
-    lade_db_daten()
-#--------------------Funktion Lesen der ID--------------------
-def read_transid():
-#----------Die ausgewählte ID aus der Combobox abrufen und Leerzeichen entfernen----------
-    transid = combobox_transid.get().strip()
-    
-#----------Bei erneuter Überprüfen die Labels leeren----------
-    verifikation_string = ""
-    label_duration.config(text=verifikation_string, fg="red")
-    label_direction.config(text=verifikation_string, fg="red")
-    
-#----------Überprüfen, ob die ID Sonderzeichen enthält----------
-    if any(char not in "0123456789" for char in transid):
-        verifikation_string = "Fehlerhafte Transport-ID!"
-        label_duration.config(text=verifikation_string, fg="red")
+# -------------------- Transport-ID Prüfung --------------------
+def start_fenster_manuell(): #Funktion: Öffnen des Fensters zur Überprüfung der Transportdaten
+    def zeiten_auswertung(transid): #:Funktion: Zeiten- und Logiküberprüfung der Transportdaten
         for item in tree.get_children():
             tree.delete(item)
-    else:
-        verifikation_auswertung(transid)
         
-#--------------------Funktion Fehleridetifikation--------------------
-def verifikation_auswertung(transid):
-#----------Variablen global übergeben----------
-    global daten_id, daten_zwischenzeit
-    for item in tree.get_children():
-        tree.delete(item)
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute('SELECT companyID, transportstationID, direction, datetime FROM coolchain WHERE transportID = ?', (transid,))
+        daten = cursor.fetchall()
         
-#----------Erstellte Liste nach eingegebener ID durchsuchen----------
-    daten_id = list(filter(lambda item: item["transportid"] == transid, db_daten))
-    daten_datetime = list(filter(lambda item: item["transportid"] == transid, db_datetime))
-    daten_direction = list(filter(lambda item: item["transportid"] == transid, db_direction))
-    daten_zwischenzeit = list(filter(lambda item: item["transportid"] == transid, db_zwischenzeit))
-    
-#----------Sortieren nach Datum und in Tabelle einfügen----------
-    if daten_id:
-        daten_id.sort(key=lambda x: x["datetime"])  # Sortiere nach Datum
-        for eintrag in daten_id:
-            tree.insert("", "end", values=(eintrag["companyid"], eintrag["transportstationid"], eintrag["direction"], eintrag["datetime"]))    
+        if not daten:
+            messagebox.showerror("Fehler", "Keine Daten für diese Transport-ID gefunden.")
+            return
 
-#----------Überprüfung Transportdauer----------
-        start_time = daten_id[0]["datetime"]
-        end_time = daten_id[-1]["datetime"]
-        duration = end_time - start_time
+        daten.sort(key=lambda x: x[3])  # Sortieren nach Datum & Uhrzeit
+        start, end = daten[0][3], daten[-1][3]
+        dauer = end - start
+        farbe = "red" if dauer > timedelta(hours=48) else "green"
+        label_duration.config(text=f"Transportdauer: {dauer}", fg=farbe)
 
-        tage = duration.days
-        stunden, minuten = divmod(duration.seconds, 3600)
-        minuten //= 60
+        in_out_ok = True
+        uebergabe_ok = True
 
-        if tage == 1:
-            zeit_format = f"{tage} Tag, {stunden} Stunden, {minuten} Minuten"
-        else:
-            zeit_format = f"{tage} Tage, {stunden} Stunden, {minuten} Minuten"
+        last_direction = None
+        last_out_time = None  # Speichert das letzte 'out' für die Übergabeprüfung
 
-        if duration > timedelta(hours=48):
-            verifikation_string = f'Transportdauer überschreitet 48 Stunden: {zeit_format}'
-            label_duration.config(text=verifikation_string, fg="red")
-        else:
-            verifikation_string = f'Transportdauer innerhalb von 48 Stunden: {zeit_format}'
-            label_duration.config(text=verifikation_string, fg="green")
-    else:
-        verifikation_string = 'Transport-ID nicht vorhanden.'
-        label_duration.config(text=verifikation_string, fg="red")
-        
-#----------Prüfung der Direction-Logik----------
-    for index, item in enumerate(daten_direction):
-        value_in_out = item['direction']
-        if index % 2 == 0: # ungerader Index mus IN sein
-            if value_in_out == "'in'":
-                print(value_in_out, "i.o.")
-            else:
-                verifikation_string = 'Fehler: Zweimal nacheinander ausgecheckt!'
-                label_direction.config(text=verifikation_string, fg="red")
-                return False
-        else:
-            if value_in_out == "'out'":  # gerader Index muss OUT sein
-                print(value_in_out, "i.o.")
-            else:
-                verifikation_string = 'Fehler: Zweimal nacheinander eingecheckt!'
-                label_direction.config(text=verifikation_string, fg="red")
-                return False
+        for row in daten:
+            company = company_dict.get(row[0], 'Unbekannt')
+            station_info = station_dict.get(row[1], {'station': 'Unbekannt', 'plz': '0'})
+            temp = get_past_temperature(station_info['plz'], row[3].strftime('%Y-%m-%d'), row[3].strftime('%H:00'))
+            tree.insert('', 'end', values=(company, station_info['station'], row[2], row[3], temp))
 
-#----------Prüfung der OUT Zeit des aktuellen gegen IN Zeit im nächsten Kühlabteil----------
-    for i in range(1, len(daten_zwischenzeit)):
-        previous_entry = daten_zwischenzeit[i - 1]
-        current_entry = daten_zwischenzeit[i]
+            if last_direction is not None:
+                if row[2] == last_direction:
+                    in_out_ok = False  # Fehler, wenn sich 'in' oder 'out' wiederholt
+                    
+            if row[2] == "'out'":
+                last_out_time = row[3]  # Speichere Zeitpunkt von 'out'
 
-#----------Nur Einträge prüfen, die in der Reihenfolge Out -> In gehen----------
-        if previous_entry['direction'] == "'out'" and current_entry['direction'] == "'in'":
+            if row[2] == "'in'" and last_out_time:
+                # Berechne den Zeitunterschied (nur Stunden, Minuten, Sekunden)
+                time_diff = (row[3] - last_out_time).total_seconds()
+
+                if time_diff > 600:  
+                    uebergabe_ok = False
+                    zeitueberschreitung = time_diff
+                    zeit_in_sekunden = int(zeitueberschreitung)
+                    zeit_format = time.strftime('%Hh %Mm %Ss', time.gmtime(zeit_in_sekunden))
+
+                last_out_time = None  # Nach Prüfung zurücksetzen
+
+            last_direction = row[2]
             
-#----------Prüfen, ob die Zeit des Eincheckens nach der Zeit des vorherigen Auscheckens liegt----------
-            if current_entry['datetime'] < previous_entry['datetime']:
-                verifikation_string = 'Fehler: Einchecken vor Auschecken im nächsten Kühlhaus!'
-                label_direction.config(text=verifikation_string, fg="red")
-                return False
-            
-#----------Überprüfen ob am Ende Ausgecheckt wird----------
-    last_line = daten_direction[-1]
-    last_direction = last_line['direction']
-    if last_direction == "'out'":
-        print("Am Ende wurde ausgecheckt")
-    else:
-        verifikation_string = 'Auscheckzeitpunt fehlt am Ende(kein Fehler da Transport noch nicht abgeschlossen!)'
-        label_direction.config(text='Auscheckzeitpunt fehlt am Ende(kein Fehler da Transport noch nicht abgeschlossen!)', fg="green")
-        return False
+        label_direction.config(text='In/Out Prüfung: OK' if in_out_ok else 'Fehler in In/Out', fg='green' if in_out_ok else 'red')
+        label_uebergabe.config(text=f'Übergabezeit: OK' if uebergabe_ok else f'Fehler bei Übergabe, {zeit_format} > 10 Minuten max. zugelassen',fg='green' if uebergabe_ok else 'red')
 
-#----------Überprüfen ob Übergabe < 10min----------
-    daten_datetime.sort(key=lambda x: x['datetime'])
+        temperatur_warnung, farbe = temperatur_ueberwachung(transid)
+        label_temperatur.config(text=temperatur_warnung, fg=farbe)
 
-    verification_failed = False
-    
-    for i in range(1, len(daten_datetime) - 1, 2):
-        out_record = daten_datetime[i] 
-        in_record = daten_datetime[i + 1]
+        cursor.close()
+        conn.close()
 
-        print(f"Comparing OUT: {out_record['datetime']} with IN: {in_record['datetime']}")
 
-        if out_record['direction'] == "'out'" and in_record['direction'] == "'in'":
-            if isinstance(out_record['datetime'], str):
-                out_record['datetime'] = datetime.datetime.strptime(out_record['datetime'], '%Y-%m-%d %H:%M:%S')
-            if isinstance(in_record['datetime'], str):
-                in_record['datetime'] = datetime.datetime.strptime(in_record['datetime'], '%Y-%m-%d %H:%M:%S')
 
-            time_diff = (in_record['datetime'] - out_record['datetime']).total_seconds()
-            print(f"Time difference: {time_diff} seconds")
 
-            if time_diff > 600:
-                verification_failed = True
-                break
-        else:
-            verification_failed = True
-            break
-    
-    if verification_failed:
-        verifikation_string = 'Zeitüberschreitung: Übergabe > 10min'
-        label_direction.config(text=verifikation_string, fg="red")
-    else:
-        verifikation_string = 'Verifikation erfolgreich'
-        label_direction.config(text=verifikation_string, fg="green")
+    fenster = tk.Toplevel(fenster_hauptmenue)
+    fenster.title("Manuelle Überprüfung")
+    fenster.geometry("1920x1080")
+    tk.Label(fenster, text="Transport-ID auswählen:").pack()
+    transid_box = ttk.Combobox(fenster, state='readonly')
+    transid_box.pack()
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT DISTINCT transportID FROM coolchain')
+    transid_box['values'] = [row[0] for row in cursor.fetchall()]
+    cursor.close()
+    conn.close()
+    tk.Button(fenster, text="Prüfen", command=lambda: zeiten_auswertung(transid_box.get())).pack()
+    global label_duration, label_direction, label_uebergabe, label_temperatur
+    label_duration, label_direction, label_uebergabe, label_temperatur = tk.Label(fenster), tk.Label(fenster), tk.Label(fenster), tk.Label(fenster)
+    label_duration.pack(), label_direction.pack(), label_uebergabe.pack(), label_temperatur.pack()
+    global tree
+    tree = ttk.Treeview(fenster, columns=("Firma", "Station", "Richtung", "Zeitpunkt", "Wetter"), show='headings')
+    for col in ("Firma", "Station", "Richtung", "Zeitpunkt", "Wetter"):
+        tree.heading(col, text=col)
+    tree.pack(expand=True, fill='both')
 
-        letzte_station = {}
-    letzte_aktion = {}
-
-    for i in range(1, len(daten_zwischenzeit)):
-        aktueller_eintrag = daten_zwischenzeit[i]
-        transportid = aktueller_eintrag['transportid']
-        station = aktueller_eintrag['transportstationid']
-        aktion = aktueller_eintrag['direction']
-
-#----------Überprüfen, ob im gleichen Kühllager zweimal Eingecheckt wurde----------
-        if transportid in letzte_station:
-            #Wenn die letzte Aktion 'out' war und die aktuelle Aktion 'in' ist,
-            # überprüfen, ob die Station die Gleiche ist
-            if letzte_aktion[transportid] == "'out'" and aktion == "'in'":
-                if letzte_station[transportid] == station:
-                    verifikation_string = f"Aus und wieder Einchecken im gleichen Kühllager"
-                    label_direction.config(text=verifikation_string, fg="red")
-
-#----------Aktualisiere die zuletzt besuchte Station und die letzte Aktion----------
-        letzte_station[transportid] = station
-        letzte_aktion[transportid] = aktion
-        
-    schließe_db()
-    
-#--------------------Startfenster erstellen--------------------
-fenster_hauptmenue = tk.Tk()
-fenster_hauptmenue.geometry("1000x500")
-fenster_hauptmenue.title("Coolchain")
-fenster_hauptmenue.configure(bg="#f0f0f0")  # Hintergrundfarbe setzen
-
-label1 = tk.Label(fenster_hauptmenue, text="Willkommen beim ETS23-Supplychain-Project", bg="#f0f0f0", font=("Helvetica", 14))
-label1.pack(pady=20)
-
-button1 = tk.Button(fenster_hauptmenue, text="Transport-IDs prüfen", command=start_fenster_manuell, bg="#007BFF", fg="white", font=("Helvetica", 12))
-button1.pack(pady=10)
-#--------------------Mainloop--------------------
+#---------------Ausführen des Programms--------------
+# -------------------- Hauptmenü --------------------
+fenster_hauptmenue = tk.Tk() #Öffnen des Hauptfensters
+fenster_hauptmenue.geometry("500x250")
+fenster_hauptmenue.title("Coolchain Überwachung")
+lade_stammdaten()
+tk.Label(fenster_hauptmenue, text="ETS Supplychain-Projekt", font=("Helvetica", 16)).pack(pady=20)
+tk.Button(fenster_hauptmenue, text="Transport-IDs prüfen", command=start_fenster_manuell, bg="#007BFF", fg="white").pack(pady=10)
 fenster_hauptmenue.mainloop()
