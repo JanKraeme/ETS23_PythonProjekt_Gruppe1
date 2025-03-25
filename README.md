@@ -1,5 +1,3 @@
-[![Doku verfügbar](https://img.shields.io/badge/Dokumentation-online-blue)](https://jankraeme.github.io/ETS23_PythonProjekt_Gruppe1/)
-
 # --------------------------------------------------------
 # Programm: Coolchain ETS23 Supply Chain Project 2
 # Version: 2.0 (Erweiterung Coolchain)
@@ -7,6 +5,7 @@
 # Autoren: Jan Krämer, Max Kohnen, Tim Heikebrügge, Dorian Bohlken, Christian Rudolf, Kilian Tenfelde
 # --------------------------------------------------------
  Beschreibung:
+ 
  Das Programm dient zur Überprüfung von Transportdaten einer Kühlkette eines FastFood-Lieferanten.
  Es verwendet eine GUI (Graphical User Interface), um Transport-
  IDs zu laden und verschiedene Transportinformationen wie Dauer 
@@ -34,13 +33,6 @@
  - pythoncryptodome: Zur Entschlüsseluung der Daten aus der Datenbank
  - datetime: Für die Zeit- und Datumsoperationen.
  - requests: Abfrage der historischen Wetterdaten aus dem Internet
-
-Folgende Installationen sind über die Eingabeaufforderung zu machen:
-- pip install pyodbc
-- pip install tk
-- pip install pycryptodome
-- pip install requests
-
 # --------------------------------------------------------
 # Voraussetzungen:
  - Eine funktionierende SQL-Server-Datenbank.
