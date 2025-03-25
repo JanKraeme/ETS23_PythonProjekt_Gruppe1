@@ -1,17 +1,44 @@
-Coolchain ETS23 Supplychain Project
-- Dieses Projekt dient zur manuellen Überprüfung von Transportdaten in einer Coolchain-Umgebung. 
-- Die Anwendung verbindet sich mit einer Datenbank, lädt Transportdaten und ermöglicht die Überprüfung von Transport-IDs hinsichtlich Dauer, 
-  Reihenfolge der Checkpoints und Übergabezeiten zwischen verschiedenen Kühlstationen.
-
-Hauptfunktionen:
-- Transport-ID Auswahl: Über eine Dropdown-Liste kann der Benutzer eine Transport-ID auswählen.
-- Transportdauer-Überprüfung: Die Anwendung überprüft, ob die Transportdauer die erlaubten 48 Stunden überschreitet.
-- Überprüfung der Reihenfolge von Ein- und Auschecken: Sicherstellt, dass die Reihenfolge von Ein- und Auschecken an den Kühlstationen korrekt ist.
-- Zeitüberschreitungen bei Übergaben: Überprüft, ob die Übergabe zwischen Kühlstationen weniger als 10 Minuten dauert.
-
-Verwendung des Verzeichnises:
-- Im Ordner "Coolchain ETS23" befinden sich zwei .exe Dateien.
-- Mit "coolchainsecure.exe" werden die Benutzerzugangsdaten für die hinterlegte Datenbank verschlüsselt.
-- Mit "coolchain.exe" verbindet man sich mit der Datenbank und kann ihre Transport-IDs prüfen.
-- Im Ordner "Code" befindet sich einmal der Hauptcode des Programms, sowie die "crypt.py" die zum Verschlüsseln der Benutzerdaten benötigt wird.
-- Ein Beispielbenutzerkonto ist im Ordner "Code" zum ausführen des Codes in VS-Code.
+#--------------------------------------------------------
+# Programm: Coolchain ETS23 Supply Chain Project 2
+# Version: 2.0 (Erweiterung Coolchain)
+# Erstelldatum: 25.03.2025
+# Autoren: Jan Krämer, Max Kohnen, Tim Heikebrügge, Dorian Bohlken, Christian Rudolf, Kilian Tenfelde
+#--------------------------------------------------------
+# Beschreibung:
+# Das Programm dient zur Überprüfung von Transportdaten einer Kühlkette eines FastFood-Lieferanten.
+# Es verwendet eine GUI (Graphical User Interface), um Transport-
+# IDs zu laden und verschiedene Transportinformationen wie Dauer 
+# und Transportverlauf zu überprüfen und eventuelle Fehler zu erkennen.
+# Die Erweiterung des Programms ermüberprüft zusätzlich zu den alten Funktionen
+# die Wetterlage zu  ungekühlten Zeiten sowie eine ständige Temperaturüberwachung des Transports
+# Die Einträge der Datenbank liegen nun im verschlüsselten Zustand vor und werden erst im Programm selbst entschlüsslt
+#
+# Hauptfunktionen:
+# - Verschlüsselte Datenbankzugriffsdaten entschlüsseln.
+# - Transportdaten aus einer SQL-Datenbank laden.
+# - Überprüfung der Transportlogik ()"in" und "out").
+# - Überprüfung der Gesamttransportzeit von maximal 48 Std.
+# - Überprüfung der Umladungszeit zwischen den Kühltansportern bzw. Kühlhäusern
+# - Überprüfung der Kühltemperartur innerhalb der Kühltransportern und Kühlhäusern
+# - Abgleich der Postleitzahl der Kühlhäuser mit den Wetterdaten vor Ort zur Zeit des Umladens
+# - Manuelle Auswahl und Überprüfung der Transport-IDs über die GUI.
+# - Darstellung der Transportdaten zur ausgewählten TransportID in einer Liste
+# - Anzeige aller überprüften Daten und evtl. Fehlern auf der GUI
+# - Visualisierung der Transportereignisse (z.B. LKW- und Freeze-Symbole).
+#
+# Verwendete Bibliotheken:
+# - pyodbc: Für den Datenbankzugriff (ODBC-Verbindung).
+# - tkinter: Für die GUI-Erstellung.
+# - pythoncryptodome: Zur Entschlüsseluung der Daten aus der Datenbank
+# - datetime: Für die Zeit- und Datumsoperationen.
+# - requests: Abfrage der historischen Wetterdaten aus dem Internet
+#
+# Voraussetzungen:
+# - Eine funktionierende SQL-Server-Datenbank.
+# - ODBC-Treiber 18 für SQL-Server.
+# - Vorhandene Schlüssel- und Anmeldedaten in verschlüsselten Dateien.
+# - Installationen aller verwendeten Bibliotheken (pyodbc, tkinker, pythoncryptodome, requests)
+# - Internetverbindung
+#
+# Verschlüsselungen
+# Es wird eine AES-Verschlüsselung (128Bit) verwendet, um die Anmeldedaten der Datenbank zu schützen
