@@ -47,3 +47,4 @@ Folgende Installationen sind über die Eingabeaufforderung zu machen:
  - Installationen aller verwendeten Bibliotheken (pyodbc, tkinker, pythoncryptodome, requests)
  - Internetverbindung
 # --------------------------------------------------------
+
