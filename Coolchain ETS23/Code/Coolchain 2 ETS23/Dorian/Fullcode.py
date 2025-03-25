@@ -172,8 +172,8 @@ def temperatur_ueberwachung(transid): #Funktion: Überprüfung der Temperaturen 
     return ""
 
 # -------------------- Transport-ID Prüfung --------------------
-def start_fenster_manuell(): 
-    def zeiten_auswertung(transid):
+def start_fenster_manuell(): #Funktion: Öffnen des Fensters zur Überprüfung der Transportdaten
+    def zeiten_auswertung(transid): #:Funktion: Zeiten- und Logiküberprüfung der Transportdaten
         for item in tree.get_children():
             tree.delete(item)
         
@@ -238,7 +238,7 @@ def start_fenster_manuell():
 
     fenster = tk.Toplevel(fenster_hauptmenue)
     fenster.title("Manuelle Überprüfung")
-    fenster.geometry("1000x600")
+    fenster.geometry("1920x1080")
     tk.Label(fenster, text="Transport-ID auswählen:").pack()
     transid_box = ttk.Combobox(fenster, state='readonly')
     transid_box.pack()
@@ -260,7 +260,7 @@ def start_fenster_manuell():
 
 # -------------------- Hauptmenü --------------------
 fenster_hauptmenue = tk.Tk()
-fenster_hauptmenue.geometry("800x400")
+fenster_hauptmenue.geometry("500x250")
 fenster_hauptmenue.title("Coolchain Überwachung")
 lade_stammdaten()
 tk.Label(fenster_hauptmenue, text="ETS Supplychain-Projekt", font=("Helvetica", 16)).pack(pady=20)
