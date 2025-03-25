@@ -33,11 +33,12 @@
  - pythoncryptodome: Zur Entschlüsseluung der Daten aus der Datenbank
  - datetime: Für die Zeit- und Datumsoperationen.
  - requests: Abfrage der historischen Wetterdaten aus dem Internet
+
 Folgende Bibliotheken müssen über die Eingabeaufforderung installiert werden:
-- pip install pyodbc
-- pip install tk
-- pip install pycryptodome
-- pip install requests
+ - pip install pyodbc
+ - pip install tk
+ - pip install pycryptodome
+ - pip install requests
 
 # --------------------------------------------------------
 # Voraussetzungen:
