@@ -1,0 +1,51 @@
+\doxysection{Coolchain2/\+Jan \& Christian/test\+\_\+entschlusseln.py-\/\+Dateireferenz}
+\hypertarget{test__entschlusseln_8py}{}\label{test__entschlusseln_8py}\index{Coolchain2/Jan \& Christian/test\_entschlusseln.py@{Coolchain2/Jan \& Christian/test\_entschlusseln.py}}
+\doxysubsubsection*{Namensbereiche}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespacetest__entschlusseln}{test\+\_\+entschlusseln}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Funktionen}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacetest__entschlusseln_ac0aaeef08139f2bb2bb276a83d73b655}{test\+\_\+entschlusseln.\+decrypt\+\_\+value}} (encrypted\+\_\+data)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variablen}
+\begin{DoxyCompactItemize}
+\item 
+str \mbox{\hyperlink{namespacetest__entschlusseln_af4f1c90e1e9fb1bb0531885df9aaf2b3}{test\+\_\+entschlusseln.\+key}} = b\textquotesingle{}mysecretpassword\textquotesingle{}
+\item 
+str \mbox{\hyperlink{namespacetest__entschlusseln_ae81b025fddf4a5820ccf02591594c695}{test\+\_\+entschlusseln.\+iv}} = b\textquotesingle{}passwort-\/salzen!\textquotesingle{}
+\item 
+str \mbox{\hyperlink{namespacetest__entschlusseln_ad5fc12a422a28c203b057070677a8343}{test\+\_\+entschlusseln.\+server}} = \textquotesingle{}sc-\/db-\/server.\+database.\+windows.\+net\textquotesingle{}
+\item 
+str \mbox{\hyperlink{namespacetest__entschlusseln_a846406cb83e1cfa5ff21fcc9311367e7}{test\+\_\+entschlusseln.\+database}} = \textquotesingle{}supplychain\textquotesingle{}
+\item 
+str \mbox{\hyperlink{namespacetest__entschlusseln_a578ebdcd0b739e95da939209981dc784}{test\+\_\+entschlusseln.\+username}} = \textquotesingle{}rse\textquotesingle{}
+\item 
+str \mbox{\hyperlink{namespacetest__entschlusseln_a19b81aa4a6b379b4ca4638a2db393149}{test\+\_\+entschlusseln.\+password}} = \textquotesingle{}Pa\$\$w0rd\textquotesingle{}
+\item 
+list \mbox{\hyperlink{namespacetest__entschlusseln_a03652ab944cf1445f6c651ee8ed3cd6b}{test\+\_\+entschlusseln.\+coolchain\+\_\+db\+\_\+sort}} = \mbox{[}$\,$\mbox{]}
+\item 
+list \mbox{\hyperlink{namespacetest__entschlusseln_a3913f64feecc4e68f20c733a6369c0b2}{test\+\_\+entschlusseln.\+company\+\_\+db\+\_\+sort}} = \mbox{[}$\,$\mbox{]}
+\item 
+list \mbox{\hyperlink{namespacetest__entschlusseln_ac12cee134dcc73d06cfbf0225fb0b9fd}{test\+\_\+entschlusseln.\+transportstation\+\_\+db\+\_\+sort}} = \mbox{[}$\,$\mbox{]}
+\item 
+list \mbox{\hyperlink{namespacetest__entschlusseln_a73302702b987f63ec596ff3a8ba2e5db}{test\+\_\+entschlusseln.\+data}} = \mbox{[}$\,$\mbox{]}
+\item 
+tuple \mbox{\hyperlink{namespacetest__entschlusseln_a6391973dba0c7fd1ba7eca06651d01d1}{test\+\_\+entschlusseln.\+conn\+\_\+str}}
+\item 
+str \mbox{\hyperlink{namespacetest__entschlusseln_ae066727adf21849ea1d316b2b1ff4050}{test\+\_\+entschlusseln.\+transport\+ID}} = "{}13456783852887496020345"{}
+\item 
+\mbox{\hyperlink{namespacetest__entschlusseln_a76d6f09b645d65da33bb59f2749634c8}{test\+\_\+entschlusseln.\+conn}} = pyodbc.\+connect(\mbox{\hyperlink{namespacetest__entschlusseln_a6391973dba0c7fd1ba7eca06651d01d1}{conn\+\_\+str}})
+\begin{DoxyCompactList}\small\item\em Verbindung herstellen. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{namespacetest__entschlusseln_a9b4c9b65448056d81576023c82cca3bf}{test\+\_\+entschlusseln.\+cursor}} = conn.\+cursor()
+\item 
+str \mbox{\hyperlink{namespacetest__entschlusseln_a545c558c53dbb97278d08a2f451259da}{test\+\_\+entschlusseln.\+select\+\_\+query}} = f\textquotesingle{}SELECT \texorpdfstring{$\ast$}{*} FROM company\+\_\+crypt\textquotesingle{}
+\item 
+\mbox{\hyperlink{namespacetest__entschlusseln_a6f1d2c4119516aaa5de2d5ae0f63526d}{test\+\_\+entschlusseln.\+company\+\_\+db}} = \mbox{\hyperlink{namespacetest__entschlusseln_a9b4c9b65448056d81576023c82cca3bf}{cursor}}
+\item 
+\mbox{\hyperlink{namespacetest__entschlusseln_a496cc40988eb2e10ffd41ac6506f0954}{test\+\_\+entschlusseln.\+cipher}} = AES.\+new(\mbox{\hyperlink{namespacetest__entschlusseln_af4f1c90e1e9fb1bb0531885df9aaf2b3}{key}}, AES.\+MODE\+\_\+\+CBC, \mbox{\hyperlink{namespacetest__entschlusseln_ae81b025fddf4a5820ccf02591594c695}{iv}})
+\item 
+\mbox{\hyperlink{namespacetest__entschlusseln_aa00b15b1a693f86e6191ffba8247ac05}{test\+\_\+entschlusseln.\+transportstation\+\_\+db}} = \mbox{\hyperlink{namespacetest__entschlusseln_a9b4c9b65448056d81576023c82cca3bf}{cursor}}
+\end{DoxyCompactItemize}

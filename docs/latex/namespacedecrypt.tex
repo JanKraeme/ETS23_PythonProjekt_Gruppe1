@@ -1,0 +1,193 @@
+\doxysection{decrypt-\/\+Namensbereichsreferenz}
+\hypertarget{namespacedecrypt}{}\label{namespacedecrypt}\index{decrypt@{decrypt}}
+\doxysubsubsection*{Funktionen}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacedecrypt_a13ab23958aa8ebfa4a5b90638319a8ac}{decrypt\+\_\+value}} (encrypted\+\_\+data)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variablen}
+\begin{DoxyCompactItemize}
+\item 
+str \mbox{\hyperlink{namespacedecrypt_a33ea7e772461e0cbd50431ad202fa8b7}{key}} = b\textquotesingle{}mysecretpassword\textquotesingle{}
+\item 
+str \mbox{\hyperlink{namespacedecrypt_a322ad15a2dc4dc41fbed67da94900737}{iv}} = b\textquotesingle{}passwort-\/salzen!\textquotesingle{}
+\item 
+\mbox{\hyperlink{namespacedecrypt_adbfbfa230fb0f8ba1b76f61c2c9b1f58}{cipher}} = AES.\+new(\mbox{\hyperlink{namespacedecrypt_a33ea7e772461e0cbd50431ad202fa8b7}{key}}, AES.\+MODE\+\_\+\+CBC, \mbox{\hyperlink{namespacedecrypt_a322ad15a2dc4dc41fbed67da94900737}{iv}})
+\item 
+str \mbox{\hyperlink{namespacedecrypt_a4dfd26bdb247cbf8db0aa3817938c9bb}{server}} = \textquotesingle{}sc-\/db-\/server.\+database.\+windows.\+net\textquotesingle{}
+\item 
+str \mbox{\hyperlink{namespacedecrypt_a055c083d2e0d53d61f64feb1aa294540}{database}} = \textquotesingle{}supplychain\textquotesingle{}
+\item 
+str \mbox{\hyperlink{namespacedecrypt_a224cc100c33599951d60c439d15650d5}{username}} = \textquotesingle{}rse\textquotesingle{}
+\item 
+str \mbox{\hyperlink{namespacedecrypt_a9f3c0371decd660813907f2ca4ec4cf0}{password}} = \textquotesingle{}Pa\$\$w0rd\textquotesingle{}
+\item 
+tuple \mbox{\hyperlink{namespacedecrypt_a47e6e9990c28ab6c9d7ea6475dfc25ef}{conn\+\_\+str}}
+\item 
+\mbox{\hyperlink{namespacedecrypt_a0e231f05fd3f02cc594f901ba1e87d9b}{conn}} = pyodbc.\+connect(\mbox{\hyperlink{namespacedecrypt_a47e6e9990c28ab6c9d7ea6475dfc25ef}{conn\+\_\+str}})
+\item 
+\mbox{\hyperlink{namespacedecrypt_aa437e7e290fb097ece74258ab267857d}{cursor}} = conn.\+cursor()
+\item 
+str \mbox{\hyperlink{namespacedecrypt_a5ea4f0802d3fddd32276e4d201b0a1b9}{select\+\_\+query}} = \textquotesingle{}SELECT \mbox{\hyperlink{namespacedecrypt_a2a8ce01c4392bf6e9e0a554f65d166b0}{company\+ID}}, company, strasse, ort, plz FROM company\+\_\+crypt\textquotesingle{}
+\item 
+\mbox{\hyperlink{namespacedecrypt_a2a8ce01c4392bf6e9e0a554f65d166b0}{company\+ID}}
+\item 
+\mbox{\hyperlink{namespacedecrypt_a5fc2b9e17bfa1ef29d7c07697d15156a}{encrypted\+\_\+company}}
+\item 
+\mbox{\hyperlink{namespacedecrypt_a0285766e6d91efe3d1df32d4786bfe73}{encrypted\+\_\+strasse}}
+\item 
+\mbox{\hyperlink{namespacedecrypt_ac8369ac5c34036bb14969dcc045c88f0}{encrypted\+\_\+ort}}
+\item 
+\mbox{\hyperlink{namespacedecrypt_a15641edf9b8b2458f391022834be6242}{encrypted\+\_\+plz}}
+\item 
+\mbox{\hyperlink{namespacedecrypt_a9c0300e2929cf2259ab94c25cc359e9b}{decrypted\+\_\+company}} = \mbox{\hyperlink{namespacedecrypt_a13ab23958aa8ebfa4a5b90638319a8ac}{decrypt\+\_\+value}}(\mbox{\hyperlink{namespacedecrypt_a5fc2b9e17bfa1ef29d7c07697d15156a}{encrypted\+\_\+company}})
+\item 
+\mbox{\hyperlink{namespacedecrypt_a9a29a2b3d6be38e522bdfd953c65649c}{decrypted\+\_\+strasse}} = \mbox{\hyperlink{namespacedecrypt_a13ab23958aa8ebfa4a5b90638319a8ac}{decrypt\+\_\+value}}(\mbox{\hyperlink{namespacedecrypt_a0285766e6d91efe3d1df32d4786bfe73}{encrypted\+\_\+strasse}})
+\item 
+\mbox{\hyperlink{namespacedecrypt_a1be693951c257782270d75a601336a42}{decrypted\+\_\+ort}} = \mbox{\hyperlink{namespacedecrypt_a13ab23958aa8ebfa4a5b90638319a8ac}{decrypt\+\_\+value}}(\mbox{\hyperlink{namespacedecrypt_ac8369ac5c34036bb14969dcc045c88f0}{encrypted\+\_\+ort}})
+\item 
+\mbox{\hyperlink{namespacedecrypt_a18616482d821009601e099f16218f064}{decrypted\+\_\+plz}} = \mbox{\hyperlink{namespacedecrypt_a13ab23958aa8ebfa4a5b90638319a8ac}{decrypt\+\_\+value}}(\mbox{\hyperlink{namespacedecrypt_a15641edf9b8b2458f391022834be6242}{encrypted\+\_\+plz}})
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Dokumentation der Funktionen}
+\Hypertarget{namespacedecrypt_a13ab23958aa8ebfa4a5b90638319a8ac}\index{decrypt@{decrypt}!decrypt\_value@{decrypt\_value}}
+\index{decrypt\_value@{decrypt\_value}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{decrypt\_value()}{decrypt\_value()}}
+{\footnotesize\ttfamily \label{namespacedecrypt_a13ab23958aa8ebfa4a5b90638319a8ac} 
+decrypt.\+decrypt\+\_\+value (\begin{DoxyParamCaption}\item[{}]{encrypted\+\_\+data}{}\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Variablen-\/\+Dokumentation}
+\Hypertarget{namespacedecrypt_adbfbfa230fb0f8ba1b76f61c2c9b1f58}\index{decrypt@{decrypt}!cipher@{cipher}}
+\index{cipher@{cipher}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{cipher}{cipher}}
+{\footnotesize\ttfamily \label{namespacedecrypt_adbfbfa230fb0f8ba1b76f61c2c9b1f58} 
+decrypt.\+cipher = AES.\+new(\mbox{\hyperlink{namespacedecrypt_a33ea7e772461e0cbd50431ad202fa8b7}{key}}, AES.\+MODE\+\_\+\+CBC, \mbox{\hyperlink{namespacedecrypt_a322ad15a2dc4dc41fbed67da94900737}{iv}})}
+
+\Hypertarget{namespacedecrypt_a2a8ce01c4392bf6e9e0a554f65d166b0}\index{decrypt@{decrypt}!companyID@{companyID}}
+\index{companyID@{companyID}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{companyID}{companyID}}
+{\footnotesize\ttfamily \label{namespacedecrypt_a2a8ce01c4392bf6e9e0a554f65d166b0} 
+decrypt.\+company\+ID}
+
+\Hypertarget{namespacedecrypt_a0e231f05fd3f02cc594f901ba1e87d9b}\index{decrypt@{decrypt}!conn@{conn}}
+\index{conn@{conn}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{conn}{conn}}
+{\footnotesize\ttfamily \label{namespacedecrypt_a0e231f05fd3f02cc594f901ba1e87d9b} 
+decrypt.\+conn = pyodbc.\+connect(\mbox{\hyperlink{namespacedecrypt_a47e6e9990c28ab6c9d7ea6475dfc25ef}{conn\+\_\+str}})}
+
+\Hypertarget{namespacedecrypt_a47e6e9990c28ab6c9d7ea6475dfc25ef}\index{decrypt@{decrypt}!conn\_str@{conn\_str}}
+\index{conn\_str@{conn\_str}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{conn\_str}{conn\_str}}
+{\footnotesize\ttfamily \label{namespacedecrypt_a47e6e9990c28ab6c9d7ea6475dfc25ef} 
+tuple decrypt.\+conn\+\_\+str}
+
+{\bfseries Initialisierung\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ =\ \ (\ }
+\DoxyCodeLine{00002\ \ \ \ \ f\textcolor{stringliteral}{'DRIVER=\{\{ODBC\ Driver\ 17\ for\ SQL\ Server\}\};'}\ }
+\DoxyCodeLine{00003\ \ \ \ \ f\textcolor{stringliteral}{'SERVER=\{server\};'}\ }
+\DoxyCodeLine{00004\ \ \ \ \ f\textcolor{stringliteral}{'DATABASE=\{database\};'}\ }
+\DoxyCodeLine{00005\ \ \ \ \ f\textcolor{stringliteral}{'UID=\{username\};'}\ }
+\DoxyCodeLine{00006\ \ \ \ \ f\textcolor{stringliteral}{'PWD=\{password\}'}\ }
+\DoxyCodeLine{00007\ )}
+
+\end{DoxyCode}
+\Hypertarget{namespacedecrypt_aa437e7e290fb097ece74258ab267857d}\index{decrypt@{decrypt}!cursor@{cursor}}
+\index{cursor@{cursor}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{cursor}{cursor}}
+{\footnotesize\ttfamily \label{namespacedecrypt_aa437e7e290fb097ece74258ab267857d} 
+decrypt.\+cursor = conn.\+cursor()}
+
+\Hypertarget{namespacedecrypt_a055c083d2e0d53d61f64feb1aa294540}\index{decrypt@{decrypt}!database@{database}}
+\index{database@{database}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{database}{database}}
+{\footnotesize\ttfamily \label{namespacedecrypt_a055c083d2e0d53d61f64feb1aa294540} 
+str decrypt.\+database = \textquotesingle{}supplychain\textquotesingle{}}
+
+\Hypertarget{namespacedecrypt_a9c0300e2929cf2259ab94c25cc359e9b}\index{decrypt@{decrypt}!decrypted\_company@{decrypted\_company}}
+\index{decrypted\_company@{decrypted\_company}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{decrypted\_company}{decrypted\_company}}
+{\footnotesize\ttfamily \label{namespacedecrypt_a9c0300e2929cf2259ab94c25cc359e9b} 
+decrypt.\+decrypted\+\_\+company = \mbox{\hyperlink{namespacedecrypt_a13ab23958aa8ebfa4a5b90638319a8ac}{decrypt\+\_\+value}}(\mbox{\hyperlink{namespacedecrypt_a5fc2b9e17bfa1ef29d7c07697d15156a}{encrypted\+\_\+company}})}
+
+\Hypertarget{namespacedecrypt_a1be693951c257782270d75a601336a42}\index{decrypt@{decrypt}!decrypted\_ort@{decrypted\_ort}}
+\index{decrypted\_ort@{decrypted\_ort}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{decrypted\_ort}{decrypted\_ort}}
+{\footnotesize\ttfamily \label{namespacedecrypt_a1be693951c257782270d75a601336a42} 
+decrypt.\+decrypted\+\_\+ort = \mbox{\hyperlink{namespacedecrypt_a13ab23958aa8ebfa4a5b90638319a8ac}{decrypt\+\_\+value}}(\mbox{\hyperlink{namespacedecrypt_ac8369ac5c34036bb14969dcc045c88f0}{encrypted\+\_\+ort}})}
+
+\Hypertarget{namespacedecrypt_a18616482d821009601e099f16218f064}\index{decrypt@{decrypt}!decrypted\_plz@{decrypted\_plz}}
+\index{decrypted\_plz@{decrypted\_plz}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{decrypted\_plz}{decrypted\_plz}}
+{\footnotesize\ttfamily \label{namespacedecrypt_a18616482d821009601e099f16218f064} 
+decrypt.\+decrypted\+\_\+plz = \mbox{\hyperlink{namespacedecrypt_a13ab23958aa8ebfa4a5b90638319a8ac}{decrypt\+\_\+value}}(\mbox{\hyperlink{namespacedecrypt_a15641edf9b8b2458f391022834be6242}{encrypted\+\_\+plz}})}
+
+\Hypertarget{namespacedecrypt_a9a29a2b3d6be38e522bdfd953c65649c}\index{decrypt@{decrypt}!decrypted\_strasse@{decrypted\_strasse}}
+\index{decrypted\_strasse@{decrypted\_strasse}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{decrypted\_strasse}{decrypted\_strasse}}
+{\footnotesize\ttfamily \label{namespacedecrypt_a9a29a2b3d6be38e522bdfd953c65649c} 
+decrypt.\+decrypted\+\_\+strasse = \mbox{\hyperlink{namespacedecrypt_a13ab23958aa8ebfa4a5b90638319a8ac}{decrypt\+\_\+value}}(\mbox{\hyperlink{namespacedecrypt_a0285766e6d91efe3d1df32d4786bfe73}{encrypted\+\_\+strasse}})}
+
+\Hypertarget{namespacedecrypt_a5fc2b9e17bfa1ef29d7c07697d15156a}\index{decrypt@{decrypt}!encrypted\_company@{encrypted\_company}}
+\index{encrypted\_company@{encrypted\_company}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{encrypted\_company}{encrypted\_company}}
+{\footnotesize\ttfamily \label{namespacedecrypt_a5fc2b9e17bfa1ef29d7c07697d15156a} 
+decrypt.\+encrypted\+\_\+company}
+
+\Hypertarget{namespacedecrypt_ac8369ac5c34036bb14969dcc045c88f0}\index{decrypt@{decrypt}!encrypted\_ort@{encrypted\_ort}}
+\index{encrypted\_ort@{encrypted\_ort}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{encrypted\_ort}{encrypted\_ort}}
+{\footnotesize\ttfamily \label{namespacedecrypt_ac8369ac5c34036bb14969dcc045c88f0} 
+decrypt.\+encrypted\+\_\+ort}
+
+\Hypertarget{namespacedecrypt_a15641edf9b8b2458f391022834be6242}\index{decrypt@{decrypt}!encrypted\_plz@{encrypted\_plz}}
+\index{encrypted\_plz@{encrypted\_plz}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{encrypted\_plz}{encrypted\_plz}}
+{\footnotesize\ttfamily \label{namespacedecrypt_a15641edf9b8b2458f391022834be6242} 
+decrypt.\+encrypted\+\_\+plz}
+
+\Hypertarget{namespacedecrypt_a0285766e6d91efe3d1df32d4786bfe73}\index{decrypt@{decrypt}!encrypted\_strasse@{encrypted\_strasse}}
+\index{encrypted\_strasse@{encrypted\_strasse}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{encrypted\_strasse}{encrypted\_strasse}}
+{\footnotesize\ttfamily \label{namespacedecrypt_a0285766e6d91efe3d1df32d4786bfe73} 
+decrypt.\+encrypted\+\_\+strasse}
+
+\Hypertarget{namespacedecrypt_a322ad15a2dc4dc41fbed67da94900737}\index{decrypt@{decrypt}!iv@{iv}}
+\index{iv@{iv}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{iv}{iv}}
+{\footnotesize\ttfamily \label{namespacedecrypt_a322ad15a2dc4dc41fbed67da94900737} 
+str decrypt.\+iv = b\textquotesingle{}passwort-\/salzen!\textquotesingle{}}
+
+\Hypertarget{namespacedecrypt_a33ea7e772461e0cbd50431ad202fa8b7}\index{decrypt@{decrypt}!key@{key}}
+\index{key@{key}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{key}{key}}
+{\footnotesize\ttfamily \label{namespacedecrypt_a33ea7e772461e0cbd50431ad202fa8b7} 
+str decrypt.\+key = b\textquotesingle{}mysecretpassword\textquotesingle{}}
+
+\Hypertarget{namespacedecrypt_a9f3c0371decd660813907f2ca4ec4cf0}\index{decrypt@{decrypt}!password@{password}}
+\index{password@{password}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{password}{password}}
+{\footnotesize\ttfamily \label{namespacedecrypt_a9f3c0371decd660813907f2ca4ec4cf0} 
+str decrypt.\+password = \textquotesingle{}Pa\$\$w0rd\textquotesingle{}}
+
+\Hypertarget{namespacedecrypt_a5ea4f0802d3fddd32276e4d201b0a1b9}\index{decrypt@{decrypt}!select\_query@{select\_query}}
+\index{select\_query@{select\_query}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{select\_query}{select\_query}}
+{\footnotesize\ttfamily \label{namespacedecrypt_a5ea4f0802d3fddd32276e4d201b0a1b9} 
+str decrypt.\+select\+\_\+query = \textquotesingle{}SELECT \mbox{\hyperlink{namespacedecrypt_a2a8ce01c4392bf6e9e0a554f65d166b0}{company\+ID}}, company, strasse, ort, plz FROM company\+\_\+crypt\textquotesingle{}}
+
+\Hypertarget{namespacedecrypt_a4dfd26bdb247cbf8db0aa3817938c9bb}\index{decrypt@{decrypt}!server@{server}}
+\index{server@{server}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{server}{server}}
+{\footnotesize\ttfamily \label{namespacedecrypt_a4dfd26bdb247cbf8db0aa3817938c9bb} 
+str decrypt.\+server = \textquotesingle{}sc-\/db-\/server.\+database.\+windows.\+net\textquotesingle{}}
+
+\Hypertarget{namespacedecrypt_a224cc100c33599951d60c439d15650d5}\index{decrypt@{decrypt}!username@{username}}
+\index{username@{username}!decrypt@{decrypt}}
+\doxysubsubsection{\texorpdfstring{username}{username}}
+{\footnotesize\ttfamily \label{namespacedecrypt_a224cc100c33599951d60c439d15650d5} 
+str decrypt.\+username = \textquotesingle{}rse\textquotesingle{}}
+

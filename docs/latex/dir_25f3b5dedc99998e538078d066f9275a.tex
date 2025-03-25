@@ -1,0 +1,58 @@
+\doxysection{Coolchain2-\/\+Verzeichnisreferenz}
+\hypertarget{dir_25f3b5dedc99998e538078d066f9275a}{}\label{dir_25f3b5dedc99998e538078d066f9275a}\index{Coolchain2-\/Verzeichnisreferenz@{Coolchain2-\/Verzeichnisreferenz}}
+\doxysubsubsection*{Verzeichnisse}
+\begin{DoxyCompactItemize}
+\item 
+Verzeichnis \mbox{\hyperlink{dir_26e98234e378a62716ca60b24eb77d04}{Dorian \& Kilian}}
+\item 
+Verzeichnis \mbox{\hyperlink{dir_1ef62bd7a7205ad665f746340a24b07a}{Jan \& Christian}}
+\item 
+Verzeichnis \mbox{\hyperlink{dir_4e9ac5c7a94feed4f1dff2dd2be5bfc1}{Tim \& Max}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Dateien}
+\begin{DoxyCompactItemize}
+\item 
+Datei \mbox{\hyperlink{_code_8py}{Code.\+py}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Ausführliche Beschreibung}
+\hypertarget{README.md_autotoc_md1}{}\doxysubsection{\texorpdfstring{Programm\+: Coolchain ETS23 Supply Chain Project 2}{Programm\+: Coolchain ETS23 Supply Chain Project 2}}\label{README.md_autotoc_md1}
+\hypertarget{README.md_autotoc_md2}{}\doxysubsection{\texorpdfstring{Version\+: 2.\+0 (Erweiterung Coolchain)}{Version\+: 2.\+0 (Erweiterung Coolchain)}}\label{README.md_autotoc_md2}
+\hypertarget{README.md_autotoc_md3}{}\doxysubsection{\texorpdfstring{Erstelldatum\+: 25.\+03.\+2025}{Erstelldatum\+: 25.\+03.\+2025}}\label{README.md_autotoc_md3}
+\hypertarget{README.md_autotoc_md4}{}\doxysubsection{\texorpdfstring{Autoren\+: Jan Krämer, Max Kohnen, Tim Heikebrügge, Dorian Bohlken, Christian Rudolf, Kilian Tenfelde}{Autoren\+: Jan Krämer, Max Kohnen, Tim Heikebrügge, Dorian Bohlken, Christian Rudolf, Kilian Tenfelde}}\label{README.md_autotoc_md4}
+\hypertarget{README.md_autotoc_md5}{}\doxysubsection{\texorpdfstring{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/---}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/---}}\label{README.md_autotoc_md5}
+Beschreibung\+: Das Programm dient zur Überprüfung von Transportdaten einer Kühlkette eines Fast\+Food-\/\+Lieferanten. Es verwendet eine GUI (Graphical User Interface), um Transport-\/ IDs zu laden und verschiedene Transportinformationen wie Dauer und Transportverlauf zu überprüfen und eventuelle Fehler zu erkennen. Die Erweiterung des Programms ermüberprüft zusätzlich zu den alten Funktionen die Wetterlage zu ungekühlten Zeiten sowie eine ständige Temperaturüberwachung des Transports Die Einträge der Datenbank liegen nun im verschlüsselten Zustand vor und werden erst im Programm selbst entschlüsslt \hypertarget{README.md_autotoc_md6}{}\doxysubsection{\texorpdfstring{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/---}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/---}}\label{README.md_autotoc_md6}
+\hypertarget{README.md_autotoc_md7}{}\doxysubsection{\texorpdfstring{Hauptfunktionen\+:}{Hauptfunktionen\+:}}\label{README.md_autotoc_md7}
+
+\begin{DoxyItemize}
+\item Verschlüsselte Datenbankzugriffsdaten entschlüsseln.
+\item Transportdaten aus einer SQL-\/\+Datenbank laden.
+\item Überprüfung der Transportlogik ("{}in"{} und "{}out"{}).
+\item Überprüfung der Gesamttransportzeit von maximal 48 Std.
+\item Überprüfung der Umladungszeit zwischen den Kühltansportern bzw. Kühlhäusern
+\item Überprüfung der Kühltemperartur innerhalb der Kühltransportern und Kühlhäusern
+\item Abgleich der Postleitzahl der Kühlhäuser mit den Wetterdaten vor Ort zur Zeit des Umladens
+\item Manuelle Auswahl und Überprüfung der Transport-\/\+IDs über die GUI.
+\item Darstellung der Transportdaten zur ausgewählten Transport\+ID in einer Liste
+\item Anzeige aller überprüften Daten und evtl. Fehlern auf der GUI
+\item Visualisierung der Transportereignisse (z.\+B. LKW-\/ und Freeze-\/\+Symbole). 
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md8}{}\doxysubsection{\texorpdfstring{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/---}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/---}}\label{README.md_autotoc_md8}
+\hypertarget{README.md_autotoc_md9}{}\doxysubsection{\texorpdfstring{Verwendete Bibliotheken\+:}{Verwendete Bibliotheken\+:}}\label{README.md_autotoc_md9}
+
+\begin{DoxyItemize}
+\item pyodbc\+: Für den Datenbankzugriff (ODBC-\/\+Verbindung).
+\item tkinter\+: Für die GUI-\/\+Erstellung.
+\item pythoncryptodome\+: Zur Entschlüsseluung der Daten aus der Datenbank
+\item datetime\+: Für die Zeit-\/ und Datumsoperationen.
+\item requests\+: Abfrage der historischen Wetterdaten aus dem Internet 
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md10}{}\doxysubsection{\texorpdfstring{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/---}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/---}}\label{README.md_autotoc_md10}
+\hypertarget{README.md_autotoc_md11}{}\doxysubsection{\texorpdfstring{Voraussetzungen\+:}{Voraussetzungen\+:}}\label{README.md_autotoc_md11}
+
+\begin{DoxyItemize}
+\item Eine funktionierende SQL-\/\+Server-\/\+Datenbank.
+\item ODBC-\/\+Treiber 18 für SQL-\/\+Server.
+\item Vorhandene Schlüssel-\/ und Anmeldedaten in verschlüsselten Dateien.
+\item Installationen aller verwendeten Bibliotheken (pyodbc, tkinker, pythoncryptodome, requests)
+\item Internetverbindung 
+\end{DoxyItemize}\hypertarget{README.md_autotoc_md12}{}\doxysubsection{\texorpdfstring{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/---}{-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/---}}\label{README.md_autotoc_md12}
