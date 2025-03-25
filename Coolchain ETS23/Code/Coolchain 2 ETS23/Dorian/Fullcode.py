@@ -1,3 +1,49 @@
+#--------------------------------------------------------
+# Programm: Coolchain ETS23 Supply Chain Project 2
+# Version: 2.0 (Erweiterung Coolchain)
+# Erstelldatum: 25.03.2025
+# Autoren: Jan Krämer, Max Kohnen, Tim Heikebrügge, Dorian Bohlken, Christian Rudolf, Kilian Tenfelde
+#--------------------------------------------------------
+# Beschreibung:
+# Das Programm dient zur Überprüfung von Transportdaten einer Kühlkette eines FastFood-Lieferanten.
+# Es verwendet eine GUI (Graphical User Interface), um Transport-
+# IDs zu laden und verschiedene Transportinformationen wie Dauer 
+# und Transportverlauf zu überprüfen und eventuelle Fehler zu erkennen.
+# Die Erweiterung des Programms ermüberprüft zusätzlich zu den alten Funktionen
+# die Wetterlage zu  ungekühlten Zeiten sowie eine ständige Temperaturüberwachung des Transports
+# Die Einträge der Datenbank liegen nun im verschlüsselten Zustand vor und werden erst im Programm selbst entschlüsslt
+#
+# Hauptfunktionen:
+# - Verschlüsselte Datenbankzugriffsdaten entschlüsseln.
+# - Transportdaten aus einer SQL-Datenbank laden.
+# - Überprüfung der Transportlogik ()"in" und "out").
+# - Überprüfung der Gesamttransportzeit von maximal 48 Std.
+# - Überprüfung der Umladungszeit zwischen den Kühltansportern bzw. Kühlhäusern
+# - Überprüfung der Kühltemperartur innerhalb der Kühltransportern und Kühlhäusern
+# - Abgleich der Postleitzahl der Kühlhäuser mit den Wetterdaten vor Ort zur Zeit des Umladens
+# - Manuelle Auswahl und Überprüfung der Transport-IDs über die GUI.
+# - Darstellung der Transportdaten zur ausgewählten TransportID in einer Liste
+# - Anzeige aller überprüften Daten und evtl. Fehlern auf der GUI
+# - Visualisierung der Transportereignisse (z.B. LKW- und Freeze-Symbole).
+#
+# Verwendete Bibliotheken:
+# - pyodbc: Für den Datenbankzugriff (ODBC-Verbindung).
+# - tkinter: Für die GUI-Erstellung.
+# - pythoncryptodome: Zur Entschlüsseluung der Daten aus der Datenbank
+# - datetime: Für die Zeit- und Datumsoperationen.
+# - requests: Abfrage der historischen Wetterdaten aus dem Internet
+#
+# Voraussetzungen:
+# - Eine funktionierende SQL-Server-Datenbank.
+# - ODBC-Treiber 18 für SQL-Server.
+# - Vorhandene Schlüssel- und Anmeldedaten in verschlüsselten Dateien.
+# - Installationen aller verwendeten Bibliotheken (pyodbc, tkinker, pythoncryptodome, requests)
+# - Internetverbindung
+#
+#Verschlüsselungen
+# Es wird eine AES-Verschlüsselung (128Bit) verwendet, um die Anmeldedaten der Datenbank zu schützen
+#--------------------------------------------------------
+
 # -------------------- Bibliotheken --------------------
 import pyodbc
 import tkinter as tk
@@ -7,7 +53,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 import requests
 
-# -------------------- Initialisierung --------------------
+# -------------------- Initialisierung-Verschlüsselungsdaten --------------------
 key = b'mysecretpassword'
 iv = b'passwort-salzen!'
 
@@ -21,7 +67,7 @@ def decrypt_value(encrypted_data):
     return unpad(cipher.decrypt(encrypted_data), AES.block_size).decode()
 
 # -------------------- Datenbankverbindung --------------------
-def connect_db():
+def connect_db(): # Funktioen: Verbindung zur Datenbank mit verschlüsselten Anmeldedaten
     try:
         conn = pyodbc.connect(
             'DRIVER={ODBC Driver 18 for SQL Server};'
@@ -37,7 +83,7 @@ def connect_db():
         return None
 
 # -------------------- Stammdaten laden --------------------
-def lade_stammdaten():
+def lade_stammdaten(): #Funktion: Herunterladen der verschlüsslten Daten und Entschlüsselung
     global company_dict, station_dict
     conn = connect_db()
     if not conn:
@@ -56,7 +102,7 @@ def lade_stammdaten():
     conn.close()
 
     # -------------------- Wetterdaten mit Open-Meteo --------------------
-def get_coordinates(postal_code: str):
+def get_coordinates(postal_code: str): #Funktion: Generieren der Koordinaten anhand der Postleitzahl
     geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={postal_code}&count=1&language=de&format=json"
     try:
         response = requests.get(geo_url)
@@ -69,7 +115,7 @@ def get_coordinates(postal_code: str):
     except requests.exceptions.RequestException:
         return None, None
 
-def get_past_temperature(postal_code: str, date: str, time: str):
+def get_past_temperature(postal_code: str, date: str, time: str): #Funktion: Abfrage der historischen Wetterdaten anhand von PLZ und Datum/Uhrzeit
     latitude, longitude = get_coordinates(postal_code)
     if latitude is None or longitude is None:
         return "Ungültige Postleitzahl oder keine Daten verfügbar."
@@ -98,7 +144,7 @@ def get_past_temperature(postal_code: str, date: str, time: str):
 
 # -------------------- Temperaturüberwachung --------------------
 zeitueberschreitung = 0
-def temperatur_ueberwachung(transid):
+def temperatur_ueberwachung(transid): #Funktion: Überprüfung der Temperaturen der Kühltransporte/Kühlhäuser
     conn = connect_db()
     cursor = conn.cursor()
     
@@ -126,7 +172,7 @@ def temperatur_ueberwachung(transid):
     return ""
 
 # -------------------- Transport-ID Prüfung --------------------
-def start_fenster_manuell():
+def start_fenster_manuell(): 
     def zeiten_auswertung(transid):
         for item in tree.get_children():
             tree.delete(item)
