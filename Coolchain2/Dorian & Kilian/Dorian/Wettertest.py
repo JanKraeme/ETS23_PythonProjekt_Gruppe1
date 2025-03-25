@@ -55,4 +55,4 @@ def get_past_temperature(postal_code: str, date: str, time: str):
         return "Fehler: Ungültige API-Antwort."
 
 # Beispielaufruf: Temperatur für Postleitzahl 10115 (Berlin), Datum 2022-09-08, Uhrzeit 10:00
-print(get_past_temperature("10115", "2022-09-08", "10:00"))
+print(get_past_temperature("64291", "2022-09-20", "2:00"))

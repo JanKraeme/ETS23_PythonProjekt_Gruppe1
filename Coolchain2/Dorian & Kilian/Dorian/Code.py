@@ -144,7 +144,6 @@ def get_past_temperature(postal_code: str, date: str, time: str): #Funktion: Abf
         return "Fehler: Ungültige API-Antwort."
 
 # -------------------- Temperaturüberwachung --------------------
-zeitueberschreitung = 0
 def temperatur_ueberwachung(transid):
     conn = connect_db()
     cursor = conn.cursor()

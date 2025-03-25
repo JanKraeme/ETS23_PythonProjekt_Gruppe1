@@ -119,7 +119,7 @@ def get_coordinates(postal_code: str): #Funktion: Generieren der Koordinaten anh
 def get_past_temperature(postal_code: str, date: str, time: str): #Funktion: Abfrage der historischen Wetterdaten anhand von PLZ und Datum/Uhrzeit
     latitude, longitude = get_coordinates(postal_code)
     if latitude is None or longitude is None:
-        return "Ungültige Postleitzahl oder keine Daten verfügbar."
+        return "Keine Postleitzahl oder Wetterdaten verfügbar."
     url = (
         f"https://archive-api.open-meteo.com/v1/archive?"
         f"latitude={latitude}&longitude={longitude}"
@@ -169,7 +169,7 @@ def temperatur_ueberwachung(transid):
     abweichungen = [temp for temp in temperaturwerte if temp < 2 or temp > 4]
 
     if abweichungen:
-        warnung = f"Achtung: Temperaturabweichung festgestellt! Werte: {', '.join(map(str, abweichungen))} Grad."
+        warnung = f"Achtung: Temperaturabweichung festgestellt! Werte in Gard Celsius: {', '.join(map(str, abweichungen))}"
         return warnung, "red"
     else:
         return "Alle Temperaturen im sicheren Bereich.", "green"
