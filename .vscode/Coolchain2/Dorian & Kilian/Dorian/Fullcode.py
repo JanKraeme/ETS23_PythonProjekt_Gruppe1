@@ -1,3 +1,49 @@
+#--------------------------------------------------------
+# Programm: Coolchain ETS23 Supply Chain Project 2
+# Version: 2.0 (Erweiterung Coolchain)
+# Erstelldatum: 25.03.2025
+# Autoren: Jan Krämer, Max Kohnen, Tim Heikebrügge, Dorian Bohlken, Christian Rudolf, Kilian Tenfelde
+#--------------------------------------------------------
+# Beschreibung:
+# Das Programm dient zur Überprüfung von Transportdaten einer Kühlkette eines FastFood-Lieferanten.
+# Es verwendet eine GUI (Graphical User Interface), um Transport-
+# IDs zu laden und verschiedene Transportinformationen wie Dauer 
+# und Transportverlauf zu überprüfen und eventuelle Fehler zu erkennen.
+# Die Erweiterung des Programms ermüberprüft zusätzlich zu den alten Funktionen
+# die Wetterlage zu  ungekühlten Zeiten sowie eine ständige Temperaturüberwachung des Transports
+# Die Einträge der Datenbank liegen nun im verschlüsselten Zustand vor und werden erst im Programm selbst entschlüsslt
+#
+# Hauptfunktionen:
+# - Verschlüsselte Datenbankzugriffsdaten entschlüsseln.
+# - Transportdaten aus einer SQL-Datenbank laden.
+# - Überprüfung der Transportlogik ()"in" und "out").
+# - Überprüfung der Gesamttransportzeit von maximal 48 Std.
+# - Überprüfung der Umladungszeit zwischen den Kühltansportern bzw. Kühlhäusern
+# - Überprüfung der Kühltemperartur innerhalb der Kühltransportern und Kühlhäusern
+# - Abgleich der Postleitzahl der Kühlhäuser mit den Wetterdaten vor Ort zur Zeit des Umladens
+# - Manuelle Auswahl und Überprüfung der Transport-IDs über die GUI.
+# - Darstellung der Transportdaten zur ausgewählten TransportID in einer Liste
+# - Anzeige aller überprüften Daten und evtl. Fehlern auf der GUI
+# - Visualisierung der Transportereignisse (z.B. LKW- und Freeze-Symbole).
+#
+# Verwendete Bibliotheken:
+# - pyodbc: Für den Datenbankzugriff (ODBC-Verbindung).
+# - tkinter: Für die GUI-Erstellung.
+# - pythoncryptodome: Zur Entschlüsseluung der Daten aus der Datenbank
+# - datetime: Für die Zeit- und Datumsoperationen.
+# - requests: Abfrage der historischen Wetterdaten aus dem Internet
+#
+# Voraussetzungen:
+# - Eine funktionierende SQL-Server-Datenbank.
+# - ODBC-Treiber 18 für SQL-Server.
+# - Vorhandene Schlüssel- und Anmeldedaten in verschlüsselten Dateien.
+# - Installationen aller verwendeten Bibliotheken (pyodbc, tkinker, pythoncryptodome, requests)
+# - Internetverbindung
+#
+#Verschlüsselungen
+# Es wird eine AES-Verschlüsselung (128Bit) verwendet, um die Anmeldedaten der Datenbank zu schützen
+#--------------------------------------------------------
+
 # -------------------- Bibliotheken --------------------
 import pyodbc
 import tkinter as tk
@@ -6,8 +52,9 @@ from datetime import datetime, timedelta
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 import requests
+import time
 
-# -------------------- Initialisierung --------------------
+# -------------------- Initialisierung-Verschlüsselungsdaten --------------------
 key = b'mysecretpassword'
 iv = b'passwort-salzen!'
 
@@ -21,7 +68,7 @@ def decrypt_value(encrypted_data):
     return unpad(cipher.decrypt(encrypted_data), AES.block_size).decode()
 
 # -------------------- Datenbankverbindung --------------------
-def connect_db():
+def connect_db(): # Funktioen: Verbindung zur Datenbank mit verschlüsselten Anmeldedaten
     try:
         conn = pyodbc.connect(
             'DRIVER={ODBC Driver 18 for SQL Server};'
@@ -37,7 +84,7 @@ def connect_db():
         return None
 
 # -------------------- Stammdaten laden --------------------
-def lade_stammdaten():
+def lade_stammdaten(): #Funktion: Herunterladen der verschlüsslten Daten und Entschlüsselung
     global company_dict, station_dict
     conn = connect_db()
     if not conn:
@@ -56,7 +103,7 @@ def lade_stammdaten():
     conn.close()
 
     # -------------------- Wetterdaten mit Open-Meteo --------------------
-def get_coordinates(postal_code: str):
+def get_coordinates(postal_code: str): #Funktion: Generieren der Koordinaten anhand der Postleitzahl
     geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={postal_code}&count=1&language=de&format=json"
     try:
         response = requests.get(geo_url)
@@ -69,7 +116,7 @@ def get_coordinates(postal_code: str):
     except requests.exceptions.RequestException:
         return None, None
 
-def get_past_temperature(postal_code: str, date: str, time: str):
+def get_past_temperature(postal_code: str, date: str, time: str): #Funktion: Abfrage der historischen Wetterdaten anhand von PLZ und Datum/Uhrzeit
     latitude, longitude = get_coordinates(postal_code)
     if latitude is None or longitude is None:
         return "Ungültige Postleitzahl oder keine Daten verfügbar."
@@ -97,7 +144,7 @@ def get_past_temperature(postal_code: str, date: str, time: str):
         return "Fehler: Ungültige API-Antwort."
 
 # -------------------- Temperaturüberwachung --------------------
-def temperatur_ueberwachung(transid):
+def temperatur_ueberwachung(transid): #Funktion: Überprüfung der Temperaturen der Kühltransporte/Kühlhäuser
     conn = connect_db()
     cursor = conn.cursor()
     
@@ -121,12 +168,14 @@ def temperatur_ueberwachung(transid):
     # Überprüfung der Temperaturgrenzen
     for temp in temperaturwerte:
         if temp < 2 or temp > 4:
-            return "Achtung: Temperaturabweichung während des Transports festgestellt!"
+            return f"Achtung: Temperaturabweichung während des Transports festgestellt! {temp} Grad Temperatur muss zwischen 2 und 4 Grad liegen."
+        else:
+            return "Temperaturen wurden eingehalten."
     return ""
 
 # -------------------- Transport-ID Prüfung --------------------
-def start_fenster_manuell():
-    def zeiten_auswertung(transid):
+def start_fenster_manuell(): #Funktion: Öffnen des Fensters zur Überprüfung der Transportdaten
+    def zeiten_auswertung(transid): #:Funktion: Zeiten- und Logiküberprüfung der Transportdaten
         for item in tree.get_children():
             tree.delete(item)
         
@@ -150,7 +199,6 @@ def start_fenster_manuell():
 
         last_direction = None
         last_out_time = None  # Speichert das letzte 'out' für die Übergabeprüfung
-        zeitueberschreitung = None
 
         for row in daten:
             company = company_dict.get(row[0], 'Unbekannt')
@@ -170,18 +218,20 @@ def start_fenster_manuell():
                 time_diff = (row[3] - last_out_time).total_seconds()
 
                 if time_diff > 600:  
-                    #messagebox.showwarning("Warnung", f"Übergabe > 10min ({time_diff:.0f} Sekunden). Wetter: {temp}")
                     uebergabe_ok = False
+                    zeitueberschreitung = time_diff
+                    zeit_in_sekunden = int(zeitueberschreitung)
+                    zeit_format = time.strftime('%Hh %Mm %Ss', time.gmtime(zeit_in_sekunden))
 
                 last_out_time = None  # Nach Prüfung zurücksetzen
 
             last_direction = row[2]
-
+            
         label_direction.config(text='In/Out Prüfung: OK' if in_out_ok else 'Fehler in In/Out', fg='green' if in_out_ok else 'red')
-        label_uebergabe.config(text=f'Übergabezeit: OK, Wert: {time_diff:.2f}' if uebergabe_ok else f'Fehler bei Übergabe, Wert: {time_diff:.2f}',fg='green' if uebergabe_ok else 'red')
+        label_uebergabe.config(text=f'Übergabezeit: OK' if uebergabe_ok else f'Fehler bei Übergabe, {zeit_format} > 10 Minuten max. zugelassen',fg='green' if uebergabe_ok else 'red')
 
         temperatur_warnung = temperatur_ueberwachung(transid)
-        label_temperatur.config(text=temperatur_warnung, fg='red' if temperatur_warnung else 'black')
+        label_temperatur.config(text=temperatur_warnung, fg='red' if temperatur_warnung else 'green')
 
         cursor.close()
         conn.close()
@@ -191,7 +241,7 @@ def start_fenster_manuell():
 
     fenster = tk.Toplevel(fenster_hauptmenue)
     fenster.title("Manuelle Überprüfung")
-    fenster.geometry("1000x600")
+    fenster.geometry("1920x1080")
     tk.Label(fenster, text="Transport-ID auswählen:").pack()
     transid_box = ttk.Combobox(fenster, state='readonly')
     transid_box.pack()
@@ -211,9 +261,10 @@ def start_fenster_manuell():
         tree.heading(col, text=col)
     tree.pack(expand=True, fill='both')
 
+#---------------Ausführen des Programms--------------
 # -------------------- Hauptmenü --------------------
-fenster_hauptmenue = tk.Tk()
-fenster_hauptmenue.geometry("800x400")
+fenster_hauptmenue = tk.Tk() #Öffnen des Hauptfensters
+fenster_hauptmenue.geometry("500x250")
 fenster_hauptmenue.title("Coolchain Überwachung")
 lade_stammdaten()
 tk.Label(fenster_hauptmenue, text="ETS Supplychain-Projekt", font=("Helvetica", 16)).pack(pady=20)
