@@ -144,7 +144,6 @@ def get_past_temperature(postal_code: str, date: str, time: str): #Funktion: Abf
         return "Fehler: Ungültige API-Antwort."
 
 # -------------------- Temperaturüberwachung --------------------
-zeitueberschreitung = 0
 def temperatur_ueberwachung(transid): #Funktion: Überprüfung der Temperaturen der Kühltransporte/Kühlhäuser
     conn = connect_db()
     cursor = conn.cursor()
@@ -232,7 +231,7 @@ def start_fenster_manuell(): #Funktion: Öffnen des Fensters zur Überprüfung d
         label_uebergabe.config(text=f'Übergabezeit: OK' if uebergabe_ok else f'Fehler bei Übergabe, {zeit_format} > 10 Minuten max. zugelassen',fg='green' if uebergabe_ok else 'red')
 
         temperatur_warnung = temperatur_ueberwachung(transid)
-        label_temperatur.config(text=temperatur_warnung, fg='red' if temperatur_warnung else 'black')
+        label_temperatur.config(text=temperatur_warnung, fg='red' if temperatur_warnung else 'green')
 
         cursor.close()
         conn.close()
