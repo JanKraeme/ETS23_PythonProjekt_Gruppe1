@@ -40,5 +40,3 @@
  - Installationen aller verwendeten Bibliotheken (pyodbc, tkinker, pythoncryptodome, requests)
  - Internetverbindung
 # --------------------------------------------------------
-# Verschlüsselungen
- Es wird eine AES-Verschlüsselung (128Bit) verwendet, um die Anmeldedaten der Datenbank zu schützen
