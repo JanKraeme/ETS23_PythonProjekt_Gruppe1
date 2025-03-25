@@ -258,8 +258,9 @@ def start_fenster_manuell(): #Funktion: Öffnen des Fensters zur Überprüfung d
         tree.heading(col, text=col)
     tree.pack(expand=True, fill='both')
 
+#---------------Ausführen des Programms--------------
 # -------------------- Hauptmenü --------------------
-fenster_hauptmenue = tk.Tk()
+fenster_hauptmenue = tk.Tk() #Öffnen des Hauptfensters
 fenster_hauptmenue.geometry("500x250")
 fenster_hauptmenue.title("Coolchain Überwachung")
 lade_stammdaten()
