@@ -1,0 +1,678 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FRAME GUID="2FB25471-B62C-4EE6-BD43-F819C095ACF8" FORMAT="0000" APP_VERSION="2.2.0.8" CHECKSUM="8716AEC314B48367">
+  <PROJECT FORMAT="1.00" NAME="Coolchain" AUTHOR="Jan" CREATED="2024.10.01 12:03:11" MODIFIED="2025.03.25 10:49:36">
+    <DIAGRAMS>
+      <DIAGRAM FORMAT="1.00" ID="0" NAME="Coolchain Mainloop" CREATED="2024.10.01 12:03:20" MODIFIED="2025.03.25 10:49:36">
+        <LAYOUT FORMAT="1.00" COLUMNS="3" ROWS="16">
+          <ENTRIES>
+            <ENTRY COLUMN="0" ROW="5">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="30">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="0" ROW="6">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="24">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="0" ROW="8">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="40">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="0" ROW="9">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="37">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="0" ANCHOR="True">
+              <FIGURE SUBTYPE="PapTitle" FORMAT="1.00" ID="0">
+                <TEXT><![CDATA[Coolchain Mainloop]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="1">
+              <FIGURE SUBTYPE="PapStart" FORMAT="1.00" ID="1">
+                <TEXT><![CDATA[Start]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="2">
+              <FIGURE SUBTYPE="PapActivity" FORMAT="1.00" ID="20">
+                <TEXT><![CDATA[Hauptfenster öffnen]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="3">
+              <FIGURE SUBTYPE="PapActivity" FORMAT="1.00" ID="53">
+                <TEXT><![CDATA[Stammdaten laden]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="4">
+              <FIGURE SUBTYPE="PapActivity" FORMAT="1.00" ID="55">
+                <TEXT><![CDATA[Datensätze entschlüsseln]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="5">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="28">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="6">
+              <FIGURE SUBTYPE="PapCondition" FORMAT="1.00" ID="22">
+                <TEXT><![CDATA[Schaltfläche Transport-IDs laden gedrückt?]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="7">
+              <FIGURE SUBTYPE="PapActivity" FORMAT="1.00" ID="6">
+                <TEXT><![CDATA[Lade Datensätze in Liste]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="8">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="35">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="9">
+              <FIGURE SUBTYPE="PapCondition" FORMAT="1.00" ID="33">
+                <TEXT><![CDATA[Transport-ID zur Überprüfung ausgewählt und Schaltfläche ID-Überprüfen gedrückt?]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="10">
+              <FIGURE SUBTYPE="PapActivity" FORMAT="1.00" ID="47">
+                <TEXT><![CDATA[Laden der Transportdaten zur ausgewählten ID]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="11">
+              <FIGURE SUBTYPE="PapModule" FORMAT="1.00" ID="10">
+                <TEXT><![CDATA[Überprüfung Transportdauer]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="12">
+              <FIGURE SUBTYPE="PapModule" FORMAT="1.00" ID="51">
+                <TEXT><![CDATA[Historische Wetterdaten abfragen]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="13">
+              <FIGURE SUBTYPE="PapModule" FORMAT="1.00" ID="12">
+                <TEXT><![CDATA[Überprüfung der Direction-Logik]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="14">
+              <FIGURE SUBTYPE="PapModule" FORMAT="1.00" ID="16">
+                <TEXT><![CDATA[Temperaturüberwachung]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="15">
+              <FIGURE SUBTYPE="PapEnd" FORMAT="1.00" ID="2">
+                <TEXT><![CDATA[Ende]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="11">
+              <FIGURE SUBTYPE="PapOutput" FORMAT="1.00" ID="57">
+                <TEXT><![CDATA[{Tranportzeit: [Zeit] } in Rot/Grün]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="12">
+              <FIGURE SUBTYPE="PapOutput" FORMAT="1.00" ID="58">
+                <TEXT><![CDATA[Darstellung Wetterdaten in Tabelle]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="13">
+              <FIGURE SUBTYPE="PapOutput" FORMAT="1.00" ID="59">
+                <TEXT><![CDATA[Anzeige: In/Out-Logik & Übergabezeit in Rot/Grün]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="14">
+              <FIGURE SUBTYPE="PapOutput" FORMAT="1.00" ID="60">
+                <TEXT><![CDATA[Bei Fehler: Achtung: Temperaturabweichung während des Transports festgestellt!]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+          </ENTRIES>
+        </LAYOUT>
+        <CONNECTIONS>
+          <CONNECTION FORMAT="1.00" ID="7" FROM="6" TO="35" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="3" FROM="1" TO="20" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="34" FROM="33" TO="47" TEXT="ja" />
+          <CONNECTION FORMAT="1.00" ID="70" FROM="51" TO="12" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="54" FROM="53" TO="55" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="56" FROM="55" TO="28" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="72" FROM="16" TO="2" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="21" FROM="20" TO="53" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="23" FROM="22" TO="6" TEXT="ja" />
+          <CONNECTION FORMAT="1.00" ID="25" FROM="22" TO="24" TEXT="nein" />
+          <CONNECTION FORMAT="1.00" ID="31" FROM="24" TO="30" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="29" FROM="28" TO="22" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="32" FROM="30" TO="28" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="48" FROM="47" TO="10" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="36" FROM="35" TO="33" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="38" FROM="33" TO="37" TEXT="nein" />
+          <CONNECTION FORMAT="1.00" ID="41" FROM="37" TO="40" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="42" FROM="40" TO="35" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="71" FROM="12" TO="16" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="69" FROM="10" TO="51" TEXT="" />
+        </CONNECTIONS>
+      </DIAGRAM>
+      <DIAGRAM FORMAT="1.00" ID="1" NAME="Überprüfung Transportdauer" CREATED="2024.10.01 12:12:35" MODIFIED="2025.03.25 09:29:16">
+        <LAYOUT FORMAT="1.00" COLUMNS="2" ROWS="6">
+          <ENTRIES>
+            <ENTRY COLUMN="0" ROW="3">
+              <FIGURE SUBTYPE="PapOutput" FORMAT="1.00" ID="25">
+                <TEXT><![CDATA[{Tranportzeit: [Zeit] }in Rot]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="0" ANCHOR="True">
+              <FIGURE SUBTYPE="PapTitle" FORMAT="1.00" ID="0">
+                <TEXT><![CDATA[Überprüfung Transportdauer]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="1">
+              <FIGURE SUBTYPE="PapStart" FORMAT="1.00" ID="1">
+                <TEXT><![CDATA[Start]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="2">
+              <FIGURE SUBTYPE="PapActivity" FORMAT="1.00" ID="23">
+                <TEXT><![CDATA[Letzter Eintrag - Erster Eintrag]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="3">
+              <FIGURE SUBTYPE="PapCondition" FORMAT="1.00" ID="17">
+                <TEXT><![CDATA[Zeit über 48 Stunden?]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="4">
+              <FIGURE SUBTYPE="PapOutput" FORMAT="1.00" ID="27">
+                <TEXT><![CDATA[{Tranportzeit: [Zeit] }in Grün]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="5">
+              <FIGURE SUBTYPE="PapEnd" FORMAT="1.00" ID="2">
+                <TEXT><![CDATA[Ende]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+          </ENTRIES>
+        </LAYOUT>
+        <CONNECTIONS>
+          <CONNECTION FORMAT="1.00" ID="3" FROM="1" TO="23" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="18" FROM="17" TO="27" TEXT="nein" />
+          <CONNECTION FORMAT="1.00" ID="26" FROM="17" TO="25" TEXT="ja" />
+          <CONNECTION FORMAT="1.00" ID="24" FROM="23" TO="17" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="28" FROM="27" TO="2" TEXT="" />
+        </CONNECTIONS>
+      </DIAGRAM>
+      <DIAGRAM FORMAT="1.00" ID="2" NAME="Überprüfung der Direction-Logik" CREATED="2024.10.01 12:29:27" MODIFIED="2025.03.25 10:37:51">
+        <LAYOUT FORMAT="1.00" COLUMNS="4" ROWS="12">
+          <ENTRIES>
+            <ENTRY COLUMN="0" ROW="4">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="141">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="0" ROW="8">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="133">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="5">
+              <FIGURE SUBTYPE="PapActivity" FORMAT="1.00" ID="125">
+                <TEXT><![CDATA[Fehler: In/Out-Logik: True]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="6">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="145">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="8">
+              <FIGURE SUBTYPE="PapActivity" FORMAT="1.00" ID="130">
+                <TEXT><![CDATA[Fehler Übergabezeit: True]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="0" ANCHOR="True">
+              <FIGURE SUBTYPE="PapTitle" FORMAT="1.00" ID="0">
+                <TEXT><![CDATA[Überprüfung der Direction-Logik]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="1">
+              <FIGURE SUBTYPE="PapStart" FORMAT="1.00" ID="1">
+                <TEXT><![CDATA[Start]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="2">
+              <FIGURE SUBTYPE="PapLoopStart" FORMAT="1.00" ID="152" ASSOCIATE="154">
+                <TEXT><![CDATA[FOR-Schleife [Transport-ID]]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="3">
+              <FIGURE SUBTYPE="PapActivity" FORMAT="1.00" ID="113">
+                <TEXT><![CDATA[Fehler In/Out-Logik: False & Fehler Übergabezeit: False]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="4">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="116">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="5">
+              <FIGURE SUBTYPE="PapCondition" FORMAT="1.00" ID="85">
+                <TEXT><![CDATA[Wiederholung "In" oder "Out"?]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="6">
+              <FIGURE SUBTYPE="PapCondition" FORMAT="1.00" ID="88">
+                <TEXT><![CDATA[Letzter Eintrag "Out"? und aktueller Eintrag "In"?]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="7">
+              <FIGURE SUBTYPE="PapActivity" FORMAT="1.00" ID="91">
+                <TEXT><![CDATA[Berechnung Zeitdifferenz]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="8">
+              <FIGURE SUBTYPE="PapCondition" FORMAT="1.00" ID="93">
+                <TEXT><![CDATA[Zeitdifferenz > 10min?]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="9">
+              <FIGURE SUBTYPE="PapLoopEnd" FORMAT="1.00" ID="154" ASSOCIATE="152">
+                <TEXT><![CDATA[ENDE FOR-Schleife]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="10">
+              <FIGURE SUBTYPE="PapOutput" FORMAT="1.00" ID="151">
+                <TEXT><![CDATA[Anzeige: In/Out-Logik & Übergabezeit]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="11">
+              <FIGURE SUBTYPE="PapEnd" FORMAT="1.00" ID="2">
+                <TEXT><![CDATA[Ende]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="3" ROW="4">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="122">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="3" ROW="6">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="102">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="3" ROW="8">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="148">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+          </ENTRIES>
+        </LAYOUT>
+        <CONNECTIONS>
+          <CONNECTION FORMAT="1.00" ID="126" FROM="85" TO="125" TEXT="ja" />
+          <CONNECTION FORMAT="1.00" ID="147" FROM="145" TO="88" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="90" FROM="88" TO="91" TEXT="ja" />
+          <CONNECTION FORMAT="1.00" ID="92" FROM="91" TO="93" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="150" FROM="148" TO="102" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="131" FROM="93" TO="130" TEXT="ja" />
+          <CONNECTION FORMAT="1.00" ID="149" FROM="93" TO="148" TEXT="nein" />
+          <CONNECTION FORMAT="1.00" ID="89" FROM="85" TO="88" TEXT="nein" />
+          <CONNECTION FORMAT="1.00" ID="103" FROM="88" TO="102" TEXT="nein" />
+          <CONNECTION FORMAT="1.00" ID="119" FROM="102" TO="122" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="115" FROM="113" TO="116" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="117" FROM="116" TO="85" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="114" FROM="1" TO="152" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="124" FROM="122" TO="116" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="143" FROM="141" TO="116" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="134" FROM="130" TO="133" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="146" FROM="125" TO="145" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="136" FROM="133" TO="141" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="153" FROM="152" TO="113" TEXT="" />
+        </CONNECTIONS>
+      </DIAGRAM>
+      <DIAGRAM FORMAT="1.00" ID="3" NAME="Prüfung der OUT Zeit des aktuellen gegen IN Zeit im nächsten Kühlabteil" CREATED="2024.10.01 12:43:38" MODIFIED="2024.10.02 14:29:43">
+        <LAYOUT FORMAT="1.00" COLUMNS="3" ROWS="8">
+          <ENTRIES>
+            <ENTRY COLUMN="0" ROW="3">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="26">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="0" ROW="4">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="22">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="0" ROW="6">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="32">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="0" ANCHOR="True">
+              <FIGURE SUBTYPE="PapTitle" FORMAT="1.00" ID="0">
+                <TEXT><![CDATA[Prüfung der OUT Zeit des aktuellen gegen IN Zeit im nächsten Kühlabteil]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="1">
+              <FIGURE SUBTYPE="PapStart" FORMAT="1.00" ID="1">
+                <TEXT><![CDATA[Start]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="2">
+              <FIGURE SUBTYPE="PapActivity" FORMAT="1.00" ID="4">
+                <TEXT><![CDATA[Laden und Konfigurieren der Liste "daten_zwischenzeit"]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="3">
+              <FIGURE SUBTYPE="PapCondition" FORMAT="1.00" ID="35">
+                <TEXT><![CDATA[Zu überprüfender Eintrag vorhanden?]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="4">
+              <FIGURE SUBTYPE="PapCondition" FORMAT="1.00" ID="6">
+                <TEXT><![CDATA[Ist die Reihenfolge der zu überprüfenden Einträge OUT>IN?]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="5">
+              <FIGURE SUBTYPE="PapCondition" FORMAT="1.00" ID="11">
+                <TEXT><![CDATA[ist die Eintrittszeit vor der Austrittszeit?]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="6">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="30">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="7">
+              <FIGURE SUBTYPE="PapEnd" FORMAT="1.00" ID="2">
+                <TEXT><![CDATA[Ende]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="3">
+              <FIGURE SUBTYPE="PapActivity" FORMAT="1.00" ID="36">
+                <TEXT><![CDATA[Schleife beenden]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="5">
+              <FIGURE SUBTYPE="PapOutput" FORMAT="1.00" ID="15">
+                <TEXT><![CDATA['Fehler: Einchecken vor Auschecken im nächsten Kühlhaus!']]></TEXT>
+              </FIGURE>
+            </ENTRY>
+          </ENTRIES>
+        </LAYOUT>
+        <CONNECTIONS>
+          <CONNECTION FORMAT="1.00" ID="3" FROM="1" TO="4" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="25" FROM="35" TO="6" TEXT="ja" />
+          <CONNECTION FORMAT="1.00" ID="7" FROM="6" TO="11" TEXT="ja" />
+          <CONNECTION FORMAT="1.00" ID="23" FROM="6" TO="22" TEXT="nein" />
+          <CONNECTION FORMAT="1.00" ID="34" FROM="32" TO="22" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="29" FROM="11" TO="15" TEXT="nein" />
+          <CONNECTION FORMAT="1.00" ID="33" FROM="30" TO="32" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="12" FROM="11" TO="30" TEXT="ja" />
+          <CONNECTION FORMAT="1.00" ID="5" FROM="4" TO="35" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="27" FROM="22" TO="26" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="28" FROM="26" TO="35" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="37" FROM="35" TO="36" TEXT="nein" />
+        </CONNECTIONS>
+      </DIAGRAM>
+      <DIAGRAM FORMAT="1.00" ID="4" NAME="Überprüfen ob Übergabe &lt; 10min" CREATED="2024.10.01 12:55:49" MODIFIED="2024.10.02 14:29:43">
+        <LAYOUT FORMAT="1.00" COLUMNS="2" ROWS="6">
+          <ENTRIES>
+            <ENTRY COLUMN="0" ROW="3">
+              <FIGURE SUBTYPE="PapOutput" FORMAT="1.00" ID="8">
+                <TEXT><![CDATA['Zeitüberschreitung: Übergabe > 10min']]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="0" ANCHOR="True">
+              <FIGURE SUBTYPE="PapTitle" FORMAT="1.00" ID="0">
+                <TEXT><![CDATA[Überprüfen ob Übergabe < 10min]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="1">
+              <FIGURE SUBTYPE="PapStart" FORMAT="1.00" ID="1">
+                <TEXT><![CDATA[Start]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="2">
+              <FIGURE SUBTYPE="PapActivity" FORMAT="1.00" ID="4">
+                <TEXT><![CDATA[Laden und Konfigurieren der Liste "daten_datetime"]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="3">
+              <FIGURE SUBTYPE="PapCondition" FORMAT="1.00" ID="6">
+                <TEXT><![CDATA[ist die Übergabezeit nach einem OUT und vor einem IN < 10min?]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="4">
+              <FIGURE SUBTYPE="PapOutput" FORMAT="1.00" ID="10">
+                <TEXT><![CDATA['Verifikation erfolgreich']]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="5">
+              <FIGURE SUBTYPE="PapEnd" FORMAT="1.00" ID="2">
+                <TEXT><![CDATA[Ende]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+          </ENTRIES>
+        </LAYOUT>
+        <CONNECTIONS>
+          <CONNECTION FORMAT="1.00" ID="3" FROM="1" TO="4" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="5" FROM="4" TO="6" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="7" FROM="6" TO="10" TEXT="ja" />
+          <CONNECTION FORMAT="1.00" ID="9" FROM="6" TO="8" TEXT="nein" />
+          <CONNECTION FORMAT="1.00" ID="11" FROM="10" TO="2" TEXT="" />
+        </CONNECTIONS>
+      </DIAGRAM>
+      <DIAGRAM FORMAT="1.00" ID="5" NAME="Überprüfen, ob im gleichen Kühllager zweimal Eingecheckt wurde" CREATED="2024.10.01 13:00:59" MODIFIED="2024.10.02 14:29:43">
+        <LAYOUT FORMAT="1.00" COLUMNS="2" ROWS="6">
+          <ENTRIES>
+            <ENTRY COLUMN="0" ROW="2">
+              <FIGURE SUBTYPE="PapOutput" FORMAT="1.00" ID="8">
+                <TEXT><![CDATA[Aus und wieder Einchecken im gleichen Kühllager"]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="0" ANCHOR="True">
+              <FIGURE SUBTYPE="PapTitle" FORMAT="1.00" ID="0">
+                <TEXT><![CDATA[Überprüfen, ob im gleichen Kühllager zweimal Eingecheckt wurde]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="1">
+              <FIGURE SUBTYPE="PapStart" FORMAT="1.00" ID="1">
+                <TEXT><![CDATA[Start]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="2">
+              <FIGURE SUBTYPE="PapCondition" FORMAT="1.00" ID="4">
+                <TEXT><![CDATA[Ist bei einem OUT und einem darauffolgenden IN dasselbe Kühlhaus/Kühltransport?]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="3">
+              <FIGURE SUBTYPE="PapOutput" FORMAT="1.00" ID="11">
+                <TEXT><![CDATA[Verifikation erfolgreich]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="4">
+              <FIGURE SUBTYPE="PapActivity" FORMAT="1.00" ID="9">
+                <TEXT><![CDATA[schließe Datenbank]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="5">
+              <FIGURE SUBTYPE="PapEnd" FORMAT="1.00" ID="2">
+                <TEXT><![CDATA[Ende]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+          </ENTRIES>
+        </LAYOUT>
+        <CONNECTIONS>
+          <CONNECTION FORMAT="1.00" ID="3" FROM="1" TO="4" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="5" FROM="4" TO="11" TEXT="nein" />
+          <CONNECTION FORMAT="1.00" ID="7" FROM="4" TO="8" TEXT="ja" />
+          <CONNECTION FORMAT="1.00" ID="10" FROM="9" TO="2" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="12" FROM="11" TO="9" TEXT="" />
+        </CONNECTIONS>
+      </DIAGRAM>
+      <DIAGRAM FORMAT="1.00" ID="6" NAME="Überprüfung Auschecken am Ende" CREATED="2024.10.02 14:23:38" MODIFIED="2024.10.02 14:23:38">
+        <LAYOUT FORMAT="1.00" COLUMNS="3" ROWS="5">
+          <ENTRIES>
+            <ENTRY COLUMN="0" ROW="3">
+              <FIGURE SUBTYPE="PapOutput" FORMAT="1.00" ID="8">
+                <TEXT><![CDATA[Auscheckzeitpunkt fehlt am Ende]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="0" ANCHOR="True">
+              <FIGURE SUBTYPE="PapTitle" FORMAT="1.00" ID="0">
+                <TEXT><![CDATA[Überprüfung Auschecken am Ende]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="1">
+              <FIGURE SUBTYPE="PapStart" FORMAT="1.00" ID="1">
+                <TEXT><![CDATA[Start]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="2">
+              <FIGURE SUBTYPE="PapActivity" FORMAT="1.00" ID="4">
+                <TEXT><![CDATA[Laden der Liste "daten_direction"]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="3">
+              <FIGURE SUBTYPE="PapCondition" FORMAT="1.00" ID="6">
+                <TEXT><![CDATA[Letzter Eintrag ein OUT?]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="4">
+              <FIGURE SUBTYPE="PapEnd" FORMAT="1.00" ID="2">
+                <TEXT><![CDATA[Ende]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="3">
+              <FIGURE SUBTYPE="PapOutput" FORMAT="1.00" ID="10">
+                <TEXT><![CDATA[in Ordnung]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+          </ENTRIES>
+        </LAYOUT>
+        <CONNECTIONS>
+          <CONNECTION FORMAT="1.00" ID="3" FROM="1" TO="4" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="5" FROM="4" TO="6" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="9" FROM="6" TO="8" TEXT="nein" />
+          <CONNECTION FORMAT="1.00" ID="11" FROM="6" TO="10" TEXT="Ja" />
+        </CONNECTIONS>
+      </DIAGRAM>
+      <DIAGRAM FORMAT="1.00" ID="7" NAME="Historische Wetterdaten abfragen" CREATED="2025.03.25 09:27:27" MODIFIED="2025.03.25 10:40:08">
+        <LAYOUT FORMAT="1.00" COLUMNS="1" ROWS="6">
+          <ENTRIES>
+            <ENTRY COLUMN="0" ROW="0" ANCHOR="True">
+              <FIGURE SUBTYPE="PapTitle" FORMAT="1.00" ID="0">
+                <TEXT><![CDATA[Historische Wetterdaten abfragen]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="0" ROW="1">
+              <FIGURE SUBTYPE="PapStart" FORMAT="1.00" ID="1">
+                <TEXT><![CDATA[Start]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="0" ROW="2">
+              <FIGURE SUBTYPE="PapActivity" FORMAT="1.00" ID="4">
+                <TEXT><![CDATA[Generieren von Koordinaten aus PLZ]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="0" ROW="3">
+              <FIGURE SUBTYPE="PapActivity" FORMAT="1.00" ID="6">
+                <TEXT><![CDATA[Abfrage der historischen Wetterdaten zu Koordinaten]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="0" ROW="4">
+              <FIGURE SUBTYPE="PapOutput" FORMAT="1.00" ID="10">
+                <TEXT><![CDATA[Darstellung Wetterdaten in Tabelle]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="0" ROW="5">
+              <FIGURE SUBTYPE="PapEnd" FORMAT="1.00" ID="2">
+                <TEXT><![CDATA[Ende]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+          </ENTRIES>
+        </LAYOUT>
+        <CONNECTIONS>
+          <CONNECTION FORMAT="1.00" ID="3" FROM="1" TO="4" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="5" FROM="4" TO="6" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="11" FROM="10" TO="2" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="7" FROM="6" TO="10" TEXT="" />
+        </CONNECTIONS>
+      </DIAGRAM>
+      <DIAGRAM FORMAT="1.00" ID="8" NAME="Temperaturüberwachung" CREATED="2025.03.25 10:40:27" MODIFIED="2025.03.25 10:40:27">
+        <LAYOUT FORMAT="1.00" COLUMNS="3" ROWS="9">
+          <ENTRIES>
+            <ENTRY COLUMN="0" ROW="5">
+              <FIGURE SUBTYPE="PapOutput" FORMAT="1.00" ID="8">
+                <TEXT><![CDATA[Achtung: Temperaturabweichung während des Transports festgestellt!]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="0" ANCHOR="True">
+              <FIGURE SUBTYPE="PapTitle" FORMAT="1.00" ID="0">
+                <TEXT><![CDATA[Temperaturüberwachung]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="1">
+              <FIGURE SUBTYPE="PapStart" FORMAT="1.00" ID="1">
+                <TEXT><![CDATA[Start]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="2">
+              <FIGURE SUBTYPE="PapActivity" FORMAT="1.00" ID="4">
+                <TEXT><![CDATA[Daten aus Tempdata laden]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="3">
+              <FIGURE SUBTYPE="PapLoopStart" FORMAT="1.00" ID="10" ASSOCIATE="12">
+                <TEXT><![CDATA[FOR-Schleife]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="4">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="21">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="5">
+              <FIGURE SUBTYPE="PapCondition" FORMAT="1.00" ID="6">
+                <TEXT><![CDATA[2<Temperatur<4?]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="6">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="28">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="7">
+              <FIGURE SUBTYPE="PapLoopEnd" FORMAT="1.00" ID="12" ASSOCIATE="10">
+                <TEXT><![CDATA[Ende FOR-Schleife]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="1" ROW="8">
+              <FIGURE SUBTYPE="PapEnd" FORMAT="1.00" ID="2">
+                <TEXT><![CDATA[Ende]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="4">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="23">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+            <ENTRY COLUMN="2" ROW="6">
+              <FIGURE SUBTYPE="PapConnector" FORMAT="1.00" ID="17">
+                <TEXT><![CDATA[]]></TEXT>
+              </FIGURE>
+            </ENTRY>
+          </ENTRIES>
+        </LAYOUT>
+        <CONNECTIONS>
+          <CONNECTION FORMAT="1.00" ID="3" FROM="1" TO="4" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="5" FROM="4" TO="10" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="14" FROM="12" TO="2" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="9" FROM="6" TO="8" TEXT="nein" />
+          <CONNECTION FORMAT="1.00" ID="31" FROM="17" TO="23" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="11" FROM="10" TO="21" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="30" FROM="6" TO="28" TEXT="ja" />
+          <CONNECTION FORMAT="1.00" ID="25" FROM="23" TO="21" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="22" FROM="21" TO="6" TEXT="" />
+          <CONNECTION FORMAT="1.00" ID="29" FROM="28" TO="17" TEXT="" />
+        </CONNECTIONS>
+      </DIAGRAM>
+    </DIAGRAMS>
+  </PROJECT>
+</FRAME>
