@@ -144,34 +144,35 @@ def get_past_temperature(postal_code: str, date: str, time: str): #Funktion: Abf
         return "Fehler: Ungültige API-Antwort."
 
 # -------------------- Temperaturüberwachung --------------------
-def temperatur_ueberwachung(transid): #Funktion: Überprüfung der Temperaturen der Kühltransporte/Kühlhäuser
+def temperatur_ueberwachung(transid):
     conn = connect_db()
     cursor = conn.cursor()
-    
+
     # Transportstationen zur Transport-ID sammeln
-    cursor.execute('SELECT DISTINCT transportstationID FROM coolchain WHERE transportID = ?', transid)
+    cursor.execute('SELECT DISTINCT transportstationID FROM coolchain WHERE transportID = ?', (transid,))
     station_ids = [row[0] for row in cursor.fetchall()]
-    
+
     if not station_ids:
         cursor.close()
         conn.close()
-        return "Keine Temperaturdaten gefunden."
-    
-    # Temperaturdaten für die gesammelten Stationen abrufen
+        return "Keine Temperaturdaten gefunden.", "black"  # Neutralfarbe
+
+    # Temperaturdaten abrufen
     query = 'SELECT temperature FROM tempdata WHERE transportstationID IN ({})'.format(','.join('?' * len(station_ids)))
     cursor.execute(query, station_ids)
     temperaturwerte = [row[0] for row in cursor.fetchall()]
-    
+
     cursor.close()
     conn.close()
-    
-    # Überprüfung der Temperaturgrenzen
-    for temp in temperaturwerte:
-        if temp < 2 or temp > 4:
-            return f"Achtung: Temperaturabweichung während des Transports festgestellt! {temp} Grad Temperatur muss zwischen 2 und 4 Grad liegen."
-        else:
-            return "Temperaturen wurden eingehalten."
-    return ""
+
+    # Temperaturprüfung
+    abweichungen = [temp for temp in temperaturwerte if temp < 2 or temp > 4]
+
+    if abweichungen:
+        warnung = f"Achtung: Temperaturabweichung festgestellt! Werte: {', '.join(map(str, abweichungen))} Grad."
+        return warnung, "red"
+    else:
+        return "Alle Temperaturen im sicheren Bereich.", "green"
 
 # -------------------- Transport-ID Prüfung --------------------
 def start_fenster_manuell(): #Funktion: Öffnen des Fensters zur Überprüfung der Transportdaten
@@ -230,8 +231,8 @@ def start_fenster_manuell(): #Funktion: Öffnen des Fensters zur Überprüfung d
         label_direction.config(text='In/Out Prüfung: OK' if in_out_ok else 'Fehler in In/Out', fg='green' if in_out_ok else 'red')
         label_uebergabe.config(text=f'Übergabezeit: OK' if uebergabe_ok else f'Fehler bei Übergabe, {zeit_format} > 10 Minuten max. zugelassen',fg='green' if uebergabe_ok else 'red')
 
-        temperatur_warnung = temperatur_ueberwachung(transid)
-        label_temperatur.config(text=temperatur_warnung, fg='red' if temperatur_warnung else 'green')
+        temperatur_warnung, farbe = temperatur_ueberwachung(transid)
+        label_temperatur.config(text=temperatur_warnung, fg=farbe)
 
         cursor.close()
         conn.close()
