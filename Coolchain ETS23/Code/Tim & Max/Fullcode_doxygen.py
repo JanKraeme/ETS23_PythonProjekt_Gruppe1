@@ -52,7 +52,6 @@ from datetime import datetime, timedelta
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 import requests
-import time
 
 # -------------------- Initialisierung-Verschlüsselungsdaten --------------------
 key = b'mysecretpassword'
@@ -169,12 +168,12 @@ def temperatur_ueberwachung(transid): #Funktion: Überprüfung der Temperaturen 
     # Überprüfung der Temperaturgrenzen
     for temp in temperaturwerte:
         if temp < 2 or temp > 4:
-            return f"Achtung: Temperaturabweichung während des Transports festgestellt! {temp} Grad Temperatur muss zwischen 2 und 4 Grad liegen."
+            return "Achtung: Temperaturabweichung während des Transports festgestellt!"
     return ""
 
 # -------------------- Transport-ID Prüfung --------------------
-def start_fenster_manuell(): #Funktion: Öffnen des Fensters zur Überprüfung der Transportdaten
-    def zeiten_auswertung(transid): #:Funktion: Zeiten- und Logiküberprüfung der Transportdaten
+def start_fenster_manuell(): 
+    def zeiten_auswertung(transid):
         for item in tree.get_children():
             tree.delete(item)
         
@@ -217,17 +216,16 @@ def start_fenster_manuell(): #Funktion: Öffnen des Fensters zur Überprüfung d
                 time_diff = (row[3] - last_out_time).total_seconds()
 
                 if time_diff > 600:  
+                    #messagebox.showwarning("Warnung", f"Übergabe > 10min ({time_diff:.0f} Sekunden). Wetter: {temp}")
                     uebergabe_ok = False
                     zeitueberschreitung = time_diff
-                    zeit_in_sekunden = int(zeitueberschreitung)
-                    zeit_format = time.strftime('%Hh %Mm %Ss', time.gmtime(zeit_in_sekunden))
 
                 last_out_time = None  # Nach Prüfung zurücksetzen
 
             last_direction = row[2]
-            
+
         label_direction.config(text='In/Out Prüfung: OK' if in_out_ok else 'Fehler in In/Out', fg='green' if in_out_ok else 'red')
-        label_uebergabe.config(text=f'Übergabezeit: OK' if uebergabe_ok else f'Fehler bei Übergabe, {zeit_format} > 10 Minuten max. zugelassen',fg='green' if uebergabe_ok else 'red')
+        label_uebergabe.config(text=f'Übergabezeit: OK' if uebergabe_ok else f'Fehler bei Übergabe, {zeitueberschreitung:.2f} Sekunden > 600 Sekunden max. zugelassen',fg='green' if uebergabe_ok else 'red')
 
         temperatur_warnung = temperatur_ueberwachung(transid)
         label_temperatur.config(text=temperatur_warnung, fg='red' if temperatur_warnung else 'black')
@@ -240,7 +238,7 @@ def start_fenster_manuell(): #Funktion: Öffnen des Fensters zur Überprüfung d
 
     fenster = tk.Toplevel(fenster_hauptmenue)
     fenster.title("Manuelle Überprüfung")
-    fenster.geometry("1920x1080")
+    fenster.geometry("1000x600")
     tk.Label(fenster, text="Transport-ID auswählen:").pack()
     transid_box = ttk.Combobox(fenster, state='readonly')
     transid_box.pack()
@@ -260,10 +258,9 @@ def start_fenster_manuell(): #Funktion: Öffnen des Fensters zur Überprüfung d
         tree.heading(col, text=col)
     tree.pack(expand=True, fill='both')
 
-#---------------Ausführen des Programms--------------
 # -------------------- Hauptmenü --------------------
-fenster_hauptmenue = tk.Tk() #Öffnen des Hauptfensters
-fenster_hauptmenue.geometry("500x250")
+fenster_hauptmenue = tk.Tk()
+fenster_hauptmenue.geometry("800x400")
 fenster_hauptmenue.title("Coolchain Überwachung")
 lade_stammdaten()
 tk.Label(fenster_hauptmenue, text="ETS Supplychain-Projekt", font=("Helvetica", 16)).pack(pady=20)
