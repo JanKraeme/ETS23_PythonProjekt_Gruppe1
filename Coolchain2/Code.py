@@ -169,7 +169,7 @@ def temperatur_ueberwachung(transid):
     abweichungen = [temp for temp in temperaturwerte if temp < 2 or temp > 4]
 
     if abweichungen:
-        warnung = f"Achtung: Temperaturabweichung festgestellt! Werte in Gard Celsius: {', '.join(map(str, abweichungen))}"
+        warnung = f"Achtung: Temperaturabweichung festgestellt! Werte in Grad Celsius: {', '.join(map(str, abweichungen))}"
         return warnung, "red"
     else:
         return "Alle Temperaturen im sicheren Bereich.", "green"
